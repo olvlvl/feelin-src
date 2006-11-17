@@ -1,0 +1,10 @@
+EXTENS = fc
+
+include $(FEELINTOP)/Sources/_template/makefile.header.aros
+
+objs := $(patsubst %.c,%.o,$(wildcard *.c))
+
+$(DST)/$(NAME).$(EXTENS) : $(objs)
+	$(LINK) $(LOPT) Project.o $(filter-out Project.o, $^) -o $(DST)/$(NAME).$(EXTENS) -lfeelin_aros $(ADDLIBS)
+	@ echo ">> $(DST)/$(NAME).$(EXTENS) Version $(VER).$(REV)"
+

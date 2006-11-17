@@ -1,0 +1,3 @@
+This folder contains the makefile, and their headers, used to 'make'
+classes. There are different flavors. As an example, AOS4 users might want
+to copy 'makefile.os4' to 'makefile'.

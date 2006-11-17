@@ -1,0 +1,54 @@
+## version $VER: FC_Group.catalog 1.0 (2005/12/01)
+## language français
+;
+CAT_P_TITLE
+Groupes
+;
+CAT_P_FTITLE
+Titre
+;
+CAT_P_PAGE
+Page
+;
+CAT_P_NORMAL
+Normal
+;
+CAT_P_VIRTUAL
+Virtuel
+;
+CAT_P_SETTINGS
+Préfs
+;
+CAT_P_POSITION
+Position
+;
+CAT_P_POSITIONS
+Haut Gauche|Haut Droite|Haut Centre|Bas Gauche|Bas Droite|Bas Centre
+;
+CAT_P_PREPARSE
+PreParse
+;
+CAT_P_ALTPREPARSE
+AltPreParse
+;
+CAT_P_FONT
+Police
+;
+CAT_P_FRAMES
+Frames
+;
+CAT_P_BACKS
+Fonds
+;
+CAT_P_SPACING
+Espacement
+;
+CAT_P_HORIZ
+H
+;
+CAT_P_VERTI
+V
+;
+CAT_ER_SETUP
+Sub %s.{%08lx} - ECHEC !!
+;

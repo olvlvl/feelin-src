@@ -1,0 +1,26 @@
+
+#include /Feelin/Sources/_template/makefile.header.os4
+
+SASC_files := stch_l stcd_l stcl_d
+
+objs := $(addsuffix .o,$(SASC_files))
+objsTest := $(addsuffix _test_OS4,$(SASC_files))
+
+all : $(objs)
+	@ Avail >NIL: FLUSH
+	@ ar rc /Feelin/Include/lib/libSASC_func_OS4.a $^
+	@ echo ">> [1mLib SASC_func_OS4 compiled ![0m"
+
+clean :
+	@ delete #?.o
+
+%.o : %.c
+	@ echo ">> [1m$(<F)[0m $(COMP) $(COPT) $<"
+	@ $(COMP) $(COPT) $<
+
+testApp : /feelin/include/lib/libSAS_func_OS4.a $(objsTest)
+
+%_test_OS4 : %_test.c
+	@ echo ">> [1m$@[0m"
+	$(LINK) -L Feelin:Include/lib $(COPT) -o $@ $< -lSASC_func_OS4
+

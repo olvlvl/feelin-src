@@ -1,0 +1,263 @@
+___2006_10_17____________________________________________________________________________________
+
+Class class
+
+	Ajouter les  méthodes  'FindAttribute'  et  'FindMethod',  qui  pourrait
+	servir à la place de F_FindAttribute et F_FindMethod.
+
+
+___2006_10_10____________________________________________________________________________________
+
+FONTSERVER
+
+	FA_Font_Family
+	FA_Font_Size
+	FA_Font_Weight
+	FA_Font_Italic
+
+
+
+
+_________________________________________________________________________________________________
+
+* renomer la classe 'Frame' en 'Border'
+
+
+
+
+
+060720 # IMAGEDISPLAY
+
+	ajouter type "stock()" pour des images définies très souvant e.g.
+	"arrow-left", "button-save"...
+
+		scrollbar-arrow-left: stock(arrow-left);
+
+
+
+
+
+F_Draw()
+
+	dessiner SEULEMENT si FF_Area_Damaged est défini. FF_Draw_Damaged est de
+	toute  façon  défini  pour  poser  le  drapeau,  autant que cela serve à
+	quelque chose :-)
+
+
+
+
+WINDOW
+
+	remplacer tous les FA_Window_GadXxx par des mots clé: "none" ou "bar close depth iconify"
+
+
+
+
+
+
+
+
+
+
+[??] une méthode pour charger/sauver le contenu d'un objet depuis/en propriétés CSS
+
+	Je pourrais  les  mettre  à  FC_Preview,  mais  j'ai  peur  d'avoir  des
+	difficultés  au niveau hiérarchique... sinon à la classe élément... mais
+	ça me plait pas !!
+
+	FM_LoadDeclaration { STRPTR DeclarationName;
+	FM_SaveDeclaration { STRPTR DeclarationName;
+
+
+	>> comment faire pour sauver avec un nom de propriété particulier  ?  On
+	peut  toujours  utiliser  la méthode précédente... le problème c'est que
+	cela ne va pas être compatible longtemps. En fait, je prend l'exemple de
+	back/image. Actuellement, le même object est utilisé pour configurer les
+	deux. Il faudrait donc faire  un  objet  spécial  pour  'background'  et
+	'image'... ce qui n'est pas bien compliqué il suffit de faire une classe
+	PreviewBackground  sous-classe  de  PreviewImage  qui  remplacerait  les
+	méthodes pour exporter en 'background' plutôt qu'en 'image'.
+
+	MON OBJECTIF est de séparer (on revient au depart  finalement)  l'aspect
+	'normal'  et l'aspet 'sélectionné' des objets. S'en compter qu'il faudra
+	bien un jour ajouter les pseudo classes ":focus", ":ghost", ":touch"
+
+
+
+
+
+[??] XMLOBJECT GENERATION
+
+	toujours créer les parents avant les enfants  (risque  pas  d'avoir  des
+	orphelains). utiliser la méthode FM_AddMember.
+
+		>> ainsi, les objets qui peuvent avoir des enfants DOIVENT supporter
+		les  méthodes FM_AddMember et FM_RemMember... pas comme Item ou prop
+		qui ne regardent que l'attribut FA_Child.
+
+
+		>> problème avec certaines classes (Prop, Slider...) qui créent  des
+		enfants par défaut si aucun n'est donné.
+
+
+
+
+PREFERENCEGROUP
+
+	si  "attribute"  est  NULL,   PreferenceGroup   ne   s'occupe   pas   de
+	charger/sauver le contenu de l'adjusteur, c'est à la sous classe de s'en
+	charger.
+
+
+
+
+
+
+
+
+virer HTable toujours utilisée dans XMLDocument
+
+virer custom FAtom de XMLApplication
+
+2006_02_21_______________________________________________________________________________________
+
+	LIST
+
+		Ajouter valeurs spéciale à "SortMode"
+
+	MENUS, TOOLBAR, ...
+
+		Les Menus, ToolBar et autres  joyeusetés  semblables  partagent  une
+		"piscine"  d'items  commune. Ces items n'appartiennent à personne et
+		sont utilisées en tant que références.
+
+			<feelin:commands>
+				<Item id="command.open" Label="Open" Accel="o" Image="&icon.open;" />
+				<Item id="command.save" Label="Save" Accel="s" Image="&icon.save;" />
+				<Item id="command.save-as" Label="Save As..." Accel="a" Image="&icon.save-as;" />
+			</feelin:commands>
+
+		les items utilisées par  la  toolbar  sont  importées/exportées.  le
+		développeur   doit   définir   une   configuration  par  défault  en
+		fournissant l'ID de l'item:
+
+			<TooBar Default="command.open command.save command.save-as" />
+
+		L'ordre est évidement important, du plus on  pourrait  imaginer  une
+		item spéciale "separator" utilisée pour ajouter un séparateur.
+
+
+2006_02_16_______________________________________________________________________________________
+
+	DRAW
+
+		Le message FS_Draw devrait contenir le rectangle dans lequel l'objet
+		doit se dessiner, ainsi que le FRender depuis lequel il doit obtenir
+		ses informations. Ainsi on devrait rendre le dessin indépendant  des
+		coordonées,  et  pouvoir  dessiner  des  objets  directement  sur la
+		fenêtre aussi bien que sur un bitmap en cache.
+
+
+2006_02_06_______________________________________________________________________________________
+
+	XMLDOCUMENT
+
+		Add callback  hooks  to  create  markups,  attributes,  strings  and
+		entities.
+
+
+2005_01_04_______________________________________________________________________________________
+		
+	WINDOW
+	
+		FF_EVENT_WINDOW_CLOSE  ne  devrait  être  envoyé   qu'aux   fenêtres
+		disposant d'un gadget de fermeture (tester avec FA_Window_GadClose).
+
+
+2005_12_21_______________________________________________________________________________________
+
+	THREAD
+	
+		Renomer FM_Thread_Push en FM_Thread_Send  et  ajouter  un  véritable
+		méthode FM_Thread_Push qui ne bloque pas.
+
+
+2005_12_17_______________________________________________________________________________________
+
+	OBJECT
+	
+		FA_ID est a présent une chaîne de caractères. L'attribut n'est  plus
+		virtuel, il est a présent géré par la classe.
+		
+		FM_CollectObjectsForID { FObject Application; };
+		
+			Cette méthode est invoquée par l'application sur ses enfants une
+			fois  ceux-ci crées et liés à l'application. La méthode parcourt
+			l'arbre de l'application à la recherche d'objets dont l'attribut
+			FA_ID a été défini.
+			
+			Si un objet a son attribut FA_ID défini, il s'ajoute aux  objets
+			public    de    l'application    en    invoquant    la   méthode
+			FM_Application_AddObjectID.
+
+		
+		FM_Application_AddObjectID
+		FM_Application_RemObjectID
+	
+		Nouvelle classe FC_Element,  sous-classe  de  FC_Object.  Reduit  la
+		granuliraté    de    FC_Object    en   implémentant   les   méthodes
+		FM_Element_Import  et  FM_Element_Export,  ainsi  que  la   nouvelle
+		gestion des IDs.
+		
+
+
+2005_12_01_______________________________________________________________________________________
+
+	TOOLBAR & MENU
+	
+		Les items des toolbar ainsi que celles des menus sont clonées depuis
+		une  piscine  commune. Ainsi, les mêmes items peuvent être utilisées
+		dans une barre d'outil et dans un menu.
+		
+			<commandset>
+
+				<command id="project-new" oncommand="window new" />
+				<command id="project-open" oncommand="file open" />
+				<command id="project-save" accel-key="S" />
+				<command id="project-save-as" accel-key="A" />
+				<command id="project-quit" oncommand="window close" />
+			
+			</commandset>
+ 
+ 
+2005_11_22_______________________________________________________________________________________
+
+	OBJECT / FM_SetAs
+	
+		Utiliser FF_SetAs_NoNotify au lieu de FF_SetAs_Notify.
+		
+2005_09_15_______________________________________________________________________________________
+
+		Window: si il y a un signe devant la taille  de  FA_Width  ou  FA_Height
+		e.g.  "+30"  ou  "+10%", il faut ajouter quelques pixel à la fenêtre (si
+		c'est possible), le pourcentage est alors relatif  à  la  taille  de  la
+		fenêtre e.g. si elle fait déjà 100 pixels, elle en fera 110 au final.
+ 
+		Pour FF_EVENT_FOCUS, lorsque l'event est trouvé par
+		FM_Window_AddEventHandler, il envoie la méthode FM_WinServer_AddZone à
+		WinServer avec :
+		
+			FEventHandler *Handler; FBox *Coordinates; FObject Window;
+	 
+		Une structure FeelinZone est créee et liée à la structure  in_FamilyNode
+		correspondante.
+		
+		Cela devrait être pareil pour FF_EVENT_HELP.
+		
+		Deux flags dans FeelinZone: FF_EVENT_FOCUS & FF_EVENT_HELP.
+ 
+
+	DISPLAY
+	
+		Add a "Warn" method to flah the  screen  or  play  a  sound.  Remove
+		DisplayBeep() from FC_String.

@@ -1,0 +1,10 @@
+EXTENS = fc
+
+include /Feelin/Sources/_template/makefile.header.os4
+
+allOS4Headers : OS4includeFile.h.gch
+	@ echo "[1mOS4 headers file compiled.[0m"
+
+compileFeelinHeaders : /Feelin/include/proto/feelin.h.gch /Feelin/include/proto/feelinclass.h.gch /Feelin/Include/libraries/feelin.h.gch
+	@ echo "[1mFeelin headers file compiled.[0m"
+

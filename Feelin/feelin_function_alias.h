@@ -1,0 +1,74 @@
+/****************************************************
+ *  Macro to associate function names only for OS4  *
+ *  Varargs functions must NOT be in this list      *
+ ****************************************************/
+
+#define f_pool_create_a             F_CreatePoolA
+#define f_pool_delete               F_DeletePool
+#define f_new                       F_New
+#define f_newp                      F_NewP
+#define f_dispose                   F_Dispose
+#define f_disposep                  F_DisposeP
+#define f_opool                     F_OPool
+#define f_spool                     F_SPool
+#define f_rpool                     F_RPool
+#define f_link_tail                 F_LinkTail
+#define f_link_head                 F_LinkHead
+#define f_link_insert               F_LinkInsert
+#define f_link_move                 F_LinkMove
+#define f_link_remove               F_LinkRemove
+#define f_link_member               F_LinkMember
+#define f_next_node                 F_NextNode
+#define f_str_fmtA                  F_StrFmtA
+#define f_str_newA                  F_StrNewA
+#define f_str_len                   F_StrLen
+#define f_str_cmp                   F_StrCmp
+#define f_logA                      F_LogA
+#define f_alerta                    F_AlertA
+#define f_hash_create               F_HashCreate
+#define f_hash_delete               F_HashDelete
+#define f_hash_find                 F_HashFind
+#define f_hash_add_link             F_HashAddLink
+#define f_hash_rem_link             F_HashRemLink
+#define f_hash_add                  F_HashAdd
+#define f_hash_rem                  F_HashRem
+#define f_dynamic_create            F_DynamicCreate
+#define f_dynamic_delete            F_DynamicDelete
+#define f_dynamic_find_attribute    F_DynamicFindAttribute
+#define f_dynamic_find_method       F_DynamicFindMethod
+#define f_dynamic_find_id           F_DynamicFindID
+#define f_dynamic_resolve_table     F_DynamicResolveTable
+#define f_dynamic_add_auto_table    F_DynamicAddAutoTable
+#define f_dynamic_rem_auto_table    F_DynamicRemAutoTable
+#define f_dynamic_nti               F_DynamicNTI
+#define f_dynamic_fti               F_DynamicFTI
+#define f_dynamic_gtd               F_DynamicGTD
+#define f_find_class                F_FindClass
+#define f_open_class                F_OpenClass
+#define f_close_class               F_CloseClass
+#define f_create_classA             F_CreateClassA
+#define f_doa                       F_DoA
+#define f_classdoa                  F_ClassDoA
+#define f_superdoa                  F_SuperDoA
+#define f_new_obja                  F_NewObjA
+#define f_make_obja                 F_MakeObjA
+#define f_dispose_obj               F_DisposeObj
+#define f_get                       F_Get
+#define f_set                       F_Set
+#define f_draw                      F_Draw
+#define f_layout                    F_Layout
+#define f_erase                     F_Erase
+#define f_shared_find               F_SharedFind
+#define f_shared_create             F_SharedCreate
+#define f_shared_delete             F_SharedDelete
+#define f_shared_open               F_SharedOpen
+#define f_shared_close              F_SharedClose
+#define f_atom_find                 F_AtomFind
+#define f_atom_obtain				F_AtomObtain
+#define f_atom_release              F_AtomRelease
+#define f_atom_create_pool			F_AtomCreatePool
+#define f_atom_delete_pool			F_AtomDeletePool
+#define f_atom_findp				F_AtomFindP
+#define f_atom_obtainp				F_AtomObtainP
+#define f_atom_releasep				F_AtomReleaseP
+

@@ -1,0 +1,279 @@
+#include "Private.h"
+
+//#define DB_COMPUTE_BOX
+
+/************************************************************************************************
+*** Private *************************************************************************************
+************************************************************************************************/
+
+///window_setup
+
+/*
+
+	This function create and setup  the  FRender  object,  then  invoke  the
+	FM_Element_Setup  method  on  the  object  to  finish  the job and gives
+	subclasses the oportunity to setup further thingies.
+
+*/
+
+
+STATIC bool32 window_setup(FClass *Class, FObject Obj)
+{
+	struct LocalObjectData *LOD = F_LOD(Class,Obj);
+
+	#ifdef F_NEW_GLOBALCONNECT
+
+	FObject render = RenderObject,
+
+		FA_Render_Application, _element_application,
+		FA_Render_Window, Obj,
+
+		End;
+
+	#else
+
+	FObject render = RenderObject,
+
+		FA_Render_Application, _area_parent,
+		FA_Render_Window, Obj,
+
+		End;
+
+	#endif
+
+	if (render == NULL)
+	{
+		IFEELIN F_Log(FV_LOG_USER, "Unable to create Render object");
+
+		return FALSE;
+	}
+
+	if (IFEELIN F_Do(Obj, FM_Element_Setup, render) == FALSE)
+	{
+		IFEELIN F_Do(Obj, FM_Element_Cleanup);
+
+		IFEELIN F_DisposeObj(render);
+
+		return FALSE;
+	}
+
+	return TRUE;
+}
+//+
+///window_cleanup
+STATIC void window_cleanup(FClass *Class, FObject Obj)
+{
+	struct LocalObjectData *LOD = F_LOD(Class,Obj);
+
+	FObject render = _area_render;
+
+	if (render != NULL)
+	{
+		IFEELIN F_Do(Obj, FM_Element_Cleanup, render);
+
+		IFEELIN F_DisposeObj(render);
+	}
+}
+//+
+///window_compute_box
+STATIC void window_compute_box(FClass *Class, FObject Obj)
+{
+	struct LocalObjectData *LOD = F_LOD(Class, Obj);
+
+	uint16 scr_w = LOD->screen->Width;
+	uint16 scr_h = LOD->screen->Height;
+
+	#ifdef DB_COMPUTE_BOX
+	IFEELIN F_Log(0,"Dim %4ld,%4ld - Min %4ld,%4ld - Max %4ld,%4ld", _area_w, _area_h, minw, minh, maxw, maxh);
+	#endif
+
+	if ((_area_w == 0) && (_area_h == 0))
+	{
+		if ((FF_WINDOW_BOX_WDEFINED & LOD->user_box_flags) != 0)
+		{
+			if ((FF_WINDOW_BOX_WPERCENT & LOD->user_box_flags) != 0)
+			{
+				_area_w = scr_w * LOD->user_box.w / 100;
+			}
+			else
+			{
+				_area_w = LOD->user_box.w;
+			}
+
+			#ifdef DB_COMPUTE_BOX
+			IFEELIN F_Log(0,"w %ld", _area_w);
+			#endif
+		}
+
+		if ((FF_WINDOW_BOX_HDEFINED & LOD->user_box_flags) != 0)
+		{
+			if ((FF_WINDOW_BOX_HPERCENT & LOD->user_box_flags) != 0)
+			{
+				_area_h = scr_h * LOD->user_box.h / 100;
+			}
+			else
+			{
+				_area_h = LOD->user_box.h;
+			}
+
+			#ifdef DB_COMPUTE_BOX
+			IFEELIN F_Log(0,"h %ld", _area_h);
+			#endif
+		}
+	}
+
+/* width and height limits */
+
+	_area_w = MAX(_area_w, _area_minw);
+	_area_w = MIN(_area_w, _area_maxw);
+	_area_h = MAX(_area_h, _area_minh);
+	_area_h = MIN(_area_h, _area_maxh);
+
+/* x coordinates */
+	
+	if ((FF_WINDOW_BOX_XDEFINED & LOD->user_box_flags) != 0)
+	{
+		if ((FF_WINDOW_BOX_XPERCENT & LOD->user_box_flags) != 0)
+		{
+			_win_x = scr_w * LOD->user_box.x / 100;
+		}
+		else
+		{
+			_area_x = LOD->user_box.x;
+		}
+
+		if ((FF_WINDOW_BOX_RHANDLE & LOD->user_box_flags) != 0)
+		{
+			_win_x = _win_x - _area_w + 1;
+		}
+	}
+
+/*	FIXME-060910
+
+	is (-1) still required ?
+
+*/
+
+	else if (_win_x == -1)
+	{
+		_win_x = (scr_w - _area_w) / 2;
+	}
+
+/* y coordinate */
+
+	if ((FF_WINDOW_BOX_YDEFINED & LOD->user_box_flags) != 0)
+	{
+		if ((FF_WINDOW_BOX_YPERCENT & LOD->user_box_flags) != 0)
+		{
+			_win_y = scr_h * LOD->user_box.y / 100;
+		}
+		else
+		{
+			_win_y = LOD->user_box.y;
+		}
+
+		if ((FF_WINDOW_BOX_RHANDLE & LOD->user_box_flags) != 0)
+		{
+			_win_y = _win_y - _area_h + 1;
+		}
+	}
+
+/*	FIXME-060910
+
+	is (-1) still required ?
+
+*/
+
+	else if (_win_y == -1)
+	{
+		_win_y = (scr_h - _area_h) / 2;
+	}
+
+	#ifdef DB_COMPUTE_BOX
+	IFEELIN F_Log(0,"box (%4ld : %4ld, %4ld x %4ld)", _win_x, _win_y, _area_w, _area_h);
+	#endif
+}
+//+
+
+/************************************************************************************************
+*** Methods *************************************************************************************
+************************************************************************************************/
+
+///Window_Open
+
+/*  Cette  Méthode   est   appelée   lorsque   l'application   se   réveille
+(FM_Application_Run   ou   FM_Application_Awake),   lorsque  le  système  de
+préférence a été modifié, ou encore parce que l'attribut FA_Window_Open  est
+devenu TRUE.
+
+La méthode renvoie un pointeur vers la fenêtre qui a été ouverte, ou NULL si
+l'ouverture de la fenêtre est impossible pour une raison quelconque. */
+
+F_METHOD(struct Window *,Window_Open)
+{
+	struct LocalObjectData *LOD = F_LOD(Class,Obj);
+
+/* Check if window is already opened */
+
+	if (LOD->window != NULL)
+	{
+		IINTUITION WindowToFront(LOD->window);
+
+		if ((FF_WINDOW_WIN_ACTIVABLE & LOD->win_flags) != 0)
+		{
+			IINTUITION ActivateWindow(LOD->window);
+		}
+		
+		return LOD->window;
+	}
+
+	if (window_setup(Class, Obj) == FALSE)
+	{
+		return NULL;
+	}
+
+	IFEELIN F_Do(Obj, FM_Area_AskMinMax);
+
+	window_compute_box(Class, Obj);
+
+	if ((_area_w > LOD->screen->Width) ||
+		(_area_h > LOD->screen->Height))
+	{
+		IFEELIN F_Log(FV_LOG_USER, "Window (%ld x %ld) to big for Screen (%ld x %ld)", _area_w, _area_h, LOD->screen->Width, LOD->screen->Height);
+
+		return NULL;
+	}
+
+	IFEELIN F_Do(Obj, FM_Area_Layout);
+	
+//    IFEELIN F_Log(0,"OPEN %ld : %ld, %ld x %ld",LOD->Box.x,LOD->Box.y,LOD->Box.w,LOD->Box.h);
+//    IFEELIN F_Log(0,"winserver addmemeber >> BEGIN");
+
+	if (IFEELIN F_Do(Obj, FM_Area_Show) == FALSE)
+	{
+		IFEELIN F_Do(Obj, FM_Window_Close);
+
+		return NULL;
+	}
+
+	IFEELIN F_Draw(Obj, FF_Draw_Object);
+
+	return LOD->window;
+}
+//+
+///Window_Close
+/*
+
+Cette méthode est appelée par l'application lorsque la  fenêtre  doit  être
+fermée  ce qui se produit lorsque l'application est réduite ou qu'il y a eu
+une modification du système de préférence. Cette méthode est aussi  appelée
+lorsque l'attribut FA_Window_Open a été modifié.
+
+*/
+F_METHOD(void,Window_Close)
+{
+	IFEELIN F_Do(Obj, FM_Area_Hide);
+
+	window_cleanup(Class, Obj);
+}
+//+

@@ -1,0 +1,28 @@
+;
+CAT_P_TITLE (100//)
+Window
+;
+CAT_P_GENERAL (//)
+General
+;
+CAT_P_FILEDIALOG (//)
+File dialog
+;
+CAT_P_FONTDIALOG (//)
+Font dialog
+;
+CAT_P_RENDER (//)
+Complex render
+;
+CAT_P_REFRESH (//)
+Simple refresh
+;
+CAT_P_FRAME (//)
+Frame
+;
+CAT_P_BACK (//)
+Back
+;
+CAT_P_SCHEME (//)
+Scheme
+;

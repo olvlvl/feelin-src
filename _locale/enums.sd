@@ -1,0 +1,17 @@
+##stringtype C
+##shortstrings
+/************************************************************************************************
+   This file was created automatically by `%fv'
+   from "%f0".
+************************************************************************************************/
+
+extern FCatalogEntry FCC_CatalogTable[];
+
+enum    {
+    
+        %i,
+
+        CAT_COUNT_
+        
+        };
+

@@ -1,0 +1,29 @@
+#
+# makefile header to compile Feelin classes
+#
+
+export PLATFORM := OS4
+export SRC  := Feelin:Sources
+export DST  := Feelin:Libs/Feelin
+export COMP := gcc
+#              -include Feelin:Include/OS4Includes.h
+export COPT :=                                       -c -noixemul -Wall -mcrt=clib2 -O2 \
+			-D__USE_BASETYPE__ -DF_USE_PICASSO96 -I. -I/Feelin/Include
+export LINK := gcc 
+export LINK_LIB := gcc -nostartfiles
+#              -include Feelin:Include/OS4Includes.h
+export LOPT :=                                       -L Feelin:Include/lib -noixemul -mcrt=clib2
+export CATS := Catalogs/Français/Feelin
+
+%.o : %.c
+	@ echo ">>[1m$(<F)[0m $(COMP) $(COPT) $<"
+	@ $(COMP) $(COPT) $<
+
+%.gch : %
+	@ echo ">>[2mPrecompiled header [1m$(<F)[0m $(COMP) $(COPT) $<"
+	@ $(COMP) $(COPT) $<
+
+/feelin/include/lib/libSAS_func_OS4.a :
+#	Why do i have to specify the make command path ?????
+	@ SDK:C/make --no-print-directory --directory=/Feelin/sources/_support --file=makefile.os4.gcc $(ACTION)
+

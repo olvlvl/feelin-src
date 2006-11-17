@@ -1,0 +1,27 @@
+#
+#  Use this makefile to create feelin.library
+#
+
+include /Feelin/Sources/_template/makefile.header.os4
+
+LIBS = -ldebug -lSASC_func_OS4
+
+OBJECTS = feelin.o lib_Link.o lib_Memory.o lib_Hash.o lib_Dynamic.o lib_DynamicAuto.o \
+	lib_OOS.o lib_Shared.o lib_More.o lib_Atoms.o fc_Class.o fc_Object.o
+
+all	: /feelin/include/lib/libSAS_func_OS4.a $(OBJECTS)
+	@ echo ">>[1mLinking feelin.library[0m"
+	@ $(COMP) $(OBJECTS) $(LOPT) -nostartfiles -o Feelin:libs/feelin.library $(LIBS)
+	@ Avail >NIL: FLUSH
+
+%.o : %.c Private.h
+	@ echo ">>[1mCompiling $<[0m"
+	@ $(COMP) $(COPT) $@ $<
+
+.POLY : clean
+
+clean :
+	list
+	delete #?.o
+
+

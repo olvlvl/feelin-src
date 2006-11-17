@@ -1,0 +1,14 @@
+EXTENS = fc
+
+include Feelin:Sources/_template/makefile.header.68k.gcc
+
+objsC := $(patsubst %.c,%.o,  $(wildcard *.c))
+#objsH := $(addsuffix .gch,$(wildcard *.h))
+
+all : $(objsC) $(LINKED_LIBS)
+	@ $(LINK_LIB) $(LOPT) Project.o $(filter-out Project.o, $(objsC)) -o $(DST)/$(NAME).$(EXTENS) -lm -lgcc -lfeelin
+	@ echo ">>" [1m$(DST)/$(NAME).$(EXTENS)[0m Version [1m$(VER).$(REV)[0m
+
+clean :
+	@ delete #?.(o|gch)
+

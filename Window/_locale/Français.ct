@@ -1,0 +1,30 @@
+## version $VER: FC_Window.catalog 1.0 (2005/12/01)
+## language français
+;
+CAT_P_TITLE
+Fenêtre
+;
+CAT_P_GENERAL
+Général
+;
+CAT_P_FILEDIALOG
+Fichiers
+;
+CAT_P_FONTDIALOG
+Polices
+;
+CAT_P_RENDER
+Rendu complexe
+;
+CAT_P_REFRESH
+Rafraich. simple
+;
+CAT_P_FRAME
+Frame
+;
+CAT_P_BACK
+Fond
+;
+CAT_P_SCHEME
+Palette
+;
