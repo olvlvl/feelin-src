@@ -52,32 +52,6 @@ extern struct ClassUserData *CUD;
 #endif
 
 /************************************************************************************************
-*** Attributes & Methods ************************************************************************
-************************************************************************************************/
-
-enum    {
-
-		#ifndef F_NEW_PERSISTENT
-
-		FM_Dataspace_Add,
-		FM_Dataspace_Find,
-		FM_Dataspace_Clear,
-		FM_Dataspace_ReadIFF,
-		FM_Dataspace_WriteIFF,
-
-		#endif
-
-		FV_AUTO_READ,
-
-		#ifndef F_NEW_STYLES
-		FM_Preference_Find,
-		FM_Preference_ObtainAssociated,
-		FM_Preference_ReleaseAssociated
-		#endif
-
-		};
-
-/************************************************************************************************
 *** Class ***************************************************************************************
 ************************************************************************************************/
 
@@ -234,6 +208,9 @@ FM_Application_Awake to read new preferences */
 #define _application_isnt_inherited_css			((FF_APPLICATION_INHERITED_CSS & LOD->flags) == 0)
 #define _application_set_inherited_css			LOD->flags |= FF_APPLICATION_INHERITED_CSS
 #define _application_clear_inherited_css		LOD->flags &= ~FF_APPLICATION_INHERITED_CSS
+
+#define F_PUBLICIZE_SIGNAL_HANDLER(handler)		(APTR) (((uint32)(handler)) + sizeof (FNode))
+#define F_PRIVATIZE_SIGNAL_HANDLER(handler)		(APTR) (((uint32)(handler)) - sizeof (FNode))
 
 /************************************************************************************************
 *** Prototypes **********************************************************************************

@@ -5,6 +5,6 @@
 NAME = Item
 VER = 01
 REV = 00
-DATE = 2005/12/23
+DATE = 2006/02/20
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

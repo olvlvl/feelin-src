@@ -202,7 +202,11 @@ F_METHODM(bool32,Deco_Setup,FS_Element_Setup)
 
 				FA_Widget_Chainable, FALSE,
 				
+				#ifdef F_NEW_WIDGET_MODE
+				FA_Widget_Mode, FV_Widget_Mode_Button,
+				#else
 				FA_Widget_Mode, FV_Widget_Mode_Release,
+				#endif
 				// FA_ContextHelp, "Close Window",
 
 				FA_Element_Class, "decorator-flatty-close",
@@ -256,7 +260,11 @@ F_METHODM(bool32,Deco_Setup,FS_Element_Setup)
 			FA_Widget_SetMax, FV_Widget_SetBoth,
 
 			FA_Widget_Chainable, FALSE,
+			#ifdef F_NEW_WIDGET_MODE
+			FA_Widget_Mode, FV_Widget_Mode_Button,
+			#else
 			FA_Widget_Mode, FV_Widget_Mode_Release,
+			#endif
 
 			//FA_ContextHelp, "Alternate Dimensions",
 
@@ -288,7 +296,11 @@ F_METHODM(bool32,Deco_Setup,FS_Element_Setup)
 				FA_Widget_SetMax, FV_Widget_SetBoth,
 
 				FA_Widget_Chainable, FALSE,
+				#ifdef F_NEW_WIDGET_MODE
+				FA_Widget_Mode, FV_Widget_Mode_Button,
+				#else
 				FA_Widget_Mode, FV_Widget_Mode_Release,
+				#endif
 
 				//FA_ContextHelp, "Depth arrange Window",
 

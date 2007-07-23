@@ -35,7 +35,7 @@ F_METHODM(bool32, Window_GlobalConnect, FS_Element_GlobalConnect)
 }
 //+
 ///Window_GlobalDisconnect
-F_METHODM(bool32, Window_GlobalDisconnect, FS_Element_GlobalDisconnect)
+F_METHOD(bool32, Window_GlobalDisconnect)
 {
 	struct LocalObjectData *LOD = F_LOD(Class, Obj);
 
@@ -189,6 +189,7 @@ F_METHODM(bool32,Window_Setup,FS_Element_Setup)
 		}
 		else
 		{
+
 			IFEELIN F_DoA(LOD->root, FM_Element_Cleanup, Msg);
 
 			IFEELIN F_Log(FV_LOG_USER,"Setup of %s{%08lx} failed",_object_classname(LOD->root),LOD->root);

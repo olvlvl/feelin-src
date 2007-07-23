@@ -7,7 +7,7 @@
 #define F_CLASS_NAME                            "Item"
 #define F_CLASS_VERSION                         1
 #define F_CLASS_REVISION                        0
-#define F_CLASS_VERSION_STRING                  "01.00 (2005/12/23)"
+#define F_CLASS_VERSION_STRING                  "01.00 (2006/02/20)"
 
 #include "Private.h"
 

@@ -5,9 +5,9 @@
 */
 
 #define F_CLASS_NAME                            "String"
-#define F_CLASS_VERSION                         6
+#define F_CLASS_VERSION                         7
 #define F_CLASS_REVISION                        0
-#define F_CLASS_VERSION_STRING                  "06.00 (2005/12/11)"
+#define F_CLASS_VERSION_STRING                  "07.00 (2006/06/04)"
 
 #include "Private.h"
 

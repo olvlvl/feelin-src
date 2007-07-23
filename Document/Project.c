@@ -94,31 +94,25 @@ F_QUERY()
  
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD       (Document_Read,         "Read"),
-				F_METHODS_ADD       (Document_Merge,        "Merge"),
-				F_METHODS_ADD       (Document_Resolve,      "Resolve"),
-				#if F_CODE_DEPRECATED
-				F_METHODS_ADD       (Document_FindName,     "FindName"),
-				F_METHODS_ADD       (Document_ObtainName,   "ObtainName"),
-				#endif
-				F_METHODS_ADD       (Document_Log,          "Log"),
-				F_METHODS_ADD       (Document_Clear,        "Clear"),
-				
-				F_METHODS_ADD       (Document_Numerify,     "Numerify"),
-				F_METHODS_ADD       (Document_Stringify,    "Stringify"),
-				F_METHODS_ADD       (Document_CreatePool,   "CreatePool"),
-				
-				F_METHODS_ADD       (Document_Dummy,        "Parse"),
+				F_METHODS_ADD(Document_Read,         "Read"),
+				F_METHODS_ADD(Document_Merge,        "Merge"),
+				F_METHODS_ADD(Document_Resolve,      "Resolve"),
+				F_METHODS_ADD(Document_Log,          "Log"),
+				F_METHODS_ADD(Document_Clear,        "Clear"),
+				F_METHODS_ADD(Document_Numerify,     "Numerify"),
+				F_METHODS_ADD(Document_Stringify,    "Stringify"),
+				F_METHODS_ADD(Document_CreatePool,   "CreatePool"),
+				F_METHODS_ADD(Document_Dummy,        "Parse"),
 
-				F_METHODS_ADD_STATIC(Document_New,           FM_New),
-				F_METHODS_ADD_STATIC(Document_Dispose,       FM_Dispose),
-				F_METHODS_ADD_STATIC(Document_Get,           FM_Get),
-				F_METHODS_ADD_STATIC(Document_Set,           FM_Set),
+				F_METHODS_OVERRIDE_STATIC(Document_New, FM_New),
+				F_METHODS_OVERRIDE_STATIC(Document_Dispose, FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(Document_Get, FM_Get),
+				F_METHODS_OVERRIDE_STATIC(Document_Set, FM_Set),
 				
-				F_METHODS_ADD       (Document_Dummy,        "Add"),
-				F_METHODS_ADD       (Document_Dummy,        "Remove"),
-				F_METHODS_ADD       (Document_Dummy,        "Find"),
-				F_METHODS_ADD       (Document_Dummy,        "Write"),
+				F_METHODS_ADD(Document_Dummy, "Add"),
+				F_METHODS_ADD(Document_Dummy, "Remove"),
+				F_METHODS_ADD(Document_Dummy, "Find"),
+				F_METHODS_ADD(Document_Dummy, "Write"),
 
 				F_ARRAY_END
 			};

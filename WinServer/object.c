@@ -111,11 +111,13 @@ F_METHOD(uint32,WinServer_New)
 	{
 		LOD->Server = Obj;
 
+		LOD->thread_hook.h_Entry = (HOOKFUNC) Thread_Main;
+		LOD->thread_hook.h_Data = LOD;
+
 		LOD->Thread = ThreadObject,
 
-			"FA_Thread_Entry",    Thread_Main,
-			"FA_Thread_Name",     "winserver.thread",
-			"FA_Thread_UserData", LOD,
+			"FA_Thread_Hook", &LOD->thread_hook,
+			"FA_Thread_Name", "winserver.thread",
 
 		End;
 

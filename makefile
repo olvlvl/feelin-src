@@ -2,17 +2,10 @@
 # makefile header to compile Feelin classes
 #
 
-SOURCE = Feelin:Sources/
-TARGET = Feelin:LIBS/Feelin/
 EXTENSION = .fc
-LIBRARY = Feelin:LIBS/feelin.library
 
-all : $(LIBRARY) classes
-
-$(LIBRARY) :
-	@ make --no-print-directory --directory=$(SOURCE)feelin
-
-classes : \
+OBJECTS := \
+	Feelin.library \
 	Application$(EXTENSION) \
 	AppServer$(EXTENSION) \
 	Area$(EXTENSION) \
@@ -35,6 +28,8 @@ classes : \
 	Image$(EXTENSION) \
 	ImageDisplay$(EXTENSION) \
 	Item$(EXTENSION) \
+	List$(EXTENSION) \
+	Listview$(EXTENSION) \
 	Numeric$(EXTENSION) \
 	Page$(EXTENSION) \
 	PDRDocument$(EXTENSION) \
@@ -57,6 +52,15 @@ classes : \
 	XMLDocument$(EXTENSION) \
 	XMLObject$(EXTENSION)
 
+all : $(OBJECTS)
+
+clean : ACTION := clean
+clean : $(OBJECTS)
+
 %$(EXTENSION) : %
-	@ echo " [2m$(TARGET)$<[0m >>"
-	@ make --no-print-directory --directory=$(SOURCE)$<
+	@ echo "[2m$(TARGET)$^[0m >>"
+	@ make --no-print-directory --directory=$^ $(ACTION)
+
+%.library : %
+	@ echo "[2m$(TARGET)$^[0m >>"
+	@ make --no-print-directory --directory=$^ $(ACTION)

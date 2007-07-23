@@ -15,11 +15,7 @@ F_METHOD(uint32,Element_New)
 	while (IFEELIN F_DynamicNTI(&Tags,&item,Class))
 	switch (item.ti_Tag)
 	{
-		#ifdef F_NEW_ELEMENT_ID
-		case FA_Element_ID:
-		#else
-		case FA_ID:
-		#endif
+		case FA_Element_Id:
 		{
 			LOD->id = (STRPTR) item.ti_Data;
 		}
@@ -53,15 +49,7 @@ F_METHOD(uint32,Element_New)
 
 	if (style)
 	{
-		#ifdef F_NEW_STYLES_EXTENDED
-
 		LOD->style = IFEELIN F_StrNew(NULL, "%s", style);
-
-		#else
-
-		element_style_create(Class, Obj, style);
-
-		#endif
 	}
 
 	return F_SUPERDO();
@@ -74,8 +62,6 @@ F_METHOD(uint32,Element_Dispose)
 
 //	  IFEELIN F_Log(0, "parent (0x%08lx) window (0x%08lx) application (0x%08lx)", _element_parent, _element_window, _element_application);
 
-	#ifdef F_NEW_STYLES_EXTENDED
-
 	if (LOD->style)
 	{
 		IFEELIN F_Dispose(LOD->style);
@@ -83,28 +69,7 @@ F_METHOD(uint32,Element_Dispose)
 		LOD->style = NULL;
 	}
 
-	#else
-
-	if (LOD->properties != NULL)
-	{
-		FPreferenceProperty **array;
-
-		for (array = LOD->properties ; *array ; array++)
-		{
-			IFEELIN F_AtomRelease((*array)->Atom);
-			IFEELIN F_Dispose((*array)->Value);
-		}
-
-		IFEELIN F_Dispose(LOD->properties);
-
-		LOD->properties = NULL;
-	}
-
-	#endif
-
-	#ifdef F_NEW_GLOBALCONNECT
-
-	if (_element_parent != NULL)
+	if (_element_parent)
 	{
 //		  IFEELIN F_Log(0, "parent %s{%lx}", _object_classname(_element_parent), _element_parent);
 
@@ -113,10 +78,10 @@ F_METHOD(uint32,Element_Dispose)
 		if (_element_parent)
 		{
 			IFEELIN F_Log(0, "parent %s{%lx} NOT DISCONNECTED !!!", _object_classname(_element_parent), _element_parent);
+
+			_element_parent = NULL;
 		}
 	}
-
-	#endif
 
 	return F_SUPERDO();
 }
@@ -130,15 +95,17 @@ F_METHOD(uint32,Element_Get)
 	while (IFEELIN F_DynamicNTI(&Tags,&item,Class))
 	switch (item.ti_Tag)
 	{
-		#ifdef F_NEW_ELEMENT_ID
-
-		case FA_Element_ID:
+		case FA_Element_Id:
 		{
 			F_STORE(LOD->id);
 		}
 		break;
 
-		#endif
+		case FA_Element_Parent:
+		{
+			F_STORE(_element_parent);
+		}
+		break;
 
 		#ifdef F_NEW_GLOBALCONNECT
 
@@ -157,12 +124,6 @@ F_METHOD(uint32,Element_Get)
 		case FA_Element_Window:
 		{
 			F_STORE(_element_window);
-		}
-		break;
-
-		case FA_Parent:
-		{
-			F_STORE(_element_parent);
 		}
 		break;
 
@@ -243,4 +204,20 @@ F_METHOD(bool32, Element_Disconnect)
 	return TRUE;
 }
 //+
+#ifdef F_NEW_GETELEMENTBYID
+///Element_GetElementById
+F_METHODM(FObject, Element_GetElementById, FS_GetElementById)
+{
+	struct LocalObjectData *LOD = F_LOD(Class, Obj);
+
+	if (IFEELIN F_StrCmp(Msg->Id, LOD->id, ALL) == 0)
+	{
+		return Obj;
+	}
+
+	return NULL;
+}
+//+
+#endif
+
 

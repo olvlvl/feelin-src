@@ -19,16 +19,12 @@ extern struct ClassUserData        *CUD;
 *** Attributes & Methods ************************************************************************
 ************************************************************************************************/
 
-#ifdef F_NEW_STYLES
-
 enum    {
 
 		FV_PROPERTY_SPACING_HORIZONTAL,
 		FV_PROPERTY_SPACING_VERTICAL
 
 		};
-
-#endif
 
 /************************************************************************************************
 *** Class ***************************************************************************************
@@ -88,11 +84,8 @@ struct LocalObjectData
 #define FF_GROUP_RELSIZING      (1 << 2)
 #define FF_GROUP_SAMESIZE       (FF_GROUP_SAMEWIDTH | FF_GROUP_SAMEHEIGHT)
 #define FF_GROUP_COLUMNS        (1 << 3)
-
-#ifdef F_NEW_STYLES
 #define FF_GROUP_USER_HSPACING  (1 << 4)
 #define FF_GROUP_USER_VSPACING  (1 << 5)
-#endif
 
 /* FF_GROUP_COLUMNS is used when the group is in array mode */
 

@@ -49,10 +49,10 @@ F_QUERY()
 			{
 				F_METHODS_ADD(XMLApplication_CreateNotify, "CreateNotify"),
 				F_METHODS_ADD(XMLApplication_Run, "Run"),
-				F_METHODS_ADD(XMLApplication_Build, "FM_XMLObject_Build"),
+				F_METHODS_OVERRIDE(XMLApplication_Build, "XMLObject", "Build"),
 
-				F_METHODS_ADD_STATIC(XMLApplication_New, FM_New),
-				F_METHODS_ADD_STATIC(XMLApplication_Dispose, FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(XMLApplication_New, FM_New),
+				F_METHODS_OVERRIDE_STATIC(XMLApplication_Dispose, FM_Dispose),
 
 				F_ARRAY_END
 			};
@@ -61,7 +61,9 @@ F_QUERY()
 			{
 				F_RESOLVEDS_ADD("FM_Document_Resolve"),
 				F_RESOLVEDS_ADD("FM_Document_Log"),
+				#ifndef F_NEW_GETELEMENTBYID
 				F_RESOLVEDS_ADD("FM_XMLObject_GetObjects"),
+				#endif
 
 				F_ARRAY_END
 			};

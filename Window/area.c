@@ -230,11 +230,7 @@ F_METHOD(uint32, Window_Show)
 
 	if (LOD->window == NULL)
 	{
-		#ifdef F_NEW_ELEMENT_ID
-		IFEELIN F_Log(FV_LOG_USER, "WinServer was unable to open window (%s)", IFEELIN F_Get(Obj, FA_Element_ID));
-		#else
-		IFEELIN F_Log(FV_LOG_USER, "WinServer was unable to open window (%s)", IFEELIN F_Get(Obj, FA_ID));
-		#endif
+		IFEELIN F_Log(FV_LOG_USER, "WinServer was unable to open window (%s)", IFEELIN F_Get(Obj, FA_Element_Id));
 
 		return FALSE;
 	}
@@ -284,22 +280,33 @@ F_METHOD(uint32, Window_Hide)
 
 	struct Window *win = LOD->window;
 
-	if (win != NULL)
+	if (win)
 	{
+		FRender * area_render = _area_render;
+
 		LOD->sys_flags &= ~FF_WINDOW_SYS_NOTIFY_EVENTS;
 
-		if (_area_render != NULL)
+		if (area_render)
 		{
 			IFEELIN F_Set(Obj, FA_Window_ActiveObject, 0);
 
 			IFEELIN F_Do(LOD->root, FM_Area_Hide);
 			IFEELIN F_Do(LOD->decorator, FM_Area_Hide);
 
-			IFEELIN F_Set(_area_render, FA_Render_RPort, 0);
+			IFEELIN F_Set(area_render, FA_Render_RPort, 0);
 		}
+
+		//
+		// clear events
+		//
 		
 		LOD->events = 0;
+		
 		IFEELIN F_Set(Obj, FA_Window_Events, 0);
+
+		//
+		// close window
+		//
 
 		LOD->window = NULL;
 
@@ -314,13 +321,17 @@ F_METHOD(void,Window_Draw)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 
+	FRender * area_render = _area_render;
+
 	#ifdef DB_DRAW
-	IFEELIN F_Log(0,"forbid (%ld) - rethink (%ld)", F_Get(_area_render, FA_Render_Forbid), LOD->RethinkNest);
+	IGRAPHICS SetRast(_area_rp, 3);
+	
+	IFEELIN F_Log(0,"root (0x%08lx) - forbid (%ld) - rethink (%ld)", LOD->root, F_Get(area_render, FA_Render_Forbid), LOD->RethinkNest);
 	#endif
 
 //    IFEELIN F_Log(0, "framebox (%ld : %ld, %ld x %ld)", LOD->FrameBox.x, LOD->FrameBox.y, LOD->FrameBox.w, LOD->FrameBox.h);
-	
-	if ((FF_Render_Forbid & _area_render->Flags) != 0)
+
+	if ((FF_Render_Forbid & area_render->Flags) != 0)
 	{
 		LOD->sys_flags |= FF_WINDOW_SYS_REFRESH_NEED;
 		
@@ -342,38 +353,40 @@ F_METHOD(void,Window_Draw)
 
 	F_SUPERDO();
 
-	if (LOD->root != NULL)
+	if (!LOD->root)
 	{
-		/* FF_Render_Complex is disabled  if  FF_WINDOW_COMPLEX_REFRESH  is
-		not set, making complete window refresh faster but flashing */
-   
-		if ((FF_WINDOW_SYS_COMPLEX & LOD->sys_flags) != 0)
-		{
-			_area_render->Flags |= FF_Render_Refreshing | FF_Render_Complex;
-		}
-		else
-		{
-			_area_render->Flags |= FF_Render_Refreshing;
-		}
-						
-		if ((FF_WINDOW_SYS_REFRESH_SIMPLE & LOD->sys_flags) ||
-			((FF_WINDOW_SYS_COMPLEX & LOD->sys_flags) == 0))
-		{
-			IFEELIN F_Draw(LOD->root, FF_Draw_Object);
-		}
-		else
-		{
-			IFEELIN F_Draw(LOD->root, FF_Draw_Damaged | FF_Draw_Object);
-		}
+		return;
+	}
 
-		if ((FF_WINDOW_SYS_COMPLEX & LOD->sys_flags) != 0)
-		{
-			_area_render->Flags &= ~FF_Render_Refreshing;
-		}
-		else
-		{
-			_area_render->Flags &= ~(FF_Render_Refreshing | FF_Render_Complex);
-		}
+	/* FF_Render_Complex is disabled  if  FF_WINDOW_COMPLEX_REFRESH  is
+	not set, making complete window refresh faster but flashing */
+   
+	if ((FF_WINDOW_SYS_COMPLEX & LOD->sys_flags) != 0)
+	{
+		area_render->Flags |= FF_Render_Refreshing | FF_Render_Complex;
+	}
+	else
+	{
+		area_render->Flags |= FF_Render_Refreshing;
+	}
+						
+	if ((FF_WINDOW_SYS_REFRESH_SIMPLE & LOD->sys_flags) ||
+		((FF_WINDOW_SYS_COMPLEX & LOD->sys_flags) == 0))
+	{
+		IFEELIN F_Draw(LOD->root, FF_Draw_Object);
+	}
+	else
+	{
+		IFEELIN F_Draw(LOD->root, FF_Draw_Damaged | FF_Draw_Object);
+	}
+
+	if ((FF_WINDOW_SYS_COMPLEX & LOD->sys_flags) != 0)
+	{
+		area_render->Flags &= ~FF_Render_Refreshing;
+	}
+	else
+	{
+		area_render->Flags &= ~(FF_Render_Refreshing | FF_Render_Complex);
 	}
 }
 //+

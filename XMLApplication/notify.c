@@ -213,6 +213,12 @@ F_METHODM(LONG,XMLApplication_CreateNotify,FS_XMLApplication_CreateNotify)
 		if (!data_target)    { IFEELIN F_Do(Obj, F_RESOLVED_ID(LOG),attribute->Line,NULL,"Target not defined"); continue; }
 		if (!data_method)    { IFEELIN F_Do(Obj, F_RESOLVED_ID(LOG),attribute->Line,NULL,"Method not defined for target '%s'",data_target); continue; }
 
+		#ifdef F_NEW_GETELEMENTBYID
+
+		notify_obj = (FObject) IFEELIN F_Do(Obj, FM_GetElementById, data_obj);
+
+		#else
+
 		IFEELIN F_Do
 		(
 			Obj, F_RESOLVED_ID(GETOBJECTS),
@@ -221,6 +227,8 @@ F_METHODM(LONG,XMLApplication_CreateNotify,FS_XMLApplication_CreateNotify)
 
 			NULL
 		);
+
+		#endif
 
 		if (notify_obj)
 		{
@@ -232,7 +240,7 @@ F_METHODM(LONG,XMLApplication_CreateNotify,FS_XMLApplication_CreateNotify)
 			}
 			else if (IFEELIN F_StrCmp("parent", data_target, ALL) == 0)
 			{
-				notify_target = (FObject) IFEELIN F_Get(notify_obj, FA_Parent);
+				notify_target = (FObject) IFEELIN F_Get(notify_obj, FA_Element_Parent);
 			}
 			else if (IFEELIN F_StrCmp("window", data_target, ALL) == 0)
 			{
@@ -252,6 +260,12 @@ F_METHODM(LONG,XMLApplication_CreateNotify,FS_XMLApplication_CreateNotify)
 			}
 			else
 			{
+				#ifdef F_NEW_GETELEMENTBYID
+
+				notify_target = (FObject) IFEELIN F_Do(Obj, FM_GetElementById, data_target);
+
+				#else
+
 				IFEELIN F_Do
 				(
 					Obj, F_RESOLVED_ID(GETOBJECTS),
@@ -260,6 +274,8 @@ F_METHODM(LONG,XMLApplication_CreateNotify,FS_XMLApplication_CreateNotify)
 
 					NULL
 				);
+
+				#endif
 			}
 
 			if (notify_target)

@@ -289,8 +289,6 @@ F_METHOD(void,Prefs_Dispose)
 }
 //+
 
-#ifdef F_NEW_STYLES
-
 ///Prefs_Load
 F_METHODM(uint32,Prefs_Load,FS_PreferenceGroup_Load)
 {
@@ -346,75 +344,5 @@ F_METHODM(uint32,Prefs_Save,FS_PreferenceGroup_Save)
 	return F_SUPERDO();
 }
 //+
-#else
-
-///Prefs_Load
-F_METHODM(uint32,Prefs_Load,FS_PreferenceGroup_Load)
-{
-	struct p_LocalObjectData *LOD = F_LOD(Class,Obj);
-	struct in_deco *gnode;
-	
-	uint32 active = 0;
-	STRPTR name = NULL;
-	
-	#ifdef DB_LOAD
-	IFEELIN F_Log(0,"preferences (0x%08lx) find (0x%08lx)", Msg->Prefs, Msg->id_Find);
-	#endif
-
-	IFEELIN F_Do(Msg->Prefs, Msg->id_Find, "decorator-class", &name, NULL);
-				
-	#ifdef DB_LOAD
-	IFEELIN F_Log(0,"decorator name (0x%08lx)(%s)", name, name);
-	#endif
-
-	for (gnode = (struct in_deco *) LOD->decoratorslist.Head ; gnode ; gnode = gnode->next)
-	{
-
-		/* while we pass the method to decorator preference objets  we  look
-		for the previously selected one */
-
-		if (IFEELIN F_StrCmp(name, gnode->classname, ALL) == 0)
-		{
-			active = gnode->position;
-		}
- 
-		F_OBJDO(gnode->object);
-	}
-
-	#ifdef DB_LOAD
-	IFEELIN F_Log(0,"active (%ld)", active);
-	#endif
-
-	IFEELIN F_Set(LOD->chooser, (uint32) "FA_Radio_Active", active);
-
-	return F_SUPERDO();
-}
-//+
-///Prefs_Save
-F_METHODM(uint32,Prefs_Save,FS_PreferenceGroup_Save)
-{
-	struct p_LocalObjectData *LOD = F_LOD(Class,Obj);
-	struct in_deco *gnode;
-
-	uint32 active = IFEELIN F_Get(LOD->chooser, (uint32) "FA_Radio_Active");
-	STRPTR name = NULL;
-
-	for (gnode = (struct in_deco *) LOD->decoratorslist.Head ; gnode ; gnode = gnode->next)
-	{
-		if (active == gnode->position)
-		{
-			name = gnode->classname;
-		}
- 
-		F_OBJDO(gnode->object);
-	}
-
-	IFEELIN F_Do(Msg->Prefs, Msg->id_Add, "decorator-class", name);
-
-	return F_SUPERDO();
-}
-//+
-
-#endif
 
 #endif

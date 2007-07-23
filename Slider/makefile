@@ -3,8 +3,8 @@
 #
 
 NAME = Slider
-VER = 04
-REV = 02
-DATE = 2005/12/11
+VER = 05
+REV = 00
+DATE = 2006/05/02
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

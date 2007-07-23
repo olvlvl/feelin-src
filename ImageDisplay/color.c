@@ -128,15 +128,15 @@ STATIC F_CODE_DRAW(id_color_draw)
 //+
 
 ///id_color_get_rgb
-uint32 id_color_get_rgb(FImage *image, FRender *Render)
+uint32 id_color_get_rgb(APTR image, FRender *Render)
 {
 	uint32 rc = 0;
 
-	switch (image->type)
+	switch (((FImage *) image)->type)
 	{
 		case FV_COLORTYPE_ENTRY:
 		{
-			rc = Render->Palette->ARGB[image->spec];
+			rc = Render->Palette->ARGB[((FImage *) image)->spec];
 		}
 		break;
 
@@ -152,7 +152,7 @@ uint32 id_color_get_rgb(FImage *image, FRender *Render)
 
 		case FV_COLORTYPE_RGB:
 		{
-			rc = image->spec;
+			rc = ((FImage *) image)->spec;
 		}
 		break;
 	}

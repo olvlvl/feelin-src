@@ -563,8 +563,6 @@ STATIC F_CODE_DRAW(id_gradient_draw)
 ///Horizontal
 		case 0:
 		{
-__horizontal:
-
 			if (image->colors[2].type)
 			{
 			   uint32 x;

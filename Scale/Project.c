@@ -30,12 +30,10 @@ F_QUERY()
 		{
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(Scale_New,        FM_New),
-
-				F_METHODS_ADD_STATIC(Scale_Setup,      FM_Element_Setup),
-
-				F_METHODS_ADD_STATIC(Scale_AskMinMax,  FM_Area_AskMinMax),
-				F_METHODS_ADD_STATIC(Scale_Draw,       FM_Area_Draw),
+				F_METHODS_OVERRIDE_STATIC(Scale_New,        FM_New),
+				F_METHODS_OVERRIDE_STATIC(Scale_Setup,      FM_Element_Setup),
+				F_METHODS_OVERRIDE_STATIC(Scale_AskMinMax,  FM_Area_AskMinMax),
+				F_METHODS_OVERRIDE_STATIC(Scale_Draw,       FM_Area_Draw),
 
 			   F_ARRAY_END
 			};

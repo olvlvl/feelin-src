@@ -113,8 +113,6 @@ STATIC void class_rem_atoms(struct in_FeelinClass *LOD, struct in_FeelinBase *Fe
 }
 //+
 
-#ifdef F_NEW_STYLES
-
 ///class_add_properties
 STATIC bool32 class_add_properties(struct in_FeelinClass *LOD, struct in_FeelinBase *FeelinBase)
 {
@@ -150,8 +148,6 @@ STATIC void class_rem_properties(struct in_FeelinClass *LOD, struct in_FeelinBas
 }
 //+
 
-#endif
-
 /************************************************************************************************
 *** Methods *************************************************************************************
 ************************************************************************************************/
@@ -173,19 +169,19 @@ F_METHOD(FObject,Class_New)
 	while ((item = IUTILITY NextTagItem(&Tags)))
 	switch (item->ti_Tag)
 	{
-		case FA_Class_Name:              classname = (STRPTR) item->ti_Data; break;
-		case FA_Class_Super:             supername = (STRPTR) item->ti_Data; break;
-		case FA_Class_LODSize:           LOD->public.LocalSize    = (((item->ti_Data + 3) >> 2) << 2); break;
-		case FA_Class_Dispatcher:        LOD->dispatcher        = (FMethod) item->ti_Data; break;
-		case FA_Class_UserData:          LOD->public.UserData   = (APTR) item->ti_Data; break;
-		case FA_Class_Pool:              haspool = item->ti_Data; break;
-		case FA_Class_Methods:           LOD->public.Methods         = (APTR) item->ti_Data; break;
-		case FA_Class_Attributes:        LOD->public.Attributes      = (APTR) item->ti_Data; break;
-		case FA_Class_Resolveds:         LOD->public.Resolveds     = (APTR) item->ti_Data; break;
-		case FA_Class_Autos:             LOD->public.Autos = (APTR) item->ti_Data; break;
-		case FA_Class_CatalogName:       cat_name = (STRPTR) item->ti_Data; break;
-		case FA_Class_CatalogTable:      cat_table = (APTR) item->ti_Data; break;
-		case FA_Class_Module:            LOD->module = (struct Library *)(item->ti_Data); break;
+		case FA_Class_Name:             classname = (STRPTR) item->ti_Data; break;
+		case FA_Class_Super:            supername = (STRPTR) item->ti_Data; break;
+		case FA_Class_LocalSize:        LOD->public.LocalSize    = (((item->ti_Data + 3) >> 2) << 2); break;
+		case FA_Class_Dispatcher:       LOD->dispatcher        = (FMethod) item->ti_Data; break;
+		case FA_Class_UserData:         LOD->public.UserData   = (APTR) item->ti_Data; break;
+		case FA_Class_Pool:             haspool = item->ti_Data; break;
+		case FA_Class_Methods:          LOD->public.Methods         = (APTR) item->ti_Data; break;
+		case FA_Class_Attributes:       LOD->public.Attributes      = (APTR) item->ti_Data; break;
+		case FA_Class_Resolveds:        LOD->public.Resolveds     = (APTR) item->ti_Data; break;
+		case FA_Class_Autos:            LOD->public.Autos = (APTR) item->ti_Data; break;
+		case FA_Class_CatalogName:      cat_name = (STRPTR) item->ti_Data; break;
+		case FA_Class_CatalogTable:     cat_table = (APTR) item->ti_Data; break;
+		case FA_Class_Module:           LOD->module = (struct Library *)(item->ti_Data); break;
 
 		case FA_Class_Atoms:
 		{
@@ -193,25 +189,17 @@ F_METHOD(FObject,Class_New)
 		}
 		break;
 
-		#ifdef F_NEW_STYLES
-
 		case FA_Class_Properties:
 		{
 			LOD->public.Properties = (FClassProperty *) item->ti_Data;
 		}
 		break;
 
-		#endif
-
-		#ifdef F_NEW_STYLES_EXTENDED
-
 		case FA_Class_PropertiesLocalSize:
 		{
 			LOD->public.PropertiesLocalSize = item->ti_Data;
 		}
 		break;
-
-		#endif
 
 		default:
 		{
@@ -257,12 +245,7 @@ F_METHOD(FObject,Class_New)
 		{
 			LOD->public.Super  = super;
 			LOD->public.Offset = super->Offset + super->LocalSize;
-
-			#ifdef F_NEW_STYLES_EXTENDED
-
 			LOD->public.PropertiesOffset = super->PropertiesOffset + super->PropertiesLocalSize;
-
-			#endif
 		}
 		else
 		{
@@ -326,8 +309,6 @@ F_METHOD(FObject,Class_New)
 		}
 	}
 
-	#ifdef F_NEW_STYLES
-
 	if (LOD->public.Properties != NULL)
 	{
 		if (class_add_properties(LOD, FeelinBase) == FALSE)
@@ -335,8 +316,6 @@ F_METHOD(FObject,Class_New)
 			return NULL;
 		}
 	}
-
-	#endif
 
 /*** linking ***********************************************************************************/
 
@@ -382,16 +361,12 @@ F_METHOD(uint32,Class_Dispose)
 		ILOCALE CloseCatalog(LOD->catalog); LOD->catalog = NULL;
 	}
 
-	#ifdef F_NEW_STYLES
-
 	if (LOD->public.Properties)
 	{
 		class_rem_properties(LOD, FeelinBase);
 
 		LOD->public.Properties = NULL;
 	}
-
-	#endif
 
 	if (LOD->public.Atoms)
 	{
@@ -483,7 +458,7 @@ F_METHOD(uint32,Class_Get)
 	struct in_FeelinClass *LOD = F_LOD(Class,Obj);
 	struct TagItem *Tags = Msg, item;
 
-	while (IFEELIN F_DynamicNTI(&Tags,&item,Class) != NULL)
+	while (IFEELIN F_DynamicNTI(&Tags, &item, Class) != NULL)
 	switch (item.ti_Tag)
 	{
 		case FA_Class_Version:
@@ -495,6 +470,12 @@ F_METHOD(uint32,Class_Get)
 		case FA_Class_Revision:
 		{
 			F_STORE(LOD->module ? LOD->module->lib_Revision : 0);
+		}
+		break;
+
+		case FA_Class_LocalSize:
+		{
+			F_STORE(LOD->public.LocalSize);
 		}
 		break;
 	}
@@ -517,8 +498,9 @@ STATIC F_ATTRIBUTES_ARRAY =
 
 STATIC F_METHODS_ARRAY =
 {
-	F_METHODS_ADD_BOTH(Class_New,       "New",      FM_New),
-	F_METHODS_ADD_BOTH(Class_Dispose,   "Dispose",  FM_Dispose),
+	F_METHODS_ADD_STATIC(Class_New, 	"New",      FM_New),
+	F_METHODS_ADD_STATIC(Class_Dispose, "Dispose",  FM_Dispose),
+	F_METHODS_ADD_STATIC(Class_Get,  	"Get",  	FM_Get),
    
 	F_ARRAY_END
 };

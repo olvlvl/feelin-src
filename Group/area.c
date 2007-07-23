@@ -14,7 +14,7 @@ int32 group_is_object_visible(FClass *Class, FObject Obj, FWidgetNode *node)
 		int32 x = _sub_x;
 		int32 y = _sub_y;
  
-		while ((par = (FObject) IFEELIN F_Get(par, FA_Parent)) != NULL)
+		while ((par = (FObject) IFEELIN F_Get(par, FA_Element_Parent)) != NULL)
 		{
 			if (par == win)
 			{

@@ -3,8 +3,8 @@
 #
 
 NAME = Element
-VER = 01
+VER = 02
 REV = 00
-DATE = 2006/03/31
+DATE = 2007/07/08
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

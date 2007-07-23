@@ -5,9 +5,9 @@
 */
 
 #define F_CLASS_NAME                            "Document"
-#define F_CLASS_VERSION                         3
+#define F_CLASS_VERSION                         4
 #define F_CLASS_REVISION                        0
-#define F_CLASS_VERSION_STRING                  "03.00 (2006/02/10)"
+#define F_CLASS_VERSION_STRING                  "04.00 (2006/06/14)"
 
 #include "Private.h"
 

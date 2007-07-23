@@ -1,11 +1,6 @@
 #ifndef LIB_ATOM_H
 #define LIB_ATOM_H
 
-///typedefs
-
-/* HOMBRE @ GOFROMIEL : J'ai déplacé les 2 déclaration de structure ci-dessous ici
-pour être lu par Private.h qui en a besoin */
-
 struct in_LocalAtom
 {
     struct in_LocalAtom            *next;
@@ -31,8 +26,6 @@ struct in_Atom
 
 #define F_ATOM_PUBLICIZE(prv)                   (FAtom *)((uint32)(prv) + sizeof (struct in_Atom *))
 #define F_ATOM_PRIVATIZE(pub)                   (struct in_Atom *)((uint32)(pub) - sizeof (struct in_Atom *))
-
-//+
 
 #endif
 

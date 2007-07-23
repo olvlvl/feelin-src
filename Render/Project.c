@@ -107,8 +107,8 @@ F_QUERY()
 	   {
 		   STATIC F_METHODS_ARRAY =
 		   {
-			   F_METHODS_ADD_STATIC(Class_New,      FM_New),
-			   F_METHODS_ADD_STATIC(Class_Dispose,  FM_Dispose),
+			   F_METHODS_OVERRIDE_STATIC(Class_New,      FM_New),
+			   F_METHODS_OVERRIDE_STATIC(Class_Dispose,  FM_Dispose),
 
 			   F_ARRAY_END
 		   };
@@ -116,7 +116,7 @@ F_QUERY()
 		   STATIC F_TAGS_ARRAY =
 		   {
 			   F_TAGS_ADD_SUPER(Class),
-			   F_TAGS_ADD(LODSize, sizeof (struct ClassUserData)),
+			   F_TAGS_ADD(LocalSize, sizeof (struct ClassUserData)),
 			   F_TAGS_ADD_METHODS,
 
 			   F_ARRAY_END
@@ -144,17 +144,17 @@ F_QUERY()
    
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_BOTH(Render_AddClip,        "AddClip",        FM_Render_AddClip),
-				F_METHODS_ADD_BOTH(Render_RemClip,        "RemClip",        FM_Render_RemClip),
-				F_METHODS_ADD_BOTH(Render_AddClipRegion,  "AddClipRegion",  FM_Render_AddClipRegion),
-				F_METHODS_ADD_BOTH(Render_CreateBuffer,   "CreateBuffer",   FM_Render_CreateBuffer),
-				F_METHODS_ADD_BOTH(Render_DeleteBuffer,   "DeleteBuffer",   FM_Render_DeleteBuffer),
+				F_METHODS_ADD_STATIC(Render_AddClip,        "AddClip",        FM_Render_AddClip),
+				F_METHODS_ADD_STATIC(Render_RemClip,        "RemClip",        FM_Render_RemClip),
+				F_METHODS_ADD_STATIC(Render_AddClipRegion,  "AddClipRegion",  FM_Render_AddClipRegion),
+				F_METHODS_ADD_STATIC(Render_CreateBuffer,   "CreateBuffer",   FM_Render_CreateBuffer),
+				F_METHODS_ADD_STATIC(Render_DeleteBuffer,   "DeleteBuffer",   FM_Render_DeleteBuffer),
 				F_METHODS_ADD(Render_DrawGradient,   "DrawGradient"),
-				F_METHODS_ADD_BOTH(Render_Fill, 			"Fill",	FM_Render_Fill),
+				F_METHODS_ADD_STATIC(Render_Fill, 			  "Fill", FM_Render_Fill),
 
-				F_METHODS_ADD_STATIC(Render_New,       FM_New),
-				F_METHODS_ADD_STATIC(Render_Get,       FM_Get),
-				F_METHODS_ADD_STATIC(Render_Set,       FM_Set),
+				F_METHODS_OVERRIDE_STATIC(Render_New,       FM_New),
+				F_METHODS_OVERRIDE_STATIC(Render_Get,       FM_Get),
+				F_METHODS_OVERRIDE_STATIC(Render_Set,       FM_Set),
 
 				F_ARRAY_END
 			};

@@ -650,6 +650,25 @@ F_METHODM(uint32,Window_RemMember,FS_RemMember)
 }
 //+
 
+#ifdef F_NEW_GETELEMENTBYID
+///Window_GetElementById
+F_METHODM(FObject, Window_GetElementById, FS_GetElementById)
+{
+	struct LocalObjectData *LOD = F_LOD(Class, Obj);
+
+	FObject rc = (FObject) F_SUPERDO();
+
+	if (!rc)
+	{
+		rc = (FObject) F_OBJDO(LOD->root);
+	}
+
+	return rc;
+}
+//+
+#endif
+
+
 #if 0
 ///Window_ForEach
 F_METHODM(void,Window_ForEach,FS_Window_ForEach)

@@ -7,7 +7,7 @@
 #define F_CLASS_NAME                            "TextDisplay"
 #define F_CLASS_VERSION                         5
 #define F_CLASS_REVISION                        0
-#define F_CLASS_VERSION_STRING                  "05.00 (2005/12/11)"
+#define F_CLASS_VERSION_STRING                  "05.00 (2005/12/27)"
 
 #include "Private.h"
 

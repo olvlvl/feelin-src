@@ -109,7 +109,7 @@ bool32 id_parse_func(STRPTR Key, uint32 KeyLength, struct in_Parse *Parse)
 			return FALSE;
 		}
 			
-		if (Key[len] == '°')
+		if (Key[len] == 0xB0) // '°' for GCC
 		{
 			Parse->gradient_angle = value;
 		}
@@ -615,7 +615,7 @@ void id_create(FClass *Class, FObject Obj, STRPTR Spec)
 		return;
 	}
 
-	n = f_parse_values(Spec, &id_parse_func, parse);
+	n = f_parse_values(Spec, (f_parse_values_func) &id_parse_func, parse);
 
 	if (n == 0)
 	{
@@ -1247,8 +1247,6 @@ static void id_image_dispose(struct in_CodeTable *Table,APTR Data)
 }
 //+
 
-#ifdef F_NEW_STYLES
-
 ///id_image_construct
 struct FeelinAssociated * id_image_construct(STRPTR Spec, APTR Pool, FClass *Class, FRender *Render)
 {
@@ -1377,150 +1375,6 @@ void id_image_destruct(struct FeelinAssociated *Associated, FClass *Class, FRend
 	IFEELIN F_Dispose(Associated);
 }
 //+
-
-#else
-
-struct FS_CONSTRUCT_PARAMS                      { FClass *Class; FRender *Render; };
-struct FS_DESTRUCT_PARAMS                       { FClass *Class; FRender *Render; };
-
-///code_image_construct
-F_HOOKM(int32,code_image_construct,FS_Associated_Construct)
-{
-	struct FS_CONSTRUCT_PARAMS *params = (struct FS_CONSTRUCT_PARAMS *) Msg->UserParams;
-		
-	if (Msg->Data)
-	{
-		STRPTR rimg;
-		
-		struct FeelinAssociated *associated = IFEELIN F_NewP(Msg->Pool,sizeof (struct FeelinAssociated));
-		
-		if (!associated)
-		{
-			return FALSE;
-		}
-		
-		if ((rimg = IFEELIN F_StrNewP(Msg->Pool, NULL, Msg->Data)) != NULL)
-		{
-			STRPTR simg = rimg;
-
-			#ifdef DB_ASSOCIATED
-			IFEELIN F_Log(0,"spec (%s) separator (%lc)",rimg,FV_ImageDisplay_Separator);
-			#endif
-			
-			while (*simg && *simg != FV_ImageDisplay_Separator) simg++;
-
-			if (simg && *simg  == FV_ImageDisplay_Separator)
-			{
-				*simg++ = 0;
-			}
-			else
-			{
-				simg = NULL;
-			}
-			
-			if (rimg)
-			{
-				associated->data[0] = id_image_new(params->Class, rimg, &associated->table[0], Msg->Pool);
-				
-				if (associated->data[0])
-				{
-					associated->flags |= FF_IMAGE_RENDER;
-
-					if (associated->table[0] &&
-						associated->table[0]->setup)
-					{
-						if (!(associated->table[0]->setup(associated->data[0], params->Class, params->Render)))
-						{
-							id_image_dispose(associated->table[0], associated->data[0]);
-								
-							associated->flags &= ~FF_IMAGE_RENDER;
-						}
-					}
-				}
-			
-				#ifdef DB_ASSOCIATED
-				IFEELIN F_Log(0,"render (%s) >> api (0x%08lx) data (0x%08lx)",rimg,associated->table[0],associated->data[0]);
-				#endif
-			}
-
-			if (simg)
-			{
-				associated->data[1] = id_image_new(params->Class, simg, &associated->table[1], Msg->Pool);
-				
-				if (associated->data[1])
-				{
-					associated->flags |= FF_IMAGE_SELECT;
-
-					if (associated->table[1] &&
-						associated->table[1]->setup)
-					{
-						if (!(associated->table[1]->setup(associated->data[1], params->Class, params->Render)))
-						{
-							id_image_dispose(associated->table[1], associated->data[1]);
-
-							associated->flags &= ~FF_IMAGE_SELECT;
-						}
-					}
-				}
-				
-				#ifdef DB_ASSOCIATED
-				IFEELIN F_Log(0,"select (%s) >> api (0x%08lx) data (0x%08lx)",simg,associated->table[1],associated->data[1]);
-				#endif
-			}
-
-			IFEELIN F_Dispose(rimg);
-
-			*Msg->Result = associated;
-
-			return TRUE;
-		}
-	}
-	
-	return FALSE;
-}
-//+
-///code_image_destruct
-F_HOOKM(void,code_image_destruct,FS_Associated_Destruct)
-{
-	struct FS_DESTRUCT_PARAMS *params = (struct FS_DESTRUCT_PARAMS *) Msg->UserParams;
-	
-	struct FeelinAssociated *associated = Msg->Data;
-
-	#ifdef DB_ASSOCIATED
-	IFEELIN F_Log(0,"destruct (0x%08lx) table (0x%08lx)",Msg->Data,associated->table[0]);
-	#endif
- 
-	if (associated->table[0])
-	{
-		if (associated->table[0]->cleanup)
-		{
-			associated->table[0]->cleanup(associated->data[0], params->Class, params->Render);
-		}
-	
-		if (associated->table[0]->delete)
-		{
-			associated->table[0]->delete(associated->data[0]);
-		}
-	}
-
-	if (associated->table[1])
-	{
-		if (associated->table[1]->cleanup)
-		{
-			associated->table[1]->cleanup(associated->data[1], params->Class, params->Render);
-		}
-		
-		if (associated->table[1]->delete)
-		{
-			associated->table[1]->delete(associated->data[1]);
-		}
-	}
-
-	IFEELIN F_Dispose(associated);
-}
-//+
-
-#endif
 
 /************************************************************************************************
 *** Methods *************************************************************************************
@@ -1666,31 +1520,8 @@ F_METHODM(uint32,ID_Setup,FS_ImageDisplay_Setup)
 				return FALSE;
 			}
 
-			#ifdef F_NEW_STYLES
-
 			LOD->associated = id_image_construct(LOD->spec, CUD->pool, Class, LOD->render);
 
-			#else
-
-			LOD->associated = NULL;
-
-			LOD->associated_handle = IFEELIN F_Do(LOD->render->Application, FM_Application_ObtainAssociated,
-			
-				F_MSG_ASSOCIATED_OBTAIN(LOD->spec, &CUD->image_construct_hook, &LOD->associated),
-				
-				Class, LOD->render);
-				
-			if ((LOD->associated == NULL) && (LOD->spec_fallback != NULL))
-			{
-				LOD->associated_handle = IFEELIN F_Do(LOD->render->Application, FM_Application_ObtainAssociated,
-
-					F_MSG_ASSOCIATED_OBTAIN(LOD->spec_fallback, &CUD->image_construct_hook, &LOD->associated),
-
-					Class, LOD->render);
-			}
-
-			#endif
-		
 			return (uint32)(LOD->associated != NULL);
 		}
    }
@@ -1704,28 +1535,10 @@ F_METHOD(void,ID_Cleanup)
 
 	if (LOD->render)
 	{
-		#ifdef F_NEW_STYLES
-
 		if (LOD->associated)
 		{
 			id_image_destruct(LOD->associated, Class, LOD->render);
 		}
-
-		#else
-
-		if (LOD->associated_handle || LOD->associated)
-		{
-			IFEELIN F_Do(LOD->render->Application, FM_Application_ReleaseAssociated,
-			
-				F_MSG_ASSOCIATED_RELEASE(LOD->associated_handle, LOD->associated, &CUD->image_destruct_hook),
-				
-				Class, LOD->render);
- 
-			LOD->associated_handle = 0;
-			LOD->associated = NULL;
-		}
-
-		#endif
 		
 		LOD->render = NULL;
 	}

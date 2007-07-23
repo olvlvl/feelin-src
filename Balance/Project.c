@@ -53,19 +53,16 @@ F_QUERY()
 
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(Balance_New,         FM_New),
-				F_METHODS_ADD_STATIC(Balance_Set,         FM_Set),
-
-				F_METHODS_ADD_STATIC(Balance_Setup,       FM_Element_Setup),
-				F_METHODS_ADD_STATIC(Balance_Cleanup,     FM_Element_Cleanup),
-				F_METHODS_ADD_STATIC(Balance_LoadPersistentAttributes, FM_Element_LoadPersistentAttributes),
-				F_METHODS_ADD_STATIC(Balance_SavePersistentAttributes, FM_Element_SavePersistentAttributes),
-
-				F_METHODS_ADD_STATIC(Balance_AskMinMax,     FM_Area_AskMinMax),
-				F_METHODS_ADD_STATIC(Balance_Draw,          FM_Area_Draw),
-				F_METHODS_ADD_STATIC(Balance_SetState,      FM_Area_SetState),
-
-				F_METHODS_ADD_STATIC(Balance_HandleEvent,   FM_Widget_HandleEvent),
+				F_METHODS_OVERRIDE_STATIC(Balance_New, FM_New),
+				F_METHODS_OVERRIDE_STATIC(Balance_Set, FM_Set),
+				F_METHODS_OVERRIDE_STATIC(Balance_Setup, FM_Element_Setup),
+				F_METHODS_OVERRIDE_STATIC(Balance_Cleanup, FM_Element_Cleanup),
+				F_METHODS_OVERRIDE_STATIC(Balance_LoadPersistentAttributes, FM_Element_LoadPersistentAttributes),
+				F_METHODS_OVERRIDE_STATIC(Balance_SavePersistentAttributes, FM_Element_SavePersistentAttributes),
+				F_METHODS_OVERRIDE_STATIC(Balance_AskMinMax, FM_Area_AskMinMax),
+				F_METHODS_OVERRIDE_STATIC(Balance_Draw, FM_Area_Draw),
+				F_METHODS_OVERRIDE_STATIC(Balance_SetState, FM_Area_SetState),
+				F_METHODS_OVERRIDE_STATIC(Balance_HandleEvent, FM_Widget_HandleEvent),
 
 				F_ARRAY_END
 			};

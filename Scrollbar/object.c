@@ -64,7 +64,11 @@ F_METHOD(uint32,SB_New)
 		FA_Element_Class,       (orientation == FV_Area_Orientation_Horizontal) ? "scrollbar-arrow scrollbar-arrow-left" : "scrollbar-arrow scrollbar-arrow-top",
 		FA_Widget_SetMax,         (orientation == FV_Area_Orientation_Horizontal) ? FV_Widget_SetWidth : FV_Widget_SetHeight,
 		FA_Widget_Chainable,    FALSE,
+		#ifdef F_NEW_WIDGET_MODE
+		FA_Widget_Mode,         FV_Widget_Mode_Button,
+		#else
 		FA_Widget_Mode,         FV_Widget_Mode_Release,
+		#endif
 	End;
 
 	LOD->button2 = ImageObject,
@@ -72,7 +76,11 @@ F_METHOD(uint32,SB_New)
 		FA_Element_Class,       (orientation == FV_Area_Orientation_Horizontal) ? "scrollbar-arrow scrollbar-arrow-right" : "scrollbar-arrow scrollbar-arrow-bottom",
 		FA_Widget_SetMax,         (orientation == FV_Area_Orientation_Horizontal) ? FV_Widget_SetWidth : FV_Widget_SetHeight,
 		FA_Widget_Chainable,    FALSE,
+		#ifdef F_NEW_WIDGET_MODE
+		FA_Widget_Mode,         FV_Widget_Mode_Button,
+		#else
 		FA_Widget_Mode,         FV_Widget_Mode_Release,
+		#endif
 	End;
 
 	LOD->prop = PropObject,
@@ -309,17 +317,17 @@ F_METHOD(bool32,SB_Cleanup)
 
 	bool32 rc = F_SUPERDO();
 
-	if (IFEELIN F_Get(LOD->prop, FA_Parent) != 0)
+	if (IFEELIN F_Get(LOD->prop, FA_Element_Parent) != 0)
 	{
 		IFEELIN F_Do(Obj, FM_RemMember, LOD->prop);
 	}
 
-	if (IFEELIN F_Get(LOD->button1, FA_Parent) != 0)
+	if (IFEELIN F_Get(LOD->button1, FA_Element_Parent) != 0)
 	{
 		IFEELIN F_Do(Obj, FM_RemMember, LOD->button1);
 	}
 
-	if (IFEELIN F_Get(LOD->button2, FA_Parent) != 0)
+	if (IFEELIN F_Get(LOD->button2, FA_Element_Parent) != 0)
 	{
 		IFEELIN F_Do(Obj, FM_RemMember, LOD->button2);
 	}
@@ -328,6 +336,7 @@ F_METHOD(bool32,SB_Cleanup)
 }
 //+
 
+#if 0
 ///Preferences
 
 STATIC F_PREFERENCES_ARRAY =
@@ -482,3 +491,4 @@ F_METHODM(uint32,Prefs_Save,FS_PreferenceGroup_Save)
 	return F_SUPERDO();
 }
 //+
+#endif

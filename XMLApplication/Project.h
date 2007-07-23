@@ -7,7 +7,7 @@
 #define F_CLASS_NAME                            "XMLApplication"
 #define F_CLASS_VERSION                         3
 #define F_CLASS_REVISION                        0
-#define F_CLASS_VERSION_STRING                  "03.00 (2006/04/06)"
+#define F_CLASS_VERSION_STRING                  "03.00 (2006/10/20)"
 
 #include "Private.h"
 

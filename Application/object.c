@@ -56,18 +56,8 @@ STATIC int32 app_create_ports(struct LocalObjectData *LOD)
 ///app_delete_ports
 STATIC void app_delete_ports(struct LocalObjectData *LOD)
 {
-	IEXEC Forbid();
-	
 	if (LOD->time_request)
 	{
-		if (LOD->app_port && LOD->base)
-		{
-			if (IEXEC FindPort(LOD->base))
-			{
-				IEXEC RemPort(LOD->app_port);
-			}
-		}
-	
 		IEXEC CloseDevice((struct IORequest *) LOD->time_request);
 
 		IEXEC DeleteIORequest(LOD->time_request);
@@ -77,21 +67,44 @@ STATIC void app_delete_ports(struct LocalObjectData *LOD)
 
 	if (LOD->timers_port)
 	{
-		struct Message *msg;
+		struct Message *msg, *last = NULL;
  
+		IEXEC Forbid();
+
 		while ((msg = IEXEC GetMsg(LOD->timers_port)) != NULL)
 		{
+			if (msg == last)
+			{
+				IFEELIN F_Log(0, "circle in pending messages !");
+
+				break;
+			}
+
 			IEXEC ReplyMsg(msg);
+
+			last = msg;
 		}
 
 		IEXEC DeleteMsgPort(LOD->timers_port);
 
 		LOD->timers_port = NULL;
+
+		IEXEC Permit();
 	}
 
 	if (LOD->app_port)
 	{
 		struct Message *msg;
+
+		IEXEC Forbid();
+
+		if (LOD->base)
+		{
+			if (IEXEC FindPort(LOD->base))
+			{
+				IEXEC RemPort(LOD->app_port);
+			}
+		}
 
 		while ((msg = IEXEC GetMsg(LOD->app_port)) != NULL)
 		{
@@ -105,10 +118,12 @@ STATIC void app_delete_ports(struct LocalObjectData *LOD)
 			}
 		}
 
-		IEXEC DeleteMsgPort(LOD->app_port); LOD->app_port = NULL;
+		IEXEC DeleteMsgPort(LOD->app_port);
+		
+		LOD->app_port = NULL;
+
+		IEXEC Permit();
 	}
-	
-	IEXEC Permit();
 }
 //+
 ///app_create_broker
@@ -206,8 +221,8 @@ STATIC void app_delete_broker(struct LocalObjectData *LOD)
 *** Methods *************************************************************************************
 ************************************************************************************************/
 
-///App_New
-F_METHOD(uint32,App_New)
+///Application_New
+F_METHOD(uint32,Application_New)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 	struct TagItem *Tags = Msg,item;
@@ -365,61 +380,105 @@ F_METHOD(uint32,App_New)
 	return NULL;
 }
 //+
-///App_Dispose
-F_METHOD(void,App_Dispose)
+///Application_Dispose
+F_METHOD(uint32,Application_Dispose)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
-
-	IFEELIN F_Do(LOD->appserver,FM_RemMember,Obj);
 
 	/* Puting the application to sleep close all windows and dispose graphic
 	resources */
 
-	IFEELIN F_Do(Obj,FM_Application_Sleep);
+	//
+	// put application to sleep
+	// all children will be invoked with the Cleanup method
+	// they should free a lot of resources
+	//
 
-	IFEELIN F_Do(Obj,FM_Application_Save,FV_Application_BOTH);
-	
-	#if 0//def F_ENABLE_PREFERENCES
-	
-	IFEELIN F_Do(LOD->preferences,FM_UnNotify,LOD->preferences_notify_handler);
+	IFEELIN F_Do(Obj, FM_Application_Sleep);
 
-	if (!(LOD->flags & FF_APPLICATION_INHERITED_PREFS))
+	//
+	// dispose the preferences
+	//
+
+	if (LOD->css)
 	{
-		IFEELIN F_DisposeObj(LOD->preferences);
-	}
-	
-	LOD->preferences = NULL;
-	
-	#endif
-			
-	if (LOD->appserver != NULL)
-	{
-		IFEELIN F_SharedClose(LOD->appserver);
+		if (LOD->css_notify_handler)
+		{
+			IFEELIN F_Do(LOD->css, FM_UnNotify, LOD->css_notify_handler);
 
-		LOD->appserver = NULL;
+			LOD->css_notify_handler = NULL;
+		}
+
+		if (!(LOD->flags & FF_APPLICATION_INHERITED_CSS))
+		{
+			IFEELIN F_DisposeObj(LOD->css);
+		}
+
+		LOD->css = NULL;
 	}
 
-	app_delete_broker(LOD);
-	app_delete_ports(LOD);
-	
-	#if 0
-	
-	/* FIXME: re-enable this */
-   
-	while (LOD->Timers.Head)
-	{
-		IFEELIN F_Do(Obj,FM_Application_DeleteSignalHandler,(struct FeelinTimeHeader *)(LOD->Timers.Head)->Handler);
-	}
-	
-	#endif
+	//
+	// save the persistent values of idetified elements
+	//
 
-	IFEELIN F_DeletePool(LOD->pool); LOD->pool = NULL;
+	IFEELIN F_Do(Obj, FM_Application_Save, FV_Application_BOTH);
+
+	//
+	// pass the method to our superclass
+	// it should dispose all of our children
+	//
 
 	F_SUPERDO();
+
+	//
+	// free resources that might have been left behind by children
+	//
+									
+	while (LOD->timer_handlers_list.Head)
+	{
+		IFEELIN F_Log(FV_LOG_DEV, "Removing forgotten signal handler (0x%08lx)", LOD->timer_handlers_list.Head);
+
+		IFEELIN F_Do(Obj, FM_Application_DeleteSignalHandler, F_PUBLICIZE_SIGNAL_HANDLER(LOD->timer_handlers_list.Head));
+	}
+
+	//
+	// quit and release the appserver
+	//
+
+	if (LOD->appserver)
+	{
+		IFEELIN F_Do(LOD->appserver, FM_RemMember, Obj);
+		IFEELIN F_SharedClose(LOD->appserver);
+	}
+
+	//
+	// delete the broker's port and resources
+	//
+
+	app_delete_broker(LOD);
+
+	//
+	// delete additionnal message ports
+	//
+
+	app_delete_ports(LOD);
+
+	//
+	// delete our memory pool
+	//
+
+	if (LOD->pool)
+	{
+		IFEELIN F_DeletePool(LOD->pool);
+	
+		LOD->pool = NULL;
+	}
+
+	return 0;
 }
 //+
-///App_Set
-F_METHOD(void,App_Set)
+///Application_Set
+F_METHOD(void,Application_Set)
 {
 	struct LocalObjectData *LOD  = F_LOD(Class,Obj);
 	struct TagItem *Tags = Msg,item;
@@ -498,8 +557,8 @@ F_METHOD(void,App_Set)
 	F_SUPERDO();
 }
 //+
-///App_Get
-F_METHOD(uint32, App_Get)
+///Application_Get
+F_METHOD(uint32, Application_Get)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 	struct TagItem *Tags = Msg,item;
@@ -530,10 +589,12 @@ F_METHOD(uint32, App_Get)
 	return F_SUPERDO();
 }
 //+
-///App_AddMember
-F_METHODM(uint32,App_AddMember,FS_AddMember)
+///Application_AddMember
+F_METHODM(uint32,Application_AddMember,FS_AddMember)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
+
+	FObject orphan = Msg->Orphan;
 
 	if (F_SUPERDO() == FALSE)
 	{
@@ -542,8 +603,10 @@ F_METHODM(uint32,App_AddMember,FS_AddMember)
 
 	#ifdef F_NEW_GLOBALCONNECT
 	
-	if (IFEELIN F_Do(Msg->Orphan, FM_Element_GlobalConnect, Obj, NULL) == FALSE)
+	if (IFEELIN F_Do(orphan, FM_Element_GlobalConnect, Obj, NULL) == FALSE)
 	{
+		IFEELIN F_Log(FV_LOG_DEV, "Child (0x%08lx) refuses global connection", orphan);
+
 		return FALSE;
 	}
 	
@@ -551,17 +614,21 @@ F_METHODM(uint32,App_AddMember,FS_AddMember)
 
 	if ((FF_Application_Setup & LOD->flags) != 0)
 	{
-		if (IFEELIN F_Get(Msg->Orphan, FA_Window_Open) != FALSE)
+		if (IFEELIN F_Get(orphan, FA_Window_Open) != FALSE)
 		{
-			IFEELIN F_Do(Msg->Orphan, FM_Window_Open);
+			#if 0
+			IFEELIN F_Log(0, "open window (0x%08lx)", orphan);
+			#endif
+
+			IFEELIN F_Do(orphan, FM_Window_Open);
 		}
 	}
 
 	return TRUE;
 }
 //+
-///App_RemMember
-F_METHODM(bool32, App_RemMember, FS_RemMember)
+///Application_RemMember
+F_METHODM(bool32, Application_RemMember, FS_RemMember)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 		
@@ -585,16 +652,15 @@ F_METHODM(bool32, App_RemMember, FS_RemMember)
 	return F_SUPERDO();
 }
 //+
-///App_Connect
-F_METHODM(bool32, App_Connect, FS_Connect)
+///Application_Connect
+F_METHODM(bool32, Application_Connect, FS_Connect)
 {
 	return TRUE;
 }
 //+
-///App_Disconnect
-F_METHODM(bool32, App_Disconnect, FS_Disconnect)
+///Application_Disconnect
+F_METHOD(bool32, Application_Disconnect)
 {
 	return TRUE;
 }
 //+
-

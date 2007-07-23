@@ -1137,13 +1137,18 @@ STATIC void thread_exit(struct LocalObjectData *LOD)
 #endif /* F_ENABLE_INPUT || F_ENABLE_INTUITION */
 
 ///Thread_Main
-F_THREAD_ENTRY(Thread_Main)
+F_HOOKM(FThreadMsg *, Thread_Main, FS_Thread_Run)
 {
-	struct LocalObjectData *LOD = UserData;
+	struct LocalObjectData *LOD = Hook->h_Data;
+
+	uint32 id_Pop = Msg->Public->id_Pop;
+	uint32 id_Wait = Msg->Public->id_Wait;
+
+	struct MsgPort *thread_port = Msg->Public->Port;
 
 	uint8 read_again = FALSE;
 
-	LOD->ThreadPublic = Public;
+	LOD->ThreadPublic = Msg->Public;
 
 	#ifdef F_ENABLE_INPUT
 
@@ -1169,8 +1174,8 @@ F_THREAD_ENTRY(Thread_Main)
 	for (;;)
 	{
 		FThreadMsg *msg;
-		
-		if ((msg = (FThreadMsg *) IFEELIN F_Do(Thread, Public->id_Pop)) != NULL)
+
+		if ((msg = (FThreadMsg *) IFEELIN F_Do(Obj, id_Pop)) != NULL)
 		{
 			read_again = TRUE;
  
@@ -1266,7 +1271,7 @@ F_THREAD_ENTRY(Thread_Main)
 					 (((struct AppMessage *)(msg))->am_Type == AMTYPE_APPMENUITEM)) &&
 					(((struct AppMessage *)(msg))->am_ID == MAKE_ID('A','P','P','W')))
 				{
-					events_post_wbdrop(LOD, (struct AppMessage *) msg, Public->Port);
+					events_post_wbdrop(LOD, (struct AppMessage *) msg, thread_port);
 				}
 			}
 			#endif
@@ -1436,11 +1441,11 @@ F_THREAD_ENTRY(Thread_Main)
  
 			#ifdef F_ENABLE_INTUITION
 			
-			IFEELIN F_Do(Thread, Public->id_Wait, (LOD->intuition_port) ? (1 << LOD->intuition_port->mp_SigBit) : 0);
+			IFEELIN F_Do(Obj, id_Wait, (LOD->intuition_port) ? (1 << LOD->intuition_port->mp_SigBit) : 0);
 			
 			#else
 			
-			IFEELIN F_Do(Thread, Public->id_Wait, 0);
+			IFEELIN F_Do(Obj, id_Wait, 0);
 			
 			#endif
 		}

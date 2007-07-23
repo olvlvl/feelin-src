@@ -3,8 +3,8 @@
 #
 
 NAME = ImageDisplay
-VER = 05
+VER = 06
 REV = 00
-DATE = 2005/12/10
+DATE = 2006/07/19
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

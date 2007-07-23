@@ -228,7 +228,7 @@ F_METHODM(bool32, Text_CreateDecodedStyle, FS_Element_CreateDecodedStyle)
 
 			else if (prop->Atom == F_PROPERTY_ATOM(TEXT_POSITION))
 			{
-				f_parse_values(prop->Value, text_parse_position, state);
+				f_parse_values(prop->Value, (f_parse_values_func) text_parse_position, state);
 			}
 		}
 

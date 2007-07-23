@@ -19,11 +19,7 @@ F_METHOD(uint32,Balance_AskMinMax)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 
-	#ifdef F_NEW_GLOBALCONNECT
 	if (IFEELIN F_Get(_element_parent, FA_Area_Orientation) == FV_Area_Orientation_Horizontal)
-	#else
-	if (IFEELIN F_Get(_area_parent, FA_Area_Orientation) == FV_Area_Orientation_Horizontal)
-	#endif
 	{
 		_balance_set_vertical;
 	}

@@ -5,6 +5,6 @@
 NAME = TextDisplay
 VER = 05
 REV = 00
-DATE = 2005/12/11
+DATE = 2005/12/27
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

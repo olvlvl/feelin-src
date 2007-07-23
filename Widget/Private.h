@@ -27,11 +27,15 @@ to any field */
 
 struct LocalObjectData
 {
+	#ifndef F_NEW_WIDGET_PUBLIC
+
 	#ifdef F_NEW_GLOBALCONNECT
 	F_MEMBER_ELEMENT_PUBLIC;
 	#endif
 
 	F_MEMBER_AREA_PUBLIC;
+
+	#endif
 
 	FWidgetPublic                   public;
 
@@ -88,6 +92,9 @@ struct LocalObjectData
 #define _widget_is_button						((FF_WIDGET_BUTTON & LOD->flags) != 0)
 #define _widget_set_button						LOD->flags |= FF_WIDGET_BUTTON
 #define _widget_clear_button					LOD->flags &= ~FF_WIDGET_BUTTON
+
+#define _area_public							_widget_public AreaPublic->
+#define _element_public							_widget_public ElementPublic->
 
 /* FF_WIDGET_BUTTON is set when the input mode is 'Release' and  the  widget
 is  pressed.  The  flag is cleared when the widget is released. The flags is

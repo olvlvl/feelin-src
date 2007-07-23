@@ -5,9 +5,8 @@
 NAME = CorePNG
 VER = 01
 REV = 00
-DATE = 2005/12/22
+DATE = 2005/08/17
 
-ADDLIBS = LIB feelin:include/lib/libpng_68k.lib LIB feelin:include/lib/libz_68k.lib
-ADDLIBS_OS4_GCC = -lpng_OS4 -lz_OS4
+LINKER_LIBS_APPEND = -lpng_$(PLATFORM) -lzip_$(PLATFORM)
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

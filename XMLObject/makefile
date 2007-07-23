@@ -3,8 +3,8 @@
 #
 
 NAME = XMLObject
-VER = 04
+VER = 05
 REV = 00
-DATE = 2006/08/10
+DATE = 2007/07/22
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

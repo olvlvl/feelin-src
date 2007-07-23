@@ -5,9 +5,9 @@
 */
 
 #define F_CLASS_NAME                            "Widget"
-#define F_CLASS_VERSION                         1
+#define F_CLASS_VERSION                         2
 #define F_CLASS_REVISION                        0
-#define F_CLASS_VERSION_STRING                  "01.00 (2006/05/27)"
+#define F_CLASS_VERSION_STRING                  "02.00 (2007/10/01)"
 
 #include "Private.h"
 

@@ -3,8 +3,8 @@
 #
 
 NAME = Family
-VER = 06
+VER = 07
 REV = 00
-DATE = 2006/10/19
+DATE = 2007/07/23
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

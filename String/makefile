@@ -3,8 +3,8 @@
 #
 
 NAME = String
-VER = 06
+VER = 07
 REV = 00
-DATE = 2005/12/11
+DATE = 2006/06/04
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

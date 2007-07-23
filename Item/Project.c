@@ -41,9 +41,9 @@ F_QUERY()
 				
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(RadioItem_New, FM_New),
-				F_METHODS_ADD_STATIC(RadioItem_Dispose, FM_Dispose),
-				F_METHODS_ADD_STATIC(RadioItem_Get, FM_Get),
+				F_METHODS_OVERRIDE_STATIC(RadioItem_New, FM_New),
+				F_METHODS_OVERRIDE_STATIC(RadioItem_Dispose, FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(RadioItem_Get, FM_Get),
 				
 				F_ARRAY_END
 			};

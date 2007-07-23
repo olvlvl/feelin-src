@@ -5,9 +5,9 @@
 */
 
 #define F_CLASS_NAME                            "Numeric"
-#define F_CLASS_VERSION                         4
+#define F_CLASS_VERSION                         5
 #define F_CLASS_REVISION                        0
-#define F_CLASS_VERSION_STRING                  "04.00 (2005/12/11)"
+#define F_CLASS_VERSION_STRING                  "05.00 (2006/05/28)"
 
 #include "Private.h"
 

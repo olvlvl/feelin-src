@@ -6,8 +6,8 @@
 
 #define F_CLASS_NAME                            "Scale"
 #define F_CLASS_VERSION                         1
-#define F_CLASS_REVISION                        2
-#define F_CLASS_VERSION_STRING                  "01.02 (2005/08/10)"
+#define F_CLASS_REVISION                        4
+#define F_CLASS_VERSION_STRING                  "01.04 (2005/07/19)"
 
 #include "Private.h"
 

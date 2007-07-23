@@ -60,16 +60,14 @@ F_QUERY()
 								
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(Image_New,        FM_New),
-				F_METHODS_ADD_STATIC(Image_Dispose,    FM_Dispose),
-				F_METHODS_ADD_STATIC(Image_Set,        FM_Set),
-				F_METHODS_ADD_STATIC(Image_Get,        FM_Get),
-
-				F_METHODS_ADD_STATIC(Image_Setup,      FM_Element_Setup),
-				F_METHODS_ADD_STATIC(Image_Cleanup,    FM_Element_Cleanup),
-
-				F_METHODS_ADD_STATIC(Image_AskMinMax,  FM_Area_AskMinMax),
-				F_METHODS_ADD_STATIC(Image_Draw,       FM_Area_Draw),
+				F_METHODS_OVERRIDE_STATIC(Image_New,        FM_New),
+				F_METHODS_OVERRIDE_STATIC(Image_Dispose,    FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(Image_Set,        FM_Set),
+				F_METHODS_OVERRIDE_STATIC(Image_Get,        FM_Get),
+				F_METHODS_OVERRIDE_STATIC(Image_Setup,      FM_Element_Setup),
+				F_METHODS_OVERRIDE_STATIC(Image_Cleanup,    FM_Element_Cleanup),
+				F_METHODS_OVERRIDE_STATIC(Image_AskMinMax,  FM_Area_AskMinMax),
+				F_METHODS_OVERRIDE_STATIC(Image_Draw,       FM_Area_Draw),
 				
 				F_ARRAY_END
 			};
@@ -89,6 +87,7 @@ F_QUERY()
 			return F_TAGS_PTR;
 		}
 //+
+#if 0
 ///Prefs
 		case FV_Query_PrefsTags:
 		{
@@ -110,6 +109,7 @@ F_QUERY()
 			return F_TAGS_PTR;
 		}
 //+
+#endif
 	}
 	return NULL;
 }

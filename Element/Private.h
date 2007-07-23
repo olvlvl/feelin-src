@@ -20,8 +20,7 @@ enum    {
 		FV_AUTO_CREATEHANDLE,
 
 		FV_AUTO_OBTAINSTYLE,
-		FV_AUTO_RELEASESTYLE,
-		FV_AUTO_OBTAINSTYLEBYNAME
+		FV_AUTO_RELEASESTYLE
 
 		};
 
@@ -42,13 +41,6 @@ struct LocalObjectData
 	FObject                         preferences;
 
 	FPreferenceStyle               *composed_style;
-
-	#ifndef F_NEW_STYLES_EXTENDED
-
-	FPreferenceProperty           **properties;
-	FPreferenceStyle               *class_style;
-
-	#endif
 };
 
 #undef _element_public

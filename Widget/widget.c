@@ -189,7 +189,11 @@ F_METHODM(bits32,Widget_HandleEvent,FS_Widget_HandleEvent)
 			{
 				switch (LOD->mode)
 				{
+					#ifdef F_NEW_WIDGET_MODE
+					case FV_Widget_Mode_Button:
+					#else
 					case FV_Widget_Mode_Release:
+					#endif
 					{
 						if (_widget_isnt_selected)
 						{
@@ -206,7 +210,11 @@ F_METHODM(bits32,Widget_HandleEvent,FS_Widget_HandleEvent)
 					}
 					break;
 
+					#ifdef F_NEW_WIDGET_MODE
+					case FV_Widget_Mode_Touch:
+					#else
 					case FV_Widget_Mode_Immediate:
+					#endif
 					{
 						IFEELIN F_SuperDo(Class, Obj, FM_Set, FA_Widget_Selected, TRUE, TAG_DONE);
 					}
@@ -223,7 +231,11 @@ F_METHODM(bits32,Widget_HandleEvent,FS_Widget_HandleEvent)
 
 			case FV_KEY_RELEASE:
 			{
+				#ifdef F_NEW_WIDGET_MODE
+				if (LOD->mode == FV_Widget_Mode_Button)
+				#else
 				if (LOD->mode == FV_Widget_Mode_Release)
+				#endif
 				{
 					if (_widget_is_selected)
 					{
@@ -259,7 +271,11 @@ F_METHODM(bits32,Widget_HandleEvent,FS_Widget_HandleEvent)
 				{ 
 					switch (LOD->mode)
 					{
+						#ifdef F_NEW_WIDGET_MODE
+						case FV_Widget_Mode_Button:
+						#else
 						case FV_Widget_Mode_Release:
+						#endif
 						{
 							if (FF_EVENT_KEY_UP & fev->Flags)
 							{
@@ -303,8 +319,12 @@ F_METHODM(bits32,Widget_HandleEvent,FS_Widget_HandleEvent)
 							}
 						}
 						break;
-						
+
+						#ifdef F_NEW_WIDGET_MODE
+						case FV_Widget_Mode_Touch:
+						#else
 						case FV_Widget_Mode_Immediate:
+						#endif
 						{
 							IFEELIN F_SuperDo(Class, Obj, FM_Set, FA_Widget_Selected, TRUE, TAG_DONE);
 						}
@@ -312,7 +332,11 @@ F_METHODM(bits32,Widget_HandleEvent,FS_Widget_HandleEvent)
 					}
 					return FF_HandleEvent_Eat;
 				}
+				#ifdef F_NEW_WIDGET_MODE
+				else if (_widget_is_selected && (LOD->mode == FV_Widget_Mode_Button))
+				#else
 				else if (_widget_is_selected && (LOD->mode == FV_Widget_Mode_Release))
+				#endif
 				{
 					IFEELIN F_Do
 					(
@@ -343,7 +367,11 @@ F_METHODM(bits32,Widget_HandleEvent,FS_Widget_HandleEvent)
 						{
 							switch (LOD->mode)
 							{
+								#ifdef F_NEW_WIDGET_MODE
+								case FV_Widget_Mode_Touch:
+								#else
 								case FV_Widget_Mode_Immediate:
+								#endif
 								{
 									IFEELIN F_SuperDo(Class, Obj, FM_Set, FA_Widget_Selected, TRUE, TAG_DONE);
 								}
@@ -355,7 +383,11 @@ F_METHODM(bits32,Widget_HandleEvent,FS_Widget_HandleEvent)
 								}
 								break;
 
+								#ifdef F_NEW_WIDGET_MODE
+								case FV_Widget_Mode_Button:
+								#else
 								case FV_Widget_Mode_Release:
+								#endif
 								{
 									IFEELIN F_Do
 									(
@@ -619,10 +651,10 @@ F_METHODM(void,Widget_DnDFinish,FS_Widget_DnDFinish)
 			FRect rect;
 
 			rect.x1 = x1; rect.x2 = x2;
-			rect.y1 = y1; rect.y2 = y2; IGRAPHICS OrRectRegion(region,(struct Rectangle *) &rect);
+			rect.y1 = y1; rect.y2 = y2; IGRAPHICS OrRectRegion(region, (struct Rectangle *) &rect);
 
 			rect.x1 += 1; rect.x2 -= 1;
-			rect.y1 += 1; rect.y2 -= 1; IGRAPHICS ClearRectRegion(region,(struct Rectangle *) &rect);
+			rect.y1 += 1; rect.y2 -= 1; IGRAPHICS ClearRectRegion(region, (struct Rectangle *) &rect);
 
 			IFEELIN F_Do(parent, FM_Area_Erase, region, FF_Erase_Region);
 
@@ -647,9 +679,11 @@ F_METHODM(void,Widget_DnDReport,FS_Widget_DnDReport)
 	{
 		if (_area_render != NULL)
 		{
-			struct RastPort     *rp = _area_rp;
-			struct Region       *region;
-			APTR                 clip=NULL;
+			struct RastPort *rp = _area_rp;
+			struct Region *region;
+			
+			APTR clip = NULL;
+
 			int16 x1 = _area_x, x2 = x1 + _area_w - 1;
 			int16 y1 = _area_y, y2 = y1 + _area_h - 1;
 
@@ -671,7 +705,7 @@ F_METHODM(void,Widget_DnDReport,FS_Widget_DnDReport)
 
 				IGRAPHICS XorRectRegion(region,(struct Rectangle *) &r);
 
-				clip = (APTR) IFEELIN F_Do(_area_render,FM_Render_AddClipRegion,region);
+				clip = (APTR) IFEELIN F_Do(_area_render, FM_Render_AddClipRegion, region);
 
 				IGRAPHICS DisposeRegion(region);
 			}
@@ -706,5 +740,3 @@ F_METHODM(uint32,Widget_DnDDrop,FS_Widget_DnDDrop)
 	return 0;
 }
 //+
-
-

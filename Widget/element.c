@@ -4,6 +4,12 @@
 *** Methods *************************************************************************************
 ************************************************************************************************/
 
+/*
+#define $(obj, method, ...) \
+	({uint32 _tags[] = { __VA_ARGS__ }; \
+	IFEELIN F_DoA(obj, method, (APTR) _tags);})
+*/
+
 ///Widget_Setup
 F_METHODM(bool32,Widget_Setup,FS_Element_Setup)
 {
@@ -15,8 +21,6 @@ F_METHODM(bool32,Widget_Setup,FS_Element_Setup)
 	{
 		return FALSE;
 	}
-
-	_area_render = Msg->Render;
 
 /** chainable **********************************************************************************/
 

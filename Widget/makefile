@@ -3,8 +3,8 @@
 #
 
 NAME = Widget
-VER = 01
+VER = 02
 REV = 00
-DATE = 2006/05/27
+DATE = 2007/10/01
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

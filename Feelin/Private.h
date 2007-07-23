@@ -48,6 +48,11 @@ $VER: 10.00 (2005/09/30)
 *** Configuration *******************************************************************************
 ************************************************************************************************/
 
+#define F_ENABLE_GLOBALS
+
+	/* use global variables for libraries' base and  interface,  instead  of
+	those available in FeelinBase. */
+
 //#define F_ENABLE_MEMORY_WALL
 
 	/* If F_ENABLE_MEMORY_WALL is defined, a wall is added before and  after
@@ -158,7 +163,8 @@ what she really got ;-) */
 #include <feelin/string.h>
 
 /* FIXME: C'est un peu pourrit ça */
-#if defined(__MORPHOS__) || defined(__AROS__) || defined (__amigaos4__)
+//#if defined(__MORPHOS__) || defined(__AROS__) || defined (__amigaos4__)
+#ifdef F_ENABLE_GLOBALS
 #include <proto/exec.h>
 #else
 #include <clib/exec_protos.h>
@@ -212,7 +218,8 @@ what she really got ;-) */
 *** Libraries base ******************************************************************************
 ************************************************************************************************/
 
-#if defined(__MORPHOS__) || defined(__AROS__) || defined(__amigaos4__)
+//#if defined(__MORPHOS__) || defined(__AROS__) || defined(__amigaos4__)
+#ifdef F_ENABLE_GLOBALS
 
 extern struct in_FeelinBase                *FeelinBase;
 
@@ -240,20 +247,14 @@ extern struct IntuitionBase                *IntuitionBase;
 extern struct IntuitionIFace               *IIntuition;
 #endif
 
-#ifdef __amigaos4__
 extern struct UtilityBase                  *UtilityBase;
+#ifdef __amigaos4__
 extern struct UtilityIFace                 *IUtility;
-#else
-extern struct Library                      *UtilityBase;
 #endif
 
-#ifdef __AROS__
 extern struct LocaleBase                   *LocaleBase;
-#else
-extern struct Library                      *LocaleBase;
 #ifdef __amigaos4__
 extern struct LocaleIFace                  *ILocale;
-#endif
 #endif
 
 #else
@@ -423,16 +424,26 @@ struct in_FeelinBase
 {
 	struct FeelinBase               Public;
 
-/** Private **/
+	//
+	// private
+	//
 
 	APTR                            seglist;
 	struct SignalSemaphore          Henes;
+
+	/* the 'Henes' semaphore is used  during  library  opening  to  allocate
+	resources that could not be allocated during the initialization time. */
 
 	struct FeelinPool              *pools;
 
 	struct FeelinPool              *DefaultPool;
 	struct FeelinPool              *HashPool;
+	
 	struct FeelinPool              *NotifyPool;
+	struct SignalSemaphore			objects_arbiter;
+
+	/* the 'objects_arbiter' is used by objects during the  Lock  method  in
+	order to create their arbiter safely. */
 
 	struct FeelinPuddle            *hash_puddles[FV_MEMORY_HASH_SIZE + 1];
 
@@ -490,6 +501,10 @@ struct in_FeelinBase
 #define F_ATOMS_ARBITER                         &FeelinBase->atoms_arbiter
 #define F_ATOMS_LOCK                            IEXEC ObtainSemaphore(F_ATOMS_ARBITER)
 #define F_ATOMS_UNLOCK                          IEXEC ReleaseSemaphore(F_ATOMS_ARBITER)
+
+#define F_OBJECTS_ARBITER						(&FeelinBase->objects_arbiter)
+#define F_OBJECTS_LOCK()						IEXEC ObtainSemaphore(F_OBJECTS_ARBITER)
+#define F_OBJECTS_UNLOCK()						IEXEC ReleaseSemaphore(F_OBJECTS_ARBITER)
 
 #define F_SHAREDS_ARBITER                       FeelinBase->shareds_arbiter
 #define F_SHAREDS_LOCK                          IEXEC ObtainSemaphore(&F_SHAREDS_ARBITER)
@@ -573,18 +588,6 @@ LIB_PROTO2(f_newp, APTR,
 													a1, APTR, Mem)
 LIB_PROTO1(f_dispose, uint32,
 	a1, APTR Mem);
-
-#if F_CODE_DEPRECATED
-
-/* F_DisposeP() */
-
-#define F_LIB_DISPOSEP                          LIB_DEFFUNC2(f_disposep, uint32, \
-													a0, FPool *, Pool, \
-													a1, APTR, Mem)
-LIB_PROTO2(f_disposep, uint32,
-	a0, FPool * Pool,
-	a1, APTR Mem);
-#endif
 
 /* F_OPool() */
 
@@ -1023,6 +1026,8 @@ LIB_PROTO1NR(f_shared_close,
 //+
 
 ///Atoms
+
+#include "lib_Atoms.h"
 
 /* F_AtomFind() */
 

@@ -221,6 +221,65 @@ F_METHODM(uint32,XMLObject_Read,FS_Document_Read)
 	return F_SUPERDO();
 }
 //+
+#ifdef F_NEW_GETELEMENTBYID
+///XMLObject_GetElementById
+F_METHODM(FObject, XMLObject_GetElementById, FS_GetElementById)
+{
+	struct LocalObjectData *LOD = F_LOD(Class,Obj);
+
+	struct in_Reference *node = NULL;
+
+	if (!LOD->references)
+	{
+		IFEELIN F_Log(FV_LOG_DEV, "No elements are referenced !");
+
+		return NULL;
+	}
+
+	//
+	// obtain atom for Id
+	//
+
+	FAtom *atom = IFEELIN F_AtomFind(Msg->Id, ALL);
+
+	if (!atom)
+	{
+		return NULL;
+	}
+
+	//
+	// search the element
+	//
+
+	#if 0
+	IFEELIN F_Log(0, "search id '%s'", Msg->Id);
+	#endif
+
+	for (node = LOD->references ; node ; node = node->next)
+	{
+		if (node->atom == atom)
+		{
+			return node->object;
+		}
+	}
+
+	#if 0
+
+	//
+	// debug
+	//
+
+	for (node = LOD->references ; node ; node = node->next)
+	{
+		IFEELIN F_Log(0, "referenced element : '%s'", node->atom->Key);
+	}
+
+	#endif
+
+	return NULL;
+}
+//+
+#else
 ///XMLObject_GetObjects
 
 struct FS_XMLObject_GetObjects                  { STRPTR Name; FObject *ObjectPtr; /* ... NULL */ };
@@ -271,6 +330,7 @@ F_METHODM(uint32,XMLObject_GetObjects,FS_XMLObject_GetObjects)
 	return n;
 }
 //+
+#endif
 ///XMLObject_Build
 F_METHOD(int32,XMLObject_Build)
 {

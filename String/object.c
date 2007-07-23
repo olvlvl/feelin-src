@@ -106,17 +106,6 @@ F_METHOD(void,String_Set)
 		}
 		break;
 
-		#ifndef F_NEW_STYLES
-
-		case FV_ATTRIBUTE_BLINKSPEED:
-		{
-			LOD->BlinkSpeed   = item.ti_Data;
-			LOD->BlinkElapsed = 0;
-		}
-		break;
-
-		#endif
-
 		case FV_ATTRIBUTE_CONTENTS:
 		{
 			if (item.ti_Data != (uint32)(LOD->String))

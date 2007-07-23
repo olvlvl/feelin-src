@@ -190,8 +190,8 @@ F_QUERY()
 	   {
 		   STATIC F_METHODS_ARRAY =
 		   {
-			   F_METHODS_ADD_STATIC(Class_New,      FM_New),
-			   F_METHODS_ADD_STATIC(Class_Dispose,  FM_Dispose),
+			   F_METHODS_OVERRIDE_STATIC(Class_New,      FM_New),
+			   F_METHODS_OVERRIDE_STATIC(Class_Dispose,  FM_Dispose),
 
 			   F_ARRAY_END
 		   };
@@ -199,7 +199,7 @@ F_QUERY()
 		   STATIC F_TAGS_ARRAY =
 		   {
 			   F_TAGS_ADD_SUPER(Class),
-			   F_TAGS_ADD(LODSize, sizeof (struct ClassUserData)),
+			   F_TAGS_ADD(LocalSize, sizeof (struct ClassUserData)),
 			   F_TAGS_ADD_METHODS,
 
 			   F_ARRAY_END
@@ -235,20 +235,20 @@ F_QUERY()
 				F_METHODS_ADD(D_Create,              "Create"),
 				F_METHODS_ADD(D_Delete,              "Delete"),
 				
-				F_METHODS_ADD_BOTH(D_AddColor,            "AddColor",          FM_Display_AddColor),
-				F_METHODS_ADD_BOTH(D_RemColor,            "RemColor",          FM_Display_RemColor),
-				F_METHODS_ADD_BOTH(D_AddPalette,          "AddPalette",        FM_Display_AddPalette),
-				F_METHODS_ADD_BOTH(D_RemPalette,          "RemPalette",        FM_Display_RemPalette),
-				F_METHODS_ADD_BOTH(D_CreateColor,         "CreateColor",       FM_Display_CreateColor),
+				F_METHODS_ADD_STATIC(D_AddColor,            "AddColor",          FM_Display_AddColor),
+				F_METHODS_ADD_STATIC(D_RemColor,            "RemColor",          FM_Display_RemColor),
+				F_METHODS_ADD_STATIC(D_AddPalette,          "AddPalette",        FM_Display_AddPalette),
+				F_METHODS_ADD_STATIC(D_RemPalette,          "RemPalette",        FM_Display_RemPalette),
+				F_METHODS_ADD_STATIC(D_CreateColor,         "CreateColor",       FM_Display_CreateColor),
 				
 				F_METHODS_ADD(D_PixelRead,    "PixelRead"),
 				F_METHODS_ADD(D_PixelWrite,   "PixelWrite"),
 				
-				F_METHODS_ADD_STATIC(D_New,        FM_New),
-				F_METHODS_ADD_STATIC(D_Dispose,    FM_Dispose),
-				F_METHODS_ADD_STATIC(D_Get,        FM_Get),
-				F_METHODS_ADD_STATIC(D_AddMember,  FM_AddMember),
-				F_METHODS_ADD_STATIC(D_RemMember,  FM_RemMember),
+				F_METHODS_OVERRIDE_STATIC(D_New,        FM_New),
+				F_METHODS_OVERRIDE_STATIC(D_Dispose,    FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(D_Get,        FM_Get),
+				F_METHODS_OVERRIDE_STATIC(D_AddMember,  FM_AddMember),
+				F_METHODS_OVERRIDE_STATIC(D_RemMember,  FM_RemMember),
 
 				F_ARRAY_END
 			};

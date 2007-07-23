@@ -68,19 +68,19 @@ F_QUERY()
 								
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD       (XMLDocument_Push,          "Push"),
-				F_METHODS_ADD       (XMLDocument_Pop,           "Pop"),
-				F_METHODS_ADD       (XMLDocument_Add,           "Add"),
-				F_METHODS_ADD       (XMLDocument_AddInt,        "AddInt"),
-				F_METHODS_ADD       (XMLDocument_AddEntity,     "AddEntity"),
-				F_METHODS_ADD       (XMLDocument_AddEntities,   "AddEntities"),
-				F_METHODS_ADD       (XMLDocument_FindEntity,    "FindEntity"),
-				F_METHODS_ADD       (XMLDocument_Write,         "FM_Document_Write"),
+				F_METHODS_ADD(XMLDocument_Push,          "Push"),
+				F_METHODS_ADD(XMLDocument_Pop,           "Pop"),
+				F_METHODS_ADD(XMLDocument_Add,           "Add"),
+				F_METHODS_ADD(XMLDocument_AddInt,        "AddInt"),
+				F_METHODS_ADD(XMLDocument_AddEntity,     "AddEntity"),
+				F_METHODS_ADD(XMLDocument_AddEntities,   "AddEntities"),
+				F_METHODS_ADD(XMLDocument_FindEntity,    "FindEntity"),
 				
-				F_METHODS_ADD       (XMLDocument_Parse,         "FM_Document_Parse"),
-				F_METHODS_ADD       (XMLDocument_Clear,         "FM_Document_Clear"),
-				F_METHODS_ADD_STATIC(XMLDocument_Get,            FM_Get),
-				F_METHODS_ADD_STATIC(XMLDocument_New,            FM_New),
+				F_METHODS_OVERRIDE(XMLDocument_Write, "Document", "Write"),
+				F_METHODS_OVERRIDE(XMLDocument_Parse, "Document", "Parse"),
+				F_METHODS_OVERRIDE(XMLDocument_Clear, "Document", "Clear"),
+				F_METHODS_OVERRIDE_STATIC(XMLDocument_Get, FM_Get),
+				F_METHODS_OVERRIDE_STATIC(XMLDocument_New, FM_New),
 				
 				F_ARRAY_END
 			};

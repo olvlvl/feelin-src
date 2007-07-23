@@ -3,8 +3,8 @@
 #
 
 NAME = Numeric
-VER = 04
+VER = 05
 REV = 00
-DATE = 2005/12/11
+DATE = 2006/05/28
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

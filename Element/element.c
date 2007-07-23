@@ -38,7 +38,7 @@ F_METHODM(bool32, Element_GlobalConnect, FS_Element_GlobalConnect)
 }
 //+
 ///Element_GlobalDisconnect
-F_METHODM(bool32, Element_GlobalDisconnect, FS_Element_GlobalDisconnect)
+F_METHOD(bool32, Element_GlobalDisconnect)
 {
 	struct LocalObjectData *LOD = F_LOD(Class, Obj);
 

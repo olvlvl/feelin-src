@@ -166,7 +166,7 @@ F_METHODM(uint32,String_Draw,FS_Area_Draw)
 	}
 	else
 	{
-		cw = IGRAPHICS TextLength(rp,LOD->String + cur,LOD->Sel);
+		cw = IGRAPHICS TextLength(rp, LOD->String + cur, LOD->Sel);
 	}
 
 	String_ClipText(Class,Obj,rp,x2 - x1 + 1, cur,len,cw, &fit);

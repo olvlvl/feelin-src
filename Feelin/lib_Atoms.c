@@ -30,7 +30,7 @@ include n'est utilisé nulle par ailleurs.
 ************************************************************************************************/
 
 ///f_atom_hash
-STATIC struct in_Atom * f_atom_hash(STRPTR Key, uint32 KeyLength, uint32 *HashPtr, struct in_FeelinBase *FeelinBase)
+static struct in_Atom * f_atom_hash(STRPTR Key, uint32 KeyLength, volatile uint32 *HashPtr, struct in_FeelinBase *FeelinBase)
 {
 	if (Key && KeyLength)
 	{
@@ -106,7 +106,7 @@ F_LIB_ATOM_FIND
 
 	if (Str && Length)
 	{
-		uint32 hash = 0;
+		volatile uint32 hash = 0;
 		struct in_Atom *atom = f_atom_hash(Str, Length, &hash, FeelinBase);
 
 		if (atom)
@@ -135,7 +135,7 @@ F_LIB_ATOM_OBTAIN
 
 	if (Str && Length)
 	{
-		uint32 hash = 0;
+		volatile uint32 hash = 0;
 		struct in_Atom *atom;
 
 		F_ATOMS_LOCK;
@@ -179,7 +179,7 @@ F_LIB_ATOM_RELEASE
 {
 	if (Atom != NULL)
 	{
-		uint32 hash = 0;
+		volatile uint32 hash = 0;
 
 		F_ATOMS_LOCK;
 

@@ -49,7 +49,9 @@ F_METHOD_PROTO(void,Slider_Layout);
 F_METHOD_PROTO(void,Slider_Draw);
 F_METHOD_PROTO(void,Slider_SetState);
 F_METHOD_PROTO(void,Slider_HandleEvent);
+#if 0
 F_METHOD_PROTO(void,Prefs_New);
+#endif
 //+
 
 F_QUERY()
@@ -61,33 +63,25 @@ F_QUERY()
 		{
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(Slider_New,            FM_New),
-				F_METHODS_ADD_STATIC(Slider_Dispose,        FM_Dispose),
-				F_METHODS_ADD_STATIC(Slider_AddMember,      FM_AddMember),
-				F_METHODS_ADD_STATIC(Slider_RemMember,      FM_RemMember),
+				F_METHODS_OVERRIDE_STATIC(Slider_New,            FM_New),
+				F_METHODS_OVERRIDE_STATIC(Slider_Dispose,        FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(Slider_AddMember,      FM_AddMember),
+				F_METHODS_OVERRIDE_STATIC(Slider_RemMember,      FM_RemMember),
 
 				#ifdef F_NEW_GLOBALCONNECT
-				F_METHODS_ADD_STATIC(Slider_GlobalConnect,	  FM_Element_GlobalConnect),
-				F_METHODS_ADD_STATIC(Slider_GlobalDisconnect, FM_Element_GlobalDisconnect),
+				F_METHODS_OVERRIDE_STATIC(Slider_GlobalConnect,	   FM_Element_GlobalConnect),
+				F_METHODS_OVERRIDE_STATIC(Slider_GlobalDisconnect, FM_Element_GlobalDisconnect),
 				#endif
 
-				F_METHODS_ADD_STATIC(Slider_Setup,          FM_Element_Setup),
-				F_METHODS_ADD_STATIC(Slider_Cleanup,        FM_Element_Cleanup),
-
-				F_METHODS_ADD_STATIC(Slider_Show,           FM_Area_Show),
-				F_METHODS_ADD_STATIC(Slider_Hide,           FM_Area_Hide),
-				F_METHODS_ADD_STATIC(Slider_AskMinMax,      FM_Area_AskMinMax),
-				F_METHODS_ADD_STATIC(Slider_Layout,         FM_Area_Layout),
-				F_METHODS_ADD_STATIC(Slider_Draw,           FM_Area_Draw),
-				F_METHODS_ADD_STATIC(Slider_SetState,       FM_Area_SetState),
-
-/*
-				F_METHODS_ADD_STATIC(Slider_GoActive,       FM_GoActive),
-				F_METHODS_ADD_STATIC(Slider_GoInactive,     FM_GoInactive),
-				F_METHODS_ADD_STATIC(Slider_GoEnabled,      FM_GoEnabled),
-				F_METHODS_ADD_STATIC(Slider_GoDisabled,     FM_GoDisabled),
-*/
-				F_METHODS_ADD_STATIC(Slider_HandleEvent,    FM_Widget_HandleEvent),
+				F_METHODS_OVERRIDE_STATIC(Slider_Setup,          FM_Element_Setup),
+				F_METHODS_OVERRIDE_STATIC(Slider_Cleanup,        FM_Element_Cleanup),
+				F_METHODS_OVERRIDE_STATIC(Slider_Show,           FM_Area_Show),
+				F_METHODS_OVERRIDE_STATIC(Slider_Hide,           FM_Area_Hide),
+				F_METHODS_OVERRIDE_STATIC(Slider_AskMinMax,      FM_Area_AskMinMax),
+				F_METHODS_OVERRIDE_STATIC(Slider_Layout,         FM_Area_Layout),
+				F_METHODS_OVERRIDE_STATIC(Slider_Draw,           FM_Area_Draw),
+				F_METHODS_OVERRIDE_STATIC(Slider_SetState,       FM_Area_SetState),
+				F_METHODS_OVERRIDE_STATIC(Slider_HandleEvent,    FM_Widget_HandleEvent),
 
 				F_ARRAY_END
 			};
@@ -118,6 +112,7 @@ F_QUERY()
 			return F_TAGS_PTR;
 		}
 //+
+#if 0
 ///Prefs
 		case FV_Query_PrefsTags:
 		{
@@ -139,6 +134,7 @@ F_QUERY()
 			return F_TAGS_PTR;
 		}
 //+
+#endif
 	}
 	return NULL;
 }

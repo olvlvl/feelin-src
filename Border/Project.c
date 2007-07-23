@@ -14,7 +14,6 @@ $VER: 01.00 (2006/10/29)
 F_METHOD_PROTO(void,Border_New);
 F_METHOD_PROTO(void,Border_Dispose);
 F_METHOD_PROTO(void,Border_Get);
-F_METHOD_PROTO(void,Border_Set);
 
 F_METHOD_PROTO(void,Border_Setup);
 F_METHOD_PROTO(void,Border_Cleanup);
@@ -107,18 +106,17 @@ F_QUERY()
 
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(Border_New,     FM_New),
-				F_METHODS_ADD_STATIC(Border_Dispose, FM_Dispose),
-				F_METHODS_ADD_STATIC(Border_Get,     FM_Get),
-				F_METHODS_ADD_STATIC(Border_Set,     FM_Set),
+				F_METHODS_OVERRIDE_STATIC(Border_New,     FM_New),
+				F_METHODS_OVERRIDE_STATIC(Border_Dispose, FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(Border_Get,     FM_Get),
 
-				F_METHODS_ADD_STATIC(Border_Setup,               FM_Element_Setup),
-				F_METHODS_ADD_STATIC(Border_Cleanup,             FM_Element_Cleanup),
-				F_METHODS_ADD_STATIC(Border_CreateDecodedStyle,  FM_Element_CreateDecodedStyle),
+				F_METHODS_OVERRIDE_STATIC(Border_Setup,               FM_Element_Setup),
+				F_METHODS_OVERRIDE_STATIC(Border_Cleanup,             FM_Element_Cleanup),
+				F_METHODS_OVERRIDE_STATIC(Border_CreateDecodedStyle,  FM_Element_CreateDecodedStyle),
 
-//				  F_METHODS_ADD_STATIC(Border_AskMinMax,   FM_Area_AskMinMax),
-				F_METHODS_ADD_STATIC(Border_Draw,        FM_Area_Draw),
-				F_METHODS_ADD_STATIC(Border_SetState,    FM_Area_SetState),
+//				  F_METHODS_OVERRIDE_STATIC(Border_AskMinMax,   FM_Area_AskMinMax),
+				F_METHODS_OVERRIDE_STATIC(Border_Draw,        FM_Area_Draw),
+				F_METHODS_OVERRIDE_STATIC(Border_SetState,    FM_Area_SetState),
 
 				F_ARRAY_END
 			};

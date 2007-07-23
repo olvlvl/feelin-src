@@ -1055,7 +1055,7 @@ F_METHODM(bool32, Area_CreateDecodedStyle, FS_Element_CreateDecodedStyle)
 
 					else if (prop->Atom == F_PROPERTY_ATOM(PALETTE))
 					{
-						f_parse_values(prop->Value, palette_parse, palette);
+						f_parse_values(prop->Value, (f_parse_values_func) palette_parse, palette);
 					}
 				}
 				break;

@@ -324,6 +324,8 @@ _Gauge_Draw_Fill:
 }
 //+
 
+#if 0
+
 /*** Preferences *******************************************************************************/
 
 STATIC F_PREFERENCES_ARRAY =
@@ -385,9 +387,9 @@ F_METHOD(uint32,Prefs_Show)
 			(
 				_area_app, FM_Application_CreateSignalHandler,
 
-				FA_SignalHandler_Target,    Obj,
-				FA_SignalHandler_Method,    FM_Gauge_Update,
-				FA_SignalHandler_Micros,    30000,
+				FA_SignalHandle_Target,    Obj,
+				FA_SignalHandle_Method,    FM_Gauge_Update,
+				FA_SignalHandle_Micros,    30000,
 
 				TAG_DONE
 			);
@@ -438,3 +440,4 @@ F_METHOD(int32,Prefs_Update)
 }
 //+
 
+#endif

@@ -189,6 +189,7 @@ F_METHODM(bool32,Slider_RemMember,FS_RemMember)
 }
 //+
 
+#if 0
 ///Preferences
 STATIC F_PREFERENCES_ARRAY =
 {
@@ -219,3 +220,4 @@ F_METHOD(uint32,Prefs_New)
 	TAG_MORE,Msg);
 }
 //+
+#endif

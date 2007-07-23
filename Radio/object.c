@@ -40,12 +40,12 @@ STATIC void radio_layout(FClass *Class, FObject Obj)
 	
 	for (item = (struct in_Item *) LOD->items_list.Head ; item ; item = item->next)
 	{
-		if (IFEELIN F_Get(item->image, FA_Parent))
+		if (IFEELIN F_Get(item->image, FA_Element_Parent))
 		{
 			IFEELIN F_SuperDo(Class,Obj, FM_RemMember, item->image);
 		}
 
-		if (IFEELIN F_Get(item->label, FA_Parent))
+		if (IFEELIN F_Get(item->label, FA_Element_Parent))
 		{
 			IFEELIN F_SuperDo(Class,Obj, FM_RemMember, item->label);
 		}
@@ -469,7 +469,11 @@ F_METHODM(uint32,Radio_AddMember,FS_AddMember)
 				FA_Widget_SetMax,     	FV_Widget_SetBoth,
 
 				FA_Widget_Chainable,	FALSE,
+				#ifdef F_NEW_WIDGET_MODE
+				FA_Widget_Mode,     	FV_Widget_Mode_Touch,
+				#else
 				FA_Widget_Mode,     	FV_Widget_Mode_Immediate,
+				#endif
 
 				image_render ? (uint32) "FA_Image_Spec" : TAG_IGNORE, image_render,
 				image_select ? (uint32) "FA_Image_AltSpec" : TAG_IGNORE, image_select,
@@ -498,7 +502,11 @@ F_METHODM(uint32,Radio_AddMember,FS_AddMember)
 						FA_Widget_SetMax,         FV_Widget_SetHeight,
 						
 						FA_Widget_Chainable,    FALSE,
+						#ifdef F_NEW_WIDGET_MODE
+						FA_Widget_Mode,         FV_Widget_Mode_Touch,
+						#else
 						FA_Widget_Mode,         FV_Widget_Mode_Immediate,
+						#endif
 						
 						FA_Text_Contents,       label,
 						FA_Text_PreParse,       preparse_render ? preparse_render : LOD->preparse_render,
@@ -583,7 +591,7 @@ F_METHODM(uint32,Radio_RemMember,FS_RemMember)
 			
 /*** remove and dispose 'image' ****************************************************************/
  
-			if (IFEELIN F_Get(item->image, FA_Parent))
+			if (IFEELIN F_Get(item->image, FA_Element_Parent))
 			{
 				#ifdef DB_REMMEMBER
 				IFEELIN F_Log(0,"item (0x%08lx) remove image (0x%08lx)",item,item->image);
@@ -596,7 +604,7 @@ F_METHODM(uint32,Radio_RemMember,FS_RemMember)
 
 /*** remove and dispose 'label' ****************************************************************/
 
-			if (IFEELIN F_Get(item->label, FA_Parent))
+			if (IFEELIN F_Get(item->label, FA_Element_Parent))
 			{
 				#ifdef DB_REMMEMBER
 				IFEELIN F_Log(0,"item (0x%08lx) remove label (0x%08lx)",item,item->label);

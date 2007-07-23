@@ -112,17 +112,26 @@ F_METHOD(bool32, Area_Show)
 {
 	struct LocalObjectData *LOD = F_LOD(Class, Obj);
 
-	if (_area_render != NULL)
-	{
-		_area_set_drawable;
-		_area_set_damaged;
+	FRender * render = _area_render;
 
-		return TRUE;
+	if (!render)
+	{
+		IFEELIN F_Log(FV_LOG_DEV, "The object has not been setuped yet, Render is NULL !");
+
+		return FALSE;
 	}
 
-	IFEELIN F_Log(FV_LOG_DEV, "The object has not been setuped yet, Render is NULL !!");
+	if (!render->RPort)
+	{
+		IFEELIN F_Log(FV_LOG_DEV, "RPort of Render (0x%08lx) is NULL !", render);
 
-	return FALSE;
+		return FALSE;
+	}
+
+	_area_set_drawable;
+	_area_set_damaged;
+
+	return TRUE;
 }
 //+
 ///Area_Hide

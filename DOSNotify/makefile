@@ -3,8 +3,8 @@
 #
 
 NAME = DOSNotify
-VER = 05
+VER = 04
 REV = 00
 DATE = 2005/12/09
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

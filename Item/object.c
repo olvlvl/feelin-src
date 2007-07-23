@@ -69,7 +69,7 @@ F_METHOD(uint32, RadioItem_Dispose)
 	
 	if (LOD->child != NULL)
 	{
-		FObject parent = (FObject) IFEELIN F_Get(LOD->child, FA_Parent);
+		FObject parent = (FObject) IFEELIN F_Get(LOD->child, FA_Element_Parent);
 
 		if ((parent != NULL) && (parent != Obj))
 		{

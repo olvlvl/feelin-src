@@ -222,14 +222,16 @@ F_METHOD(uint32,Prop_Set)
 			else
 			{
 				#ifdef DB_SET
-				IFEELIN F_Log(0,"prop is not useless");
+				IFEELIN F_Log(0,"prop is useful");
 				#endif
 
 				IFEELIN F_Set(Obj, F_ATTRIBUTE_ID(USELESS), FALSE);
 			}
 		}
 
-		IFEELIN F_Draw(Obj, FF_Draw_Damaged | ((FF_UPDATE_VISIBLE & update) ? FF_Draw_Object : FF_Draw_Update));
+		_area_set_damaged;
+
+		IFEELIN F_Draw(Obj, ((FF_UPDATE_VISIBLE & update) ? FF_Draw_Object : FF_Draw_Update));
 	}
 
 	return F_SUPERDO();
@@ -290,6 +292,7 @@ F_METHODM(bool32,Prop_RemMember,FS_RemMember)
 }
 //+
 
+#if 0
 ///Preferences
 STATIC F_PREFERENCES_ARRAY =
 {
@@ -331,3 +334,4 @@ F_METHOD(uint32,Prefs_New)
 	TAG_MORE,Msg);
 }
 //+
+#endif

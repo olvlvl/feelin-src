@@ -200,7 +200,7 @@ F_METHODM(void,Page_Draw,FS_Area_Draw)
 						r.x2 = x;
 						r.y2 = y1;
  
-						IGRAPHICS OrRectRegion(parent_erase_region, &r);
+						IGRAPHICS OrRectRegion(parent_erase_region, (struct Rectangle *) &r);
 					}
 					else
 					{
@@ -232,7 +232,7 @@ F_METHODM(void,Page_Draw,FS_Area_Draw)
 						r.x2 = x;
 						r.y2 = y1 + LOD->style->inactive_margin_top;
 						
-						IGRAPHICS OrRectRegion(parent_erase_region, &r);
+						IGRAPHICS OrRectRegion(parent_erase_region, (struct Rectangle *) &r);
 					}
 					else
 					{
@@ -305,7 +305,7 @@ F_METHODM(void,Page_Draw,FS_Area_Draw)
 							r.x2 = x2;
 							r.y2 = y1 + LOD->style->inactive_margin_top - 1;
 							
-							IGRAPHICS OrRectRegion(parent_erase_region, &r);
+							IGRAPHICS OrRectRegion(parent_erase_region, (struct Rectangle *) &r);
 						}
 						else
 						{
@@ -382,7 +382,7 @@ F_METHODM(void,Page_Draw,FS_Area_Draw)
 					r.x2 = x;
 					r.y2 = y1;
 
-					IGRAPHICS OrRectRegion(parent_erase_region, &r);
+					IGRAPHICS OrRectRegion(parent_erase_region, (struct Rectangle *) &r);
 				}
 				else
 				{
@@ -411,7 +411,7 @@ F_METHODM(void,Page_Draw,FS_Area_Draw)
 					r.x2 = x;
 					r.y2 = y1 + LOD->style->inactive_margin_top;
 
-					IGRAPHICS OrRectRegion(parent_erase_region, &r);
+					IGRAPHICS OrRectRegion(parent_erase_region, (struct Rectangle *) &r);
 				}
 				else
 				{

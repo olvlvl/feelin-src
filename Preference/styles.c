@@ -1,7 +1,5 @@
 #include "Private.h"
 
-#ifdef F_NEW_STYLES
-
 /* !! declaration can only be deleted from their owner. Because  styles  can
 use  any  declarations  of  the  tree,  it's  might  be  dangerous  deleting
 declarations from styles */
@@ -267,11 +265,7 @@ struct in_Declaration * declaration_delete(FClass *Class, FObject Obj, struct in
 
 		#endif
 
-		#ifdef F_NEW_STYLES_EXTENDED
-
 		IFEELIN F_AtomRelease(Declaration->atom_pseudo);
-
-		#endif
 
 		IFEELIN F_AtomRelease(Declaration->atom);
 		IFEELIN F_Dispose(Declaration);
@@ -363,19 +357,13 @@ struct in_Style
 	/* private */
 
 	FAtom                          *atom;
-	#ifdef F_NEW_STYLES_EXTENDED
 	FAtom                          *element_class_atom;
 	FAtom                          *element_style_atom;
-	#endif
 
 	struct in_Declaration         **declarations;
 
-	#ifdef F_NEW_STYLES_EXTENDED
-
 	FPreferenceProperty            *element_properties_array;
 	uint32                          element_properties_count;
-
-	#endif
 
 	uint32                          refs_count;
 };
@@ -409,8 +397,6 @@ struct in_Compose
 	uint32                          pseudos_count;
 	struct in_ComposePseudo        *pseudos;
 };
-
-#ifdef F_NEW_STYLES_EXTENDED
 
 ///style_compose_count_pseudo
 STATIC void style_compose_count_pseudo(struct in_Declaration *Declaration, struct in_Compose *Compo)
@@ -959,7 +945,7 @@ STATIC struct in_Style * style_create(FClass *Class, FObject Obj, FObject *Refer
 
 	if (element_style_atom != NULL)
 	{
-		style_properties_parse(Class, Obj, element_style_atom->Key, style_properties_count_code, &compo);
+		style_properties_parse(Class, Obj, element_style_atom->Key, (feelin_func_parse) style_properties_count_code, &compo);
 	}
 
 //	  IFEELIN F_Log(0, "style_compose_count >> BEGIN");
@@ -1125,7 +1111,7 @@ STATIC struct in_Style * style_create(FClass *Class, FObject Obj, FObject *Refer
 
 			mem += (sizeof (FPreferenceProperty) * compo.properties_count_element);
 
-			style_properties_parse(Class, Obj, element_style_atom->Key, style_properties_array_code, &compo);
+			style_properties_parse(Class, Obj, element_style_atom->Key, (feelin_func_parse) style_properties_array_code, &compo);
 		}
 
 /** publicize **********************************************************************************/
@@ -1249,391 +1235,6 @@ __create:
 }
 //+
 
-#else
-///
-///style_compose_count_by_reference
-STATIC void style_compose_count_by_reference(FClass *Class, FObject Obj, FClass *ReferenceClass, struct in_Compose *Msg)
-{
-	struct LocalObjectData *LOD = F_LOD(Class,Obj);
-
-	uint32 len = 0;
-	STRPTR name = IFEELIN F_StrNewP(LOD->pool, &len, ReferenceClass->Name);
-
-	if (name)
-	{
-		FAtom *atom;
-		STRPTR k = name;
-
-		while (*k)
-		{
-			*k = IUTILITY ToLower(*k); k++;
-		}
-
-		atom = IFEELIN F_AtomFind(name, len);
-
-		if (atom)
-		{
-			struct in_Declaration *declaration;
-
-			for (declaration = (struct in_Declaration *) LOD->declaration_list.Head ; declaration ; declaration = declaration->next)
-			{
-				if (declaration->atom == atom)
-				{
-					Msg->declarations_count++;
-					Msg->properties_count += declaration->properties_count;
-
-					break;
-				}
-			}
-		}
-
-		IFEELIN F_Dispose(name);
-	}
-
-	if (ReferenceClass->Super)
-	{
-		style_compose_count_by_reference(Class, Obj, ReferenceClass->Super, Msg);
-	}
-}
-//+
-///style_compose_count_by_atom
-STATIC void style_compose_count_by_atom(FClass *Class, FObject Obj, FAtom *Atom, struct in_Compose *Msg)
-{
-	struct LocalObjectData *LOD = F_LOD(Class,Obj);
-
-	struct in_Declaration *declaration;
-
-	for (declaration = (struct in_Declaration *) LOD->declaration_list.Head ; declaration ; declaration = declaration->next)
-	{
-		if (declaration->atom == Atom)
-		{
-			Msg->declarations_count++;
-			Msg->properties_count += declaration->properties_count;
-
-			break;
-		}
-	}
-}
-//+
-///style_compose_count
-STATIC void style_compose_count(FClass *Class, FObject Obj, FClass *ReferenceClass, FAtom *Atom, struct in_Compose *Msg)
-{
-	struct LocalObjectData *LOD = F_LOD(Class, Obj);
-
-	if (ReferenceClass != NULL)
-	{
-		style_compose_count_by_reference(Class, Obj, ReferenceClass, Msg);
-	}
-	else
-	{
-		style_compose_count_by_atom(Class, Obj, Atom, Msg);
-	}
-
-	#ifdef DB_COUNT
-
-	IFEELIN F_Log
-	(
-		0, "obj (0x%08lx) (%ld) properties from (%ld) declarations",
-
-		Obj,
-		Msg->properties_count,
-		Msg->declarations_count
-	);
-
-	#endif
-
-	if (LOD->reference != NULL)
-	{
-		style_compose_count(Class, LOD->reference, ReferenceClass, Atom, Msg);
-	}
-}
-//+
-
-///style_compose_array_by_reference
-STATIC void style_compose_array_by_reference(FClass *Class, FObject Obj, FClass *ReferenceClass, struct in_Compose *Msg)
-{
-	struct LocalObjectData *LOD = F_LOD(Class,Obj);
-
-	uint32 len = 0;
-	STRPTR name = IFEELIN F_StrNewP(LOD->pool, &len, ReferenceClass->Name);
-
-	if (name)
-	{
-		FAtom *atom;
-		STRPTR k = name;
-
-		while (*k)
-		{
-			*k = IUTILITY ToLower(*k); k++;
-		}
-
-		atom = IFEELIN F_AtomFind(name, len);
-
-		if (atom)
-		{
-			struct in_Declaration *declaration;
-
-			for (declaration = (struct in_Declaration *) LOD->declaration_list.Head ; declaration ; declaration = declaration->next)
-			{
-				if (declaration->atom == atom)
-				{
-					declaration->refs_count++;
-
-					IEXEC CopyMem(declaration->properties, Msg->properties_pointers, sizeof (FPreferenceProperty *) * declaration->properties_count);
-
-					#ifdef DB_ARRAY
-
-					IFEELIN F_Log
-					(
-						0, "add declaration (%s) @ (0x%08lx), copy (%ld) properties pointer @ (0x%08lx)",
-
-						declaration->atom->Key,
-						Msg->declarations_array,
-						declaration->properties_count,
-						Msg->properties_array
-					);
-
-					#endif
-
-					*Msg->declarations_pointers++ = declaration;
-					Msg->properties_pointers += declaration->properties_count;
-
-					break;
-				}
-			}
-		}
-
-		IFEELIN F_Dispose(name);
-	}
-
-	if (ReferenceClass->Super)
-	{
-		style_compose_array_by_reference(Class, Obj, ReferenceClass->Super, Msg);
-	}
-}
-//+
-///style_compose_array_by_atom
-STATIC void style_compose_array_by_atom(FClass *Class, FObject Obj, FAtom *Atom, struct in_Compose *Msg)
-{
-	struct LocalObjectData *LOD = F_LOD(Class,Obj);
-
-	struct in_Declaration *declaration;
-
-	for (declaration = (struct in_Declaration *) LOD->declaration_list.Head ; declaration ; declaration = declaration->next)
-	{
-		if (declaration->atom == Atom)
-		{
-			declaration->refs_count++;
-
-			IEXEC CopyMem(declaration->properties, Msg->properties_pointers, sizeof (FPreferenceProperty *) * declaration->properties_count);
-
-			#ifdef DB_ARRAY
-
-			IFEELIN F_Log
-			(
-				0, "add declaration (%s) @ (0x%08lx), copy (%ld) properties pointer @ (0x%08lx)",
-
-				declaration->atom->Key,
-				Msg->declarations_array,
-				declaration->properties_count,
-				Msg->properties_array
-			);
-
-			#endif
-
-			*Msg->declarations_pointers++ = declaration;
-			Msg->properties_pointers += declaration->properties_count;
-
-			break;
-		}
-	}
-}
-//+
-///style_compose_array
-STATIC void style_compose_array(FClass *Class, FObject Obj, FClass *ReferenceClass, FAtom *Atom, struct in_Compose *Msg)
-{
-	struct LocalObjectData *LOD = F_LOD(Class, Obj);
-
-	if (ReferenceClass)
-	{
-		style_compose_array_by_reference(Class, Obj, ReferenceClass, Msg);
-	}
-	else
-	{
-		style_compose_array_by_atom(Class, Obj, Atom, Msg);
-	}
-
-	#ifdef DB_ARRAY
-
-	IFEELIN F_Log
-	(
-		0, "obj (0x%08lx) declarations @ (0x%08lx) properties @ (0x%08lx)",
-
-		Obj,
-		Msg->declarations_array,
-		Msg->properties_array
-	);
-
-	#endif
-
-	if (LOD->reference)
-	{
-		style_compose_array(Class, LOD->reference, ReferenceClass, Atom, Msg);
-	}
-}
-//+
-
-///style_create
-STATIC struct in_Style * style_create(FClass *Class, FObject Obj, STRPTR Key, uint32 KeyLength, FClass *ReferenceClass)
-{
-	struct LocalObjectData *LOD = F_LOD(Class,Obj);
-
-	struct in_Style *style = NULL;
-
-	FAtom *atom = IFEELIN F_AtomObtain(Key, KeyLength);
-
-	if (atom)
-	{
-		struct in_Compose msg;
-
-		msg.declarations_count = 0;
-		msg.properties_count = 0;
-
-		style_compose_count(Class, Obj, ReferenceClass, atom, &msg);
-
-		#ifdef DB_STYLE_CREATE
-
-		IFEELIN F_Log
-		(
-			0, "(%ld) properties from (%ld) declarations for style (%s)",
-
-			msg.properties_count,
-			msg.declarations_count,
-			Key
-		);
-
-		#endif
-
-		style = IFEELIN F_NewP
-		(
-			LOD->pool,
-
-			sizeof (struct in_Style) + // type
-			sizeof (FPreferenceProperty *) * (msg.properties_count + 1) + // properties pointers array
-			sizeof (struct in_Declaration *) * (msg.declarations_count + 1) // declarations pointers array
-		);
-
-		/* we create the style even if there  are  no  properties,  thus  we
-		won't have to check the style again and again */
-
-		if (style)
-		{
-			style->public.Properties = (FPreferenceProperty **) ((uint32)(style) + sizeof (struct in_Style));
-			style->declarations = (struct in_Declaration **) ((uint32)(style->public.Properties) + sizeof (FPreferenceProperty *) * (msg.properties_count + 1));
-
-			msg.declarations_pointers = style->declarations;
-			msg.properties_pointers = style->public.Properties;
-
-			style_compose_array(Class, Obj, ReferenceClass, atom, &msg);
-		}
-	}
-
-	if (style != NULL)
-	{
-		style->atom = atom;
-
-		style->next = LOD->styles;
-		LOD->styles = style;
-
-		#ifdef DB_STYLE_CREATE
-		{
-			FPreferenceProperty **array;
-
-			for (array = style->public.Properties ; *array ; array++)
-			{
-				IFEELIN F_Log(0,"property (%16.16s) value [%-16.16s]", (*array)->Atom->Key, (*array)->Value);
-			}
-		}
-		#endif
-
-		#if 0//def DB_STYLE_CREATE
-		{
-			struct in_Declaration **array;
-
-			IFEELIN F_Log(0,"new style (%s)", style->atom->Key);
-
-			for (array = style->declarations ; *array ; array++)
-			{
-				IFEELIN F_Log(0,"declaration (%s)", (*array)->atom->Key);
-			}
-		}
-		#endif
-	}
-	else
-	{
-		IFEELIN F_AtomRelease(atom);
-	}
-
-	return style;
-}
-//+
-///style_obtain
-STATIC struct in_Style *style_obtain(FClass *Class, FObject Obj, STRPTR Key, uint32 KeyLength, FClass *ReferenceClass)
-{
-	struct LocalObjectData *LOD = F_LOD(Class,Obj);
-
-	struct in_Style *style = NULL;
-
-	FAtom *atom;
-
-	if (ReferenceClass != NULL)
-	{
-		atom = ReferenceClass->Atom;
-	}
-	else
-	{
-		atom = IFEELIN F_AtomFind(Key, KeyLength);
-	}
-
-	if (atom)
-	{
-		for (style = LOD->styles ; style ; style = style->next)
-		{
-			if (style->atom == atom)
-			{
-				break;
-			}
-		}
-	}
-
-	if (style == NULL)
-	{
-		style = style_create
-		(
-			Class, Obj,
-
-			ReferenceClass ? ReferenceClass->Atom->Key : Key,
-			ReferenceClass ? ReferenceClass->Atom->KeyLength : KeyLength,
-
-			ReferenceClass
-		);
-	}
-
-	if (style != NULL)
-	{
-		style->refs_count++;
-
-		#ifdef DB_STYLE_OBTAIN
-		IFEELIN F_Log(0,"obtained style (%s)(%ld) index (0x%08lx)", style->atom->Key, style->refs_count, LOD->styles);
-		#endif
-	}
-
-	return style;
-}
-//+
-//+
-#endif
-
 ///style_delete
 bool32 style_delete(FClass *Class, FObject Obj, struct in_Style *Style)
 {
@@ -1674,8 +1275,6 @@ bool32 style_delete(FClass *Class, FObject Obj, struct in_Style *Style)
 
 			#endif
 
-			#ifdef F_NEW_STYLES_EXTENDED
-
 			if (node->element_properties_count != 0)
 			{
 				uint32 i;
@@ -1688,8 +1287,6 @@ bool32 style_delete(FClass *Class, FObject Obj, struct in_Style *Style)
 					IFEELIN F_Dispose(node->element_properties_array[i].Value);
 				}
 			}
-
-			#endif
 
 			IFEELIN F_AtomRelease(node->atom);
 			IFEELIN F_AtomRelease(node->element_class_atom);
@@ -1801,8 +1398,6 @@ F_METHODM(FPreferenceStyle *, Prefs_ObtainStyle, FS_Preference_ObtainStyle)
 	{
 		struct in_Style *style;
 
-		#ifdef F_NEW_STYLES_EXTENDED
-
 		STRPTR element_class = NULL;
 		STRPTR element_style = NULL;
 
@@ -1819,48 +1414,11 @@ F_METHODM(FPreferenceStyle *, Prefs_ObtainStyle, FS_Preference_ObtainStyle)
 
 		F_UNLOCK_ARBITER;
 
-		#else
-
-		F_LOCK_ARBITER;
-
-		style = style_obtain(Class, Obj, NULL, 0, _object_class(Msg->Reference));
-
-		F_UNLOCK_ARBITER;
-
-		#endif
-
 		if (style)
 		{
 			return F_PUBLICIZE_STYLE(style);
 		}
 	}
-
-	return NULL;
-}
-//+
-///Prefs_ObtainStyleByName
-F_METHODM(FPreferenceStyle *, Prefs_ObtainStyleByName, FS_Preference_ObtainStyleByName)
-{
-	#ifdef F_NEW_STYLES_EXTENDED
-
-	IFEELIN F_Log(0,"deprecated");
-
-	#else
-
-	struct in_Style *style;
-
-	F_LOCK_ARBITER;
-
-	style = style_obtain(Class, Obj, Msg->Name, IFEELIN F_StrLen(Msg->Name), NULL);
-
-	F_UNLOCK_ARBITER;
-
-	if (style)
-	{
-		return F_PUBLICIZE_STYLE(style);
-	}
-
-	#endif
 
 	return NULL;
 }
@@ -1893,15 +1451,10 @@ F_METHODM(bool32, Prefs_ReleaseStyle, FS_Preference_ReleaseStyle)
 
 				if (node->refs_count == 0)
 				{
-					#ifdef F_NEW_STYLES_EXTENDED
-
 					if (style->public.DecodedPropertiesSpace != NULL)
 					{
 						IFEELIN F_Do(Msg->Reference, FM_Element_DeleteDecodedStyle, style->public.DecodedPropertiesSpace);
 					}
-
-					#endif
-
 
 					#ifdef F_ENABLE_DELETE_UNUSED_STYLES
 
@@ -1940,5 +1493,3 @@ F_METHODM(bool32, Prefs_ReleaseStyle, FS_Preference_ReleaseStyle)
 	return rc;
 }
 //+
-
-#endif

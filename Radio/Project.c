@@ -91,12 +91,12 @@ F_QUERY()
 			{
 				F_METHODS_ADD(Radio_Activate, "Private"),
 
-				F_METHODS_ADD_STATIC(Radio_New,         FM_New),
-				F_METHODS_ADD_STATIC(Radio_Dispose,     FM_Dispose),
-				F_METHODS_ADD_STATIC(Radio_Set,         FM_Set),
-				F_METHODS_ADD_STATIC(Radio_Get,         FM_Get),
-				F_METHODS_ADD_STATIC(Radio_AddMember,   FM_AddMember),
-				F_METHODS_ADD_STATIC(Radio_RemMember,   FM_RemMember),
+				F_METHODS_OVERRIDE_STATIC(Radio_New,         FM_New),
+				F_METHODS_OVERRIDE_STATIC(Radio_Dispose,     FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(Radio_Set,         FM_Set),
+				F_METHODS_OVERRIDE_STATIC(Radio_Get,         FM_Get),
+				F_METHODS_OVERRIDE_STATIC(Radio_AddMember,   FM_AddMember),
+				F_METHODS_OVERRIDE_STATIC(Radio_RemMember,   FM_RemMember),
 
 //				  F_METHODS_ADD_STATIC(Radio_SetState,    FM_Area_SetState),
 

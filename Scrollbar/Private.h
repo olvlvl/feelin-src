@@ -13,26 +13,26 @@
 
 enum    {
 
-        FV_ATTRIBUTE_ENTRIES,
-        FV_ATTRIBUTE_FIRST,
-        FV_ATTRIBUTE_VISIBLE
+		FV_ATTRIBUTE_ENTRIES,
+		FV_ATTRIBUTE_FIRST,
+		FV_ATTRIBUTE_VISIBLE
 
-        };
+		};
 
 enum    {
 
-        FV_PROPERTY_TYPE
+		FV_PROPERTY_TYPE
 
-        };
+		};
 
 /* preferences */
 
 enum    {
 
-        FV_METHOD_LOAD,
-        FV_METHOD_SAVE
+		FV_METHOD_LOAD,
+		FV_METHOD_SAVE
 
-        };
+		};
 
 /************************************************************************************************
 *** Object **************************************************************************************
@@ -40,20 +40,16 @@ enum    {
 
 struct LocalObjectData
 {
-    F_MEMBER_AREA_PUBLIC;
+	F_MEMBER_AREA_PUBLIC;
  
-    FObject             button1;
-    FObject             button2;
-    FObject             prop;
+	FObject             button1;
+	FObject             button2;
+	FObject             prop;
 
-    uint32              type;
+	uint32              type;
 };
-
-#ifdef F_NEW_STYLES
 
 struct LocalPreferenceData
 {
-    FObject                        type;
+	FObject                        type;
 };
-
-#endif

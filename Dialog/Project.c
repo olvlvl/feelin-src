@@ -66,9 +66,9 @@ F_QUERY()
 
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(Dialog_New, FM_New),
-				F_METHODS_ADD_STATIC(Dialog_Open, FM_Window_Open),
-				F_METHODS_ADD_STATIC(Dialog_Close, FM_Window_Close),
+				F_METHODS_OVERRIDE_STATIC(Dialog_New, FM_New),
+				F_METHODS_OVERRIDE_STATIC(Dialog_Open, FM_Window_Open),
+				F_METHODS_OVERRIDE_STATIC(Dialog_Close, FM_Window_Close),
 			
 				F_ARRAY_END
 			};

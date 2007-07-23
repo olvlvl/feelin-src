@@ -1,5 +1,9 @@
 /*
 
+$VER: 07.00 (2007/07/23)
+
+	Implements Object's method GetElementById
+
 $VER: 06.00 (2006/10/19)
 
 	Objects are no longer connected and disconnected  during  the  AddMember
@@ -32,6 +36,10 @@ F_METHOD_PROTO(void,Family_Dispose);
 F_METHOD_PROTO(void,Family_Get);
 F_METHOD_PROTO(void,Family_Add);
 F_METHOD_PROTO(void,Family_Rem);
+
+#ifdef F_NEW_GETELEMENTBYID
+F_METHOD_PROTO(void,Family_GetElementById);
+#endif
 //+
 
 ///Class_New
@@ -130,18 +138,18 @@ F_METHOD(void,Class_Debug)
 
 F_QUERY()
 {
-   switch (Which)
-   {
+	switch (Which)
+	{
 ///Meta
 	  case FV_Query_MetaClassTags:
 	  {
 		 STATIC F_METHODS_ARRAY =
 		 {
 			#ifdef F_ENABLE_VERBOSE
-			F_METHODS_ADD        (Class_Debug,   "Private1"),
+			F_METHODS_ADD(Class_Debug,   "Private1"),
 			#endif
-			F_METHODS_ADD_STATIC (Class_New,      FM_New),
-			F_METHODS_ADD_STATIC (Class_Dispose,  FM_Dispose),
+			F_METHODS_OVERRIDE_STATIC (Class_New,      FM_New),
+			F_METHODS_OVERRIDE_STATIC (Class_Dispose,  FM_Dispose),
 
 			F_ARRAY_END
 		 };
@@ -149,7 +157,7 @@ F_QUERY()
 		 STATIC F_TAGS_ARRAY =
 		 {
 			F_TAGS_ADD_SUPER(Class),
-			F_TAGS_ADD(LODSize, sizeof (struct ClassUserData)),
+			F_TAGS_ADD(LocalSize, sizeof (struct ClassUserData)),
 			F_TAGS_ADD_METHODS,
 
 			F_ARRAY_END
@@ -159,31 +167,34 @@ F_QUERY()
 	  }
 //+
 ///Class
-	  case FV_Query_ClassTags:
-	  {
-		 STATIC F_METHODS_ARRAY =
-		 {
-			F_METHODS_ADD_STATIC(Family_New,      FM_New),
-			F_METHODS_ADD_STATIC(Family_Dispose,  FM_Dispose),
-			F_METHODS_ADD_STATIC(Family_Get,      FM_Get),
-			F_METHODS_ADD_STATIC(Family_Add,      FM_AddMember),
-			F_METHODS_ADD_STATIC(Family_Rem,      FM_RemMember),
+		case FV_Query_ClassTags:
+		{
+			STATIC F_METHODS_ARRAY =
+			{
+				F_METHODS_OVERRIDE_STATIC(Family_New,      FM_New),
+				F_METHODS_OVERRIDE_STATIC(Family_Dispose,  FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(Family_Get,      FM_Get),
+				F_METHODS_OVERRIDE_STATIC(Family_Add,      FM_AddMember),
+				F_METHODS_OVERRIDE_STATIC(Family_Rem,      FM_RemMember),
+				#ifdef F_NEW_GETELEMENTBYID
+				F_METHODS_OVERRIDE_STATIC(Family_GetElementById, FM_GetElementById),
+				#endif
 
-			F_ARRAY_END
-		 };
+				F_ARRAY_END
+			};
 
-		 STATIC F_TAGS_ARRAY =
-		 {
-			F_TAGS_ADD_SUPER(Object),
-			F_TAGS_ADD_LOD,
-			F_TAGS_ADD_METHODS,
+			STATIC F_TAGS_ARRAY =
+			{
+				F_TAGS_ADD_SUPER(Object),
+				F_TAGS_ADD_LOD,
+				F_TAGS_ADD_METHODS,
 
-			F_ARRAY_END
-		 };
+				F_ARRAY_END
+			};
 
-		 return F_TAGS_PTR;
-	  }
+			return F_TAGS_PTR;
+		}
 //+
-   }
-   return NULL;
+	}
+	return NULL;
 }

@@ -41,7 +41,7 @@ STATIC bool32 window_setup(FClass *Class, FObject Obj)
 
 	#endif
 
-	if (render == NULL)
+	if (!render)
 	{
 		IFEELIN F_Log(FV_LOG_USER, "Unable to create Render object");
 
@@ -67,12 +67,14 @@ STATIC void window_cleanup(FClass *Class, FObject Obj)
 
 	FObject render = _area_render;
 
-	if (render != NULL)
+	if (!render)
 	{
-		IFEELIN F_Do(Obj, FM_Element_Cleanup, render);
-
-		IFEELIN F_DisposeObj(render);
+		return;
 	}
+	
+	IFEELIN F_Do(Obj, FM_Element_Cleanup, render);
+
+	IFEELIN F_DisposeObj(render);
 }
 //+
 ///window_compute_box
@@ -83,25 +85,28 @@ STATIC void window_compute_box(FClass *Class, FObject Obj)
 	uint16 scr_w = LOD->screen->Width;
 	uint16 scr_h = LOD->screen->Height;
 
+	uint16 area_w = _area_w;
+	uint16 area_h = _area_h;
+
 	#ifdef DB_COMPUTE_BOX
-	IFEELIN F_Log(0,"Dim %4ld,%4ld - Min %4ld,%4ld - Max %4ld,%4ld", _area_w, _area_h, minw, minh, maxw, maxh);
+	IFEELIN F_Log(0,"Dim %4ld,%4ld - Min %4ld,%4ld - Max %4ld,%4ld", area_w, area_h, _area_minw, _area_minh, _area_maxw, _area_maxh);
 	#endif
 
-	if ((_area_w == 0) && (_area_h == 0))
+	if ((area_w == 0) && (area_h == 0))
 	{
 		if ((FF_WINDOW_BOX_WDEFINED & LOD->user_box_flags) != 0)
 		{
 			if ((FF_WINDOW_BOX_WPERCENT & LOD->user_box_flags) != 0)
 			{
-				_area_w = scr_w * LOD->user_box.w / 100;
+				area_w = scr_w * LOD->user_box.w / 100;
 			}
 			else
 			{
-				_area_w = LOD->user_box.w;
+				area_w = LOD->user_box.w;
 			}
 
 			#ifdef DB_COMPUTE_BOX
-			IFEELIN F_Log(0,"w %ld", _area_w);
+			IFEELIN F_Log(0,"w %ld", area_w);
 			#endif
 		}
 
@@ -109,25 +114,25 @@ STATIC void window_compute_box(FClass *Class, FObject Obj)
 		{
 			if ((FF_WINDOW_BOX_HPERCENT & LOD->user_box_flags) != 0)
 			{
-				_area_h = scr_h * LOD->user_box.h / 100;
+				area_h = scr_h * LOD->user_box.h / 100;
 			}
 			else
 			{
-				_area_h = LOD->user_box.h;
+				area_h = LOD->user_box.h;
 			}
 
 			#ifdef DB_COMPUTE_BOX
-			IFEELIN F_Log(0,"h %ld", _area_h);
+			IFEELIN F_Log(0,"h %ld", area_h);
 			#endif
 		}
 	}
 
 /* width and height limits */
 
-	_area_w = MAX(_area_w, _area_minw);
-	_area_w = MIN(_area_w, _area_maxw);
-	_area_h = MAX(_area_h, _area_minh);
-	_area_h = MIN(_area_h, _area_maxh);
+	area_w = MAX(area_w, _area_minw);
+	area_h = MAX(area_h, _area_minh);
+	_area_w = area_w = MIN(area_w, _area_maxw);
+	_area_h = area_h = MIN(area_h, _area_maxh);
 
 /* x coordinates */
 	
@@ -139,12 +144,12 @@ STATIC void window_compute_box(FClass *Class, FObject Obj)
 		}
 		else
 		{
-			_area_x = LOD->user_box.x;
+			_win_x = LOD->user_box.x;
 		}
 
 		if ((FF_WINDOW_BOX_RHANDLE & LOD->user_box_flags) != 0)
 		{
-			_win_x = _win_x - _area_w + 1;
+			_win_x -= (area_w + 1);
 		}
 	}
 
@@ -156,7 +161,7 @@ STATIC void window_compute_box(FClass *Class, FObject Obj)
 
 	else if (_win_x == -1)
 	{
-		_win_x = (scr_w - _area_w) / 2;
+		_win_x = (scr_w - area_w) / 2;
 	}
 
 /* y coordinate */
@@ -174,7 +179,7 @@ STATIC void window_compute_box(FClass *Class, FObject Obj)
 
 		if ((FF_WINDOW_BOX_RHANDLE & LOD->user_box_flags) != 0)
 		{
-			_win_y = _win_y - _area_h + 1;
+			_win_y -= (area_h + 1);
 		}
 	}
 
@@ -186,11 +191,11 @@ STATIC void window_compute_box(FClass *Class, FObject Obj)
 
 	else if (_win_y == -1)
 	{
-		_win_y = (scr_h - _area_h) / 2;
+		_win_y = (scr_h - area_h) / 2;
 	}
 
 	#ifdef DB_COMPUTE_BOX
-	IFEELIN F_Log(0,"box (%4ld : %4ld, %4ld x %4ld)", _win_x, _win_y, _area_w, _area_h);
+	IFEELIN F_Log(0,"box (%4ld : %4ld, %4ld x %4ld)", _win_x, _win_y, area_w, area_h);
 	#endif
 }
 //+
@@ -213,19 +218,34 @@ F_METHOD(struct Window *,Window_Open)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 
-/* Check if window is already opened */
+	struct Window * win = LOD->window;
+	struct Screen * scr;
 
-	if (LOD->window != NULL)
+	uint16 scr_w;
+	uint16 scr_h;
+
+	uint16 area_w;
+	uint16 area_h;
+
+	//
+	// if the window is already opened we return its pointer
+	//
+
+	if (win)
 	{
-		IINTUITION WindowToFront(LOD->window);
+		IINTUITION WindowToFront(win);
 
 		if ((FF_WINDOW_WIN_ACTIVABLE & LOD->win_flags) != 0)
 		{
-			IINTUITION ActivateWindow(LOD->window);
+			IINTUITION ActivateWindow(win);
 		}
 		
-		return LOD->window;
+		return win;
 	}
+
+	//
+	//
+	//
 
 	if (window_setup(Class, Obj) == FALSE)
 	{
@@ -236,10 +256,21 @@ F_METHOD(struct Window *,Window_Open)
 
 	window_compute_box(Class, Obj);
 
-	if ((_area_w > LOD->screen->Width) ||
-		(_area_h > LOD->screen->Height))
+	//
+	// would the window fit on the screen ?
+	//
+
+	scr = LOD->screen;
+
+	scr_w = scr->Width;
+	scr_h = scr->Height;
+
+	area_w = _area_w;
+	area_h = _area_h;
+
+	if ((area_w > scr_w) || (area_h > scr_h))
 	{
-		IFEELIN F_Log(FV_LOG_USER, "Window (%ld x %ld) to big for Screen (%ld x %ld)", _area_w, _area_h, LOD->screen->Width, LOD->screen->Height);
+		IFEELIN F_Log(FV_LOG_USER, "Window (%ld x %ld) to big for Screen (%ld x %ld)", area_w, area_h, scr_w, scr_h);
 
 		return NULL;
 	}

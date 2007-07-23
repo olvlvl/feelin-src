@@ -36,7 +36,7 @@ STATIC void f_dynamic_log_defined
 )
 {
 	IFEELIN F_Log(FV_LOG_DEV,"F_Dynamic() - '%s' (0x%08.lx) does not exists in FC_%s.",Name,Name,Class->Name);
-	IDOS_ FPrintf(FeelinBase->Public.Console,"Defined %s: ",(Type == 'A') ? "Attributes" : "Methods");
+	IDOS_ FPrintf(FeelinBase->Public.Console, "Defined %s: ", (int32)((Type == 'A') ? "Attributes" : "Methods"));
 
 	if (Type == 'A')
 	{
@@ -44,7 +44,7 @@ STATIC void f_dynamic_log_defined
 
 		for (F_ATTRIBUTES_EACH(Class->Attributes, en))
 		{
-			IDOS_ FPrintf(FeelinBase->Public.Console,"%s ", _attribute_name(en));
+			IDOS_ FPrintf(FeelinBase->Public.Console,"%s ", (int32) _attribute_name(en));
 		}
 	}
 	else
@@ -55,7 +55,7 @@ STATIC void f_dynamic_log_defined
 		{
 			if (_method_name(en))
 			{
-				IDOS_ FPrintf(FeelinBase->Public.Console,"%s ", _method_name(en));
+				IDOS_ FPrintf(FeelinBase->Public.Console,"%s ", (int32) _method_name(en));
 			}
 		}
 	}
@@ -170,32 +170,6 @@ F_LIB_DYNAMIC_CREATE
 
 					dynamic_id_used = TRUE;
 				}
-
-				#ifdef F_NEW_ATOMS_AMV
-
-				_attribute_atom(en) = IFEELIN F_AtomObtain(_attribute_name(en), ALL);
-
-				if (_attribute_atom(en) == NULL)
-				{
-					goto __error;
-				}
-
-				if (en->Values)
-				{
-					FClassAttributeValue *val;
-
-					for (F_VALUES_EACH(en->Values, val))
-					{
-						_value_atom(val) = IFEELIN F_AtomObtain(_value_name(val), ALL);
-
-						if (_value_atom(val) == NULL)
-						{
-							goto __error;
-						}
-					}
-				}
-
-				#endif
 			}
 			else
 			{
@@ -221,17 +195,6 @@ F_LIB_DYNAMIC_CREATE
 
 			if (_method_name(en)) 
 			{
-				#ifdef F_NEW_ATOMS_AMV
-
-				_method_atom(en) = IFEELIN F_AtomObtain(_method_name(en), ALL);
-
-				if (_method_atom(en) == NULL)
-				{
-					goto __error;
-				}
-
-				#endif
-
 				if ((en->ID & 0xFF000000) != MTHD_BASE)
 				{
 					/* A method can be inherited by simply suppling its whole  e.g.
@@ -254,17 +217,6 @@ F_LIB_DYNAMIC_CREATE
 							en->ID = id++;
 
 							dynamic_id_used = TRUE;
-
-							#if 0//def F_NEW_ATOMS_AMV
-
-							_method_atom(en) = IFEELIN F_AtomObtain(_method_name(en), ALL);
-
-							if (_method_atom(en) == NULL)
-							{
-								goto __error;
-							}
-
-							#endif
 						}
 					}
 					else
@@ -319,55 +271,6 @@ F_LIB_DYNAMIC_DELETE
 			IFEELIN F_DynamicRemAutoTable(Class->Autos);
 		}
 
-		#ifdef F_NEW_ATOMS_AMV
-
-		if (Class->Attributes)
-		{
-			FClassAttribute *node;
-
-			for (F_ATTRIBUTES_EACH(Class->Attributes, node))
-			{
-				if (_attribute_atom(node))
-				{
-					IFEELIN F_AtomRelease(_attribute_atom(node));
-
-					_attribute_atom(node) = NULL;
-
-					if (node->Values)
-					{
-						FClassAttributeValue *value;
-
-						for (F_VALUES_EACH(node->Values, value))
-						{
-							if (_value_atom(value))
-							{
-								IFEELIN F_AtomRelease(_value_atom(value));
-
-								_value_atom(value) = NULL;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		if (Class->Methods)
-		{
-			FClassMethod *node;
-
-			for (F_METHODS_EACH(Class->Methods, node))
-			{
-				if (_method_atom(node))
-				{
-					IFEELIN F_AtomRelease(_method_atom(node));
-
-					_method_atom(node) = NULL;
-				}
-			}
-		}
-
-		#endif
-
 		F_DYNAMIC_UNLOCK;
 		F_CLASSES_UNLOCK;
 	}
@@ -414,30 +317,6 @@ F_LIB_DYNAMIC_FIND_ATTRIBUTE
 				
 			if (FromClass->Attributes)
 			{
-				#ifdef F_NEW_ATOMS_AMV
-
-				FAtom *atom = IFEELIN F_AtomFind(Name, ALL);
-
-				if (atom)
-				{
-					FClassAttribute *en;
-
-					for (F_ATTRIBUTES_EACH(FromClass->Attributes, en))
-					{
-						if (atom == _attribute_atom(en))
-						{
-							if (RealClass)
-							{
-								*RealClass = FromClass;
-							}
-
-							return en;
-						}
-					}
-				}
-
-				#else
-
 				FClassAttribute *en;
 
 				for (F_ATTRIBUTES_EACH(FromClass->Attributes, en))
@@ -452,8 +331,6 @@ F_LIB_DYNAMIC_FIND_ATTRIBUTE
 						return en;
 					}
 				}
-
-				#endif
 			}
 		}
 		else
@@ -462,33 +339,6 @@ F_LIB_DYNAMIC_FIND_ATTRIBUTE
 			{
 				if (FromClass->Attributes)
 				{
-					#ifdef F_NEW_ATOMS_AMV
-
-					FAtom *atom = IFEELIN F_AtomFind(Name, ALL);
-
-					if (atom)
-					{
-						FClassAttribute *en;
-
-						for (F_ATTRIBUTES_EACH(FromClass->Attributes, en))
-						{
-							//IFEELIN F_Log(0,"atom (0x%08lx)(%s) -- attribute (0x%08lx)(%s)", atom, atom->Key, _attribute_atom(en), _attribute_name(en));
-
-							//if (IFEELIN F_StrCmp(Name, _attribute_name(en), ALL) == 0)
-							if (atom == _attribute_atom(en))
-							{
-								if (RealClass)
-								{
-									*RealClass = FromClass;
-								}
-
-								return en;
-							}
-						}
-					}
-
-					#else
-
 					FClassAttribute *en;
 
 					for (F_ATTRIBUTES_EACH(FromClass->Attributes, en))
@@ -503,8 +353,6 @@ F_LIB_DYNAMIC_FIND_ATTRIBUTE
 							return en;
 						}
 					}
-
-					#endif
 				}
 
 				FromClass = FromClass->Super;
@@ -557,30 +405,6 @@ F_LIB_DYNAMIC_FIND_METHOD
 				
 			if (FromClass->Methods)
 			{
-				#ifdef F_NEW_ATOMS_AMV
-
-				FAtom *atom = IFEELIN F_AtomFind(Name, ALL);
-
-				if (atom)
-				{
-					FClassMethod *en;
-
-					for (F_METHODS_EACH(FromClass->Methods, en))
-					{
-						if (atom == _method_atom(en))
-						{
-							if (RealClass)
-							{
-								*RealClass = FromClass;
-							}
-
-							return en;
-						}
-					}
-				}
-
-				#else
-
 				FClassMethod *en;
 
 				for (F_METHODS_EACH(FromClass->Methods, en))
@@ -595,8 +419,6 @@ F_LIB_DYNAMIC_FIND_METHOD
 						return en;
 					}
 				}
-
-				#endif
 			}
 		}
 		else
@@ -605,30 +427,6 @@ F_LIB_DYNAMIC_FIND_METHOD
 			{
 				if (FromClass->Methods)
 				{
-					#ifdef F_NEW_ATOMS_AMV
-
-					FAtom *atom = IFEELIN F_AtomFind(Name, ALL);
-
-					if (atom)
-					{
-						FClassMethod *en;
-
-						for (F_METHODS_EACH(FromClass->Methods, en))
-						{
-							if (atom == _method_atom(en))
-							{
-								if (RealClass)
-								{
-									*RealClass = FromClass;
-								}
-
-								return en;
-							}
-						}
-					}
-
-					#else
-
 					FClassMethod *en;
 
 					for (F_METHODS_EACH(FromClass->Methods, en))
@@ -643,8 +441,6 @@ F_LIB_DYNAMIC_FIND_METHOD
 							return en;
 						}
 					}
-
-					#endif
 				}
 
 				FromClass = FromClass->Super;
@@ -710,25 +506,6 @@ F_LIB_DYNAMIC_FIND_ID
 
 		if (type == 'A')
 		{
-			#ifdef F_NEW_ATOMS_AMV
-
-			FAtom *atom = IFEELIN F_AtomFind(name, ALL);
-
-			if (atom)
-			{
-				FClassAttribute *en;
-
-				for (F_ATTRIBUTES_EACH(cl->Attributes, en))
-				{
-					if (atom == _attribute_atom(en))
-					{
-						return en->ID;
-					}
-				}
-			}
-
-			#else
-
 			FClassAttribute *en;
 
 			for (F_ATTRIBUTES_EACH(cl->Attributes, en))
@@ -738,30 +515,9 @@ F_LIB_DYNAMIC_FIND_ID
 					return en->ID;
 				}
 			}
-
-			#endif
 		}
 		else
 		{
-			#ifdef F_NEW_ATOMS_AMV
-
-			FAtom *atom = IFEELIN F_AtomFind(name, ALL);
-
-			if (atom)
-			{
-				FClassMethod *en;
-
-				for (F_METHODS_EACH(cl->Methods, en))
-				{
-					if (atom == _method_atom(en))
-					{
-						return en->ID;
-					}
-				}
-			}
-
-			#else
-
 			FClassMethod *en;
 
 			for (F_METHODS_EACH(cl->Methods, en))
@@ -771,8 +527,6 @@ F_LIB_DYNAMIC_FIND_ID
 					return en->ID;
 				}
 			}
-
-			#endif
 		}
 
 		f_dynamic_log_defined(Name,type,cl,FeelinBase);
@@ -840,32 +594,6 @@ F_LIB_DYNAMIC_RESOLVE_TABLE
 					
 					if (type == FV_RESOLVE_TYPE_ATTRIBUTE && cl->Attributes)
 					{
-						#ifdef F_NEW_ATOMS_AMV
-
-						FAtom *atom = IFEELIN F_AtomFind(name, ALL);
-
-						if (atom)
-						{
-							FClassAttribute *attribute;
-
-							for (F_ATTRIBUTES_EACH(cl->Attributes, attribute))
-							{
-								if (atom == _attribute_atom(attribute))
-								{
-									en->ID = attribute->ID; n++; break;
-								}
-							}
-
-							if (_attribute_name(attribute) == NULL)
-							{
-								IFEELIN F_Log(FV_LOG_CLASS,"Attribute (%s) not defined by Class (%s)",en->Name,cl->Name);
-
-								en->ID = 0;
-							}
-						}
-
-						#else
-
 						FClassAttribute *attribute;
 
 						for (F_ATTRIBUTES_EACH(cl->Attributes, attribute))
@@ -882,37 +610,9 @@ F_LIB_DYNAMIC_RESOLVE_TABLE
 
 							en->ID = 0;
 						}
-
-						#endif
 					}
 					else if (type == FV_RESOLVE_TYPE_METHOD && cl->Methods)
 					{
-						#ifdef F_NEW_ATOMS_AMV
-
-						FAtom *atom = IFEELIN F_AtomFind(name, ALL);
-
-						if (atom)
-						{
-							FClassMethod *method;
-
-							for (F_METHODS_EACH(cl->Methods, method))
-							{
-								if (atom == _method_atom(method))
-								{
-									en->ID = method->ID; n++; break;
-								}
-							}
-
-							if (_method_name(method) == NULL)
-							{
-								IFEELIN F_Log(FV_LOG_CLASS,"Method (%s) not defined by Class (%s)", en->Name, cl->Name);
-
-								en->ID = 0;
-							}
-						}
-
-						#else
-
 						FClassMethod *method;
 						
 						for (F_METHODS_EACH(cl->Methods, method))
@@ -929,8 +629,6 @@ F_LIB_DYNAMIC_RESOLVE_TABLE
 
 							en->ID = 0;
 						}
-
-						#endif
 					}
 					else
 					{
@@ -976,7 +674,7 @@ F_LIB_DYNAMIC_NTI
 
 				if (!(TAG_USER & item->ti_Tag))
 				{
-					FClass *real_class=NULL;
+					volatile FClass *real_class=NULL;
 					FClassAttribute *attr = IFEELIN F_DynamicFindAttribute((STRPTR) item->ti_Tag, (FClass *) Class, &real_class);
 
 					if (attr)
@@ -985,27 +683,6 @@ F_LIB_DYNAMIC_NTI
 
 						if (attr->Values && IEXEC TypeOfMem((APTR) item->ti_Data))
 						{
-							#ifdef F_NEW_ATOMS_AMV
-
-							FAtom *atom = IFEELIN F_AtomFind((STRPTR) item->ti_Data, ALL);
-
-							if (atom)
-							{
-								FClassAttributeValue *val;
-
-								for (F_VALUES_EACH(attr->Values, val))
-								{
-									if (atom == _value_atom(val))
-									{
-										item->ti_Data = val->Value;
-
-										break;
-									}
-								}
-							}
-
-							#else
-
 							FClassAttributeValue *val;
 
 							for (F_VALUES_EACH(attr->Values, val))
@@ -1017,8 +694,6 @@ F_LIB_DYNAMIC_NTI
 									break;
 								}
 							}
-
-							#endif
 						}
 					}
 					else

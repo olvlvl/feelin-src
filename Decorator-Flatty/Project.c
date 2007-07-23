@@ -1,6 +1,6 @@
 /*
 
-$VER: Decorator-Flatty 01.00 (2005/12/21)
+$VER: Decorator-Flatty 01.80 (2007/07/19)
  
 */
 
@@ -19,7 +19,9 @@ F_METHOD_PROTO(void, Deco_AskMinMax);
 F_METHOD_PROTO(void, Deco_Draw);
 F_METHOD_PROTO(void, Deco_SetState);
 
+#if 0
 F_METHOD_PROTO(void, Prefs_New);
+#endif
 //+
 
 ///Class_New
@@ -41,7 +43,7 @@ F_QUERY()
 		{
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(Class_New, FM_New),
+				F_METHODS_OVERRIDE_STATIC(Class_New, FM_New),
 
 				F_ARRAY_END
 			};
@@ -60,8 +62,6 @@ F_QUERY()
 ///Class
 		case FV_Query_ClassTags:
 		{
-			#ifdef F_NEW_STYLES
-
 			STATIC F_PROPERTIES_ARRAY =
 			{
 				F_PROPERTIES_ADD("preparse-active"),
@@ -72,21 +72,19 @@ F_QUERY()
 				F_ARRAY_END
 			};
 
-			#endif
-
 			STATIC F_METHODS_ARRAY =
 			{
-			   F_METHODS_ADD_STATIC(Deco_New,          FM_New),
+			   F_METHODS_OVERRIDE_STATIC(Deco_New,          FM_New),
 
-			   F_METHODS_ADD_STATIC(Deco_Setup,        FM_Element_Setup),
-			   F_METHODS_ADD_STATIC(Deco_Cleanup,      FM_Element_Cleanup),
+			   F_METHODS_OVERRIDE_STATIC(Deco_Setup,        FM_Element_Setup),
+			   F_METHODS_OVERRIDE_STATIC(Deco_Cleanup,      FM_Element_Cleanup),
 
-			   F_METHODS_ADD_STATIC(Deco_Show,         FM_Area_Show),
-			   F_METHODS_ADD_STATIC(Deco_Hide,         FM_Area_Hide),
-			   F_METHODS_ADD_STATIC(Deco_AskMinMax,    FM_Area_AskMinMax),
-//			     F_METHODS_ADD_STATIC(Deco_Layout,       FM_Area_Layout),
-			   F_METHODS_ADD_STATIC(Deco_Draw,         FM_Area_Draw),
-			   F_METHODS_ADD_STATIC(Deco_SetState,     FM_Area_SetState),
+			   F_METHODS_OVERRIDE_STATIC(Deco_Show,         FM_Area_Show),
+			   F_METHODS_OVERRIDE_STATIC(Deco_Hide,         FM_Area_Hide),
+			   F_METHODS_OVERRIDE_STATIC(Deco_AskMinMax,    FM_Area_AskMinMax),
+//			     F_METHODS_OVERRIDE_STATIC(Deco_Layout,       FM_Area_Layout),
+			   F_METHODS_OVERRIDE_STATIC(Deco_Draw,         FM_Area_Draw),
+			   F_METHODS_OVERRIDE_STATIC(Deco_SetState,     FM_Area_SetState),
 			   
 			   F_ARRAY_END
 			};
@@ -96,10 +94,7 @@ F_QUERY()
 			   F_TAGS_ADD_SUPER(Decorator),
 			   F_TAGS_ADD_LOD,
 			   F_TAGS_ADD_METHODS,
-
-			   #ifdef F_NEW_STYLES
 			   F_TAGS_ADD_PROPERTIES,
-			   #endif
 			
 			   F_ARRAY_END
 			};
@@ -107,6 +102,7 @@ F_QUERY()
 			return F_TAGS_PTR;
 		}
 //+
+#if 0
 ///DecoratorPrefs
 		case FV_Query_DecoratorPrefsTags:
 		{
@@ -128,6 +124,7 @@ F_QUERY()
 			return F_TAGS_PTR;
 		}
 //+
+#endif
 	}
 	return NULL;
 }

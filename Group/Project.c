@@ -1,5 +1,11 @@
 /*
 
+$VER: 12.02 (2007/07/25)
+
+	Removed a bug in the AddMember method : the child was invoked  with  the
+	Show  method,  even if the group was not drawable e.i. it didn't receive
+	the method itself.
+
 $VER: 12.00 (2006/05/28)
 
 	Now a subclass of Widget class.
@@ -47,6 +53,9 @@ F_METHOD_PROTO(void,Group_Get);
 F_METHOD_PROTO(void,Group_Set);
 F_METHOD_PROTO(void,Group_AddMember);
 F_METHOD_PROTO(void,Group_RemMember);
+#ifdef F_NEW_GETELEMENTBYID
+F_METHOD_PROTO(void,Group_GetElementById);
+#endif
 
 #ifdef F_NEW_GLOBALCONNECT
 F_METHOD_PROTO(void,Group_GlobalConnect);
@@ -141,8 +150,8 @@ F_QUERY()
 		{
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(Class_New, FM_New),
-				F_METHODS_ADD_STATIC(Class_Dispose, FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(Class_New, FM_New),
+				F_METHODS_OVERRIDE_STATIC(Class_Dispose, FM_Dispose),
 
 				F_ARRAY_END
 			};
@@ -150,7 +159,7 @@ F_QUERY()
 			STATIC F_TAGS_ARRAY =
 			{
 				F_TAGS_ADD_SUPER(Class),
-				F_TAGS_ADD(LODSize, sizeof (struct ClassUserData)),
+				F_TAGS_ADD(LocalSize, sizeof (struct ClassUserData)),
 				F_TAGS_ADD_METHODS,
 
 				F_ARRAY_END
@@ -184,35 +193,38 @@ F_QUERY()
 
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(Group_New,             FM_New),
-				F_METHODS_ADD_STATIC(Group_Dispose,         FM_Dispose),
-				F_METHODS_ADD_STATIC(Group_Get,             FM_Get),
-				F_METHODS_ADD_STATIC(Group_Set,             FM_Set),
-				F_METHODS_ADD_STATIC(Group_AddMember,       FM_AddMember),
-				F_METHODS_ADD_STATIC(Group_RemMember,       FM_RemMember),
-
-				#ifdef F_NEW_GLOBALCONNECT
-				F_METHODS_ADD_STATIC(Group_GlobalConnect,		FM_Element_GlobalConnect),
-				F_METHODS_ADD_STATIC(Group_GlobalDisconnect,	FM_Element_GlobalDisconnect),
+				F_METHODS_OVERRIDE_STATIC(Group_New,             FM_New),
+				F_METHODS_OVERRIDE_STATIC(Group_Dispose,         FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(Group_Get,             FM_Get),
+				F_METHODS_OVERRIDE_STATIC(Group_Set,             FM_Set),
+				F_METHODS_OVERRIDE_STATIC(Group_AddMember,       FM_AddMember),
+				F_METHODS_OVERRIDE_STATIC(Group_RemMember,       FM_RemMember),
+				#ifdef F_NEW_GETELEMENTBYID
+				F_METHODS_OVERRIDE_STATIC(Group_GetElementById, FM_GetElementById),
 				#endif
 
-				F_METHODS_ADD_STATIC(Group_Setup,           FM_Element_Setup),
-				F_METHODS_ADD_STATIC(Group_Cleanup,         FM_Element_Cleanup),
-				F_METHODS_ADD_STATIC(Group_Propagate,       FM_Element_LoadPersistentAttributes),
-				F_METHODS_ADD_STATIC(Group_Propagate,       FM_Element_SavePersistentAttributes),
+				#ifdef F_NEW_GLOBALCONNECT
+				F_METHODS_OVERRIDE_STATIC(Group_GlobalConnect,		 FM_Element_GlobalConnect),
+				F_METHODS_OVERRIDE_STATIC(Group_GlobalDisconnect,	 FM_Element_GlobalDisconnect),
+				#endif
 
-				F_METHODS_ADD_STATIC(Group_AskMinMax,       FM_Area_AskMinMax),
-				F_METHODS_ADD_STATIC(Group_Layout,          FM_Area_Layout),
+				F_METHODS_OVERRIDE_STATIC(Group_Setup,           FM_Element_Setup),
+				F_METHODS_OVERRIDE_STATIC(Group_Cleanup,         FM_Element_Cleanup),
+				F_METHODS_OVERRIDE_STATIC(Group_Propagate,       FM_Element_LoadPersistentAttributes),
+				F_METHODS_OVERRIDE_STATIC(Group_Propagate,       FM_Element_SavePersistentAttributes),
 
-				F_METHODS_ADD_STATIC(Group_Move,            FM_Area_Move),
-				F_METHODS_ADD_STATIC(Group_Show,            FM_Area_Show),
-				F_METHODS_ADD_STATIC(Group_Hide,            FM_Area_Hide),
-				F_METHODS_ADD_STATIC(Group_Draw,            FM_Area_Draw),
-		        F_METHODS_ADD_STATIC(Group_SetState,   	    FM_Area_SetState),
+				F_METHODS_OVERRIDE_STATIC(Group_AskMinMax,       FM_Area_AskMinMax),
+				F_METHODS_OVERRIDE_STATIC(Group_Layout,          FM_Area_Layout),
 
-				F_METHODS_ADD_STATIC(Group_TreeUp,          FM_Widget_DnDQuery),
+				F_METHODS_OVERRIDE_STATIC(Group_Move,            FM_Area_Move),
+				F_METHODS_OVERRIDE_STATIC(Group_Show,            FM_Area_Show),
+				F_METHODS_OVERRIDE_STATIC(Group_Hide,            FM_Area_Hide),
+				F_METHODS_OVERRIDE_STATIC(Group_Draw,            FM_Area_Draw),
+				F_METHODS_OVERRIDE_STATIC(Group_SetState,        FM_Area_SetState),
 
-				F_METHODS_ADD_BOTH(Group_Forward,           "Forward", FM_Group_Forward),
+				F_METHODS_OVERRIDE_STATIC(Group_TreeUp,          FM_Widget_DnDQuery),
+
+				F_METHODS_ADD_STATIC(Group_Forward,           "Forward", FM_Group_Forward),
 /*
 				F_METHODS_ADD_STATIC(Group_TreeUp,          FM_BuildContextHelp),
 				F_METHODS_ADD_STATIC(Group_TreeUp,          FM_BuildContextMenu),

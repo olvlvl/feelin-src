@@ -144,8 +144,8 @@ F_QUERY()
 	  {
 		 STATIC F_METHODS_ARRAY =
 		 {
-			F_METHODS_ADD_STATIC(Class_New,      FM_New),
-			F_METHODS_ADD_STATIC(Class_Dispose,  FM_Dispose),
+			F_METHODS_OVERRIDE_STATIC(Class_New,      FM_New),
+			F_METHODS_OVERRIDE_STATIC(Class_Dispose,  FM_Dispose),
 
 			F_ARRAY_END
 		 };
@@ -153,7 +153,7 @@ F_QUERY()
 		 STATIC F_TAGS_ARRAY =
 		 {
 			F_TAGS_ADD_SUPER(Class),
-			F_TAGS_ADD(LODSize, sizeof (struct ClassUserData)),
+			F_TAGS_ADD(LocalSize, sizeof (struct ClassUserData)),
 			F_TAGS_ADD_METHODS,
 
 			F_ARRAY_END
@@ -179,13 +179,13 @@ F_QUERY()
 	
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(ID_Dispose,    FM_Dispose),
-				F_METHODS_ADD_STATIC(ID_Set,        FM_Set),
-				F_METHODS_ADD_STATIC(ID_Get, 		FM_Get),
+				F_METHODS_OVERRIDE_STATIC(ID_Dispose,    FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(ID_Set,        FM_Set),
+				F_METHODS_OVERRIDE_STATIC(ID_Get, 		 FM_Get),
 
-				F_METHODS_ADD_BOTH(ID_Draw,         "Draw",     FM_ImageDisplay_Draw),
-				F_METHODS_ADD_BOTH(ID_Setup,        "Setup",    FM_ImageDisplay_Setup),
-				F_METHODS_ADD_BOTH(ID_Cleanup,      "Cleanup",  FM_ImageDisplay_Cleanup),
+				F_METHODS_ADD_STATIC(ID_Draw,         "Draw",     FM_ImageDisplay_Draw),
+				F_METHODS_ADD_STATIC(ID_Setup,        "Setup",    FM_ImageDisplay_Setup),
+				F_METHODS_ADD_STATIC(ID_Cleanup,      "Cleanup",  FM_ImageDisplay_Cleanup),
 				
 				F_ARRAY_END
 			};

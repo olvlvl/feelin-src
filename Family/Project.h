@@ -5,9 +5,9 @@
 */
 
 #define F_CLASS_NAME                            "Family"
-#define F_CLASS_VERSION                         6
+#define F_CLASS_VERSION                         7
 #define F_CLASS_REVISION                        0
-#define F_CLASS_VERSION_STRING                  "06.00 (2006/10/19)"
+#define F_CLASS_VERSION_STRING                  "07.00 (2007/07/23)"
 
 #include "Private.h"
 

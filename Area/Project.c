@@ -66,8 +66,9 @@ F_METHOD_PROTO(void,Area_AskMinMax);
 F_METHOD_PROTO(void,Area_Erase);
 F_METHOD_PROTO(void,Area_Draw);
 F_METHOD_PROTO(void,Area_SetState);
-
+#if 0
 F_METHOD_PROTO(void,Prefs_New);
+#endif
 //+
 
 F_QUERY()
@@ -147,26 +148,26 @@ F_QUERY()
 
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(Area_New,          FM_New),
-				F_METHODS_ADD_STATIC(Area_Get,          FM_Get),
-				F_METHODS_ADD_STATIC(Area_Set,          FM_Set),
+				F_METHODS_OVERRIDE_STATIC(Area_New,          FM_New),
+				F_METHODS_OVERRIDE_STATIC(Area_Get,          FM_Get),
+				F_METHODS_OVERRIDE_STATIC(Area_Set,          FM_Set),
 				#ifndef F_NEW_GLOBALCONNECT
-				F_METHODS_ADD_STATIC(Area_Connect,      FM_Connect),
-				F_METHODS_ADD_STATIC(Area_Disconnect,	FM_Disconnect),
+				F_METHODS_OVERRIDE_STATIC(Area_Connect,      FM_Connect),
+				F_METHODS_OVERRIDE_STATIC(Area_Disconnect,	 FM_Disconnect),
 				#endif
 
-				F_METHODS_ADD_STATIC(Area_Setup,                FM_Element_Setup),
-				F_METHODS_ADD_STATIC(Area_Cleanup,              FM_Element_Cleanup),
-				F_METHODS_ADD_STATIC(Area_CreateDecodedStyle,	FM_Element_CreateDecodedStyle),
+				F_METHODS_OVERRIDE_STATIC(Area_Setup,                FM_Element_Setup),
+				F_METHODS_OVERRIDE_STATIC(Area_Cleanup,              FM_Element_Cleanup),
+				F_METHODS_OVERRIDE_STATIC(Area_CreateDecodedStyle,	 FM_Element_CreateDecodedStyle),
 
-				F_METHODS_ADD_BOTH(Area_AskMinMax,	"AskMinMax",    FM_Area_AskMinMax),
-				F_METHODS_ADD_BOTH(Area_Layout,     "Layout",       FM_Area_Layout),
-				F_METHODS_ADD_BOTH(Area_Show,       "Show",         FM_Area_Show),
-				F_METHODS_ADD_BOTH(Area_Hide,       "Hide",         FM_Area_Hide),
-				F_METHODS_ADD_BOTH(Area_Erase,      "Erase",        FM_Area_Erase),
-				F_METHODS_ADD_BOTH(Area_Draw,       "Draw",         FM_Area_Draw),
-				F_METHODS_ADD_BOTH(Area_SetState,   "SetState",		FM_Area_SetState),
-				//F_METHODS_ADD_BOTH(Area_Move,         "Move",             FM_Area_Move),
+				F_METHODS_ADD_STATIC(Area_AskMinMax,  "AskMinMax",    FM_Area_AskMinMax),
+				F_METHODS_ADD_STATIC(Area_Layout,     "Layout",       FM_Area_Layout),
+				F_METHODS_ADD_STATIC(Area_Show,       "Show",         FM_Area_Show),
+				F_METHODS_ADD_STATIC(Area_Hide,       "Hide",         FM_Area_Hide),
+				F_METHODS_ADD_STATIC(Area_Erase,      "Erase",        FM_Area_Erase),
+				F_METHODS_ADD_STATIC(Area_Draw,       "Draw",         FM_Area_Draw),
+				F_METHODS_ADD_STATIC(Area_SetState,   "SetState",	  FM_Area_SetState),
+				//F_METHODS_ADD_STATIC(Area_Move,         "Move",             FM_Area_Move),
 				
 				F_ARRAY_END
 			};
@@ -187,6 +188,7 @@ F_QUERY()
 			return F_TAGS_PTR;
 		}
 //+
+#if 0
 ///Prefs
 	   case FV_Query_PrefsTags:
 	   {
@@ -208,6 +210,7 @@ F_QUERY()
 		   return F_TAGS_PTR;
 	   }
 //+
+#endif
    }
    return NULL;
 }

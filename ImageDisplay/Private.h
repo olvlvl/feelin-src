@@ -234,10 +234,3 @@ bool32 id_draw(APTR Image, in_Code_Draw *Func, FRender *Render, FBox *Origin, FP
 			ça compile ! */
 uint32 id_color_get_rgb(APTR image, FRender *Render);
 #endif
-
-#ifndef F_NEW_STYLES
-
-F_HOOKM_PROTO(int32,code_image_construct,FS_Associated_Construct);
-F_HOOKM_PROTO(void,code_image_destruct,FS_Associated_Destruct);
-
-#endif

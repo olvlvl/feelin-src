@@ -1,5 +1,9 @@
 /*
 
+$VER: 05.00 (2007/07/22)
+
+	Overrides the GetElementById Object's method.
+
 $VER: 04.00 (2006/08/10)
 
 	Atoms support.
@@ -27,7 +31,11 @@ F_METHOD_PROTO(void,XMLObject_Dispose);
 F_METHOD_PROTO(void,XMLObject_Get);
 F_METHOD_PROTO(void,XMLObject_Read);
 
+#ifdef F_NEW_GETELEMENTBYID
+F_METHOD_PROTO(void,XMLObject_GetElementById);
+#else
 F_METHOD_PROTO(void,XMLObject_GetObjects);
+#endif
 
 F_METHOD_PROTO(void,XMLObject_Build);
 F_METHOD_PROTO(void,XMLObject_Create);
@@ -51,15 +59,21 @@ F_QUERY()
 
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD(XMLObject_Read, "FM_Document_Read"),
-				F_METHODS_ADD(XMLObject_Resolve, "FM_Document_Resolve"),
-				F_METHODS_ADD(XMLObject_GetObjects, "GetObjects"),
+				F_METHODS_OVERRIDE(XMLObject_Read, "Document", "Read"),
+				F_METHODS_OVERRIDE(XMLObject_Resolve, "Document", "Resolve"),
+				
 				F_METHODS_ADD(XMLObject_Build, "Build"),
 				F_METHODS_ADD(XMLObject_Create, "Create"),
 
-				F_METHODS_ADD_STATIC(XMLObject_Get, FM_Get),
-				F_METHODS_ADD_STATIC(XMLObject_Dispose, FM_Dispose),
-				F_METHODS_ADD_STATIC(XMLObject_New, FM_New),
+				#ifdef F_NEW_GETELEMENTBYID
+				F_METHODS_OVERRIDE_STATIC(XMLObject_GetElementById, FM_GetElementById),
+				#else
+				F_METHODS_ADD(XMLObject_GetObjects, "GetObjects"),
+				#endif
+
+				F_METHODS_OVERRIDE_STATIC(XMLObject_Get, FM_Get),
+				F_METHODS_OVERRIDE_STATIC(XMLObject_Dispose, FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(XMLObject_New, FM_New),
 
 				F_ARRAY_END
 			};
@@ -75,11 +89,8 @@ F_QUERY()
 			{
 				F_ATOMS_ADD(F_XMLOBJECT_ID),
 				F_ATOMS_ADD(F_XMLOBJECT_OBJECTS),
-
-				#ifdef F_NEW_STYLES
 				F_ATOMS_ADD(F_XMLOBJECT_STYLE),
 				F_ATOMS_ADD(F_XMLOBJECT_CLASS),
-				#endif
 
 				F_ARRAY_END
 			};

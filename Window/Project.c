@@ -1,5 +1,10 @@
 /*
 
+$VER: 13.02 (2007/07/25)
+
+	Removed a bug in  coordinates  computing,  when  the  window  was  right
+	handled.
+
 $VER: 13.00 (2006/05/27)
 
 	FEventHandler is now deprecated, the structure is no longer provided  to
@@ -23,8 +28,8 @@ $VER: 12.00 (2006/01/03)
 	alternatives position and dimensions.
 	
 	The window positionning has been extended in many  ways.  The  developer
-	can  use  the FA_Left, FA_Top, FA_Area_Width and FA_Area_Height as usual to open a
-	window at a specific position with the specific dimensions.
+	can  use  the FA_Left, FA_Top, FA_Area_Width and FA_Area_Height as usual
+	to open a window at a specific position with the specific dimensions.
 	
 	Windows are now handled by the new shared object 'WinServer', which adds
 	many new features unavailable with intuition.
@@ -47,6 +52,9 @@ F_METHOD_PROTO(void,Window_Get);
 F_METHOD_PROTO(void,Window_Set);
 F_METHOD_PROTO(void,Window_AddMember);
 F_METHOD_PROTO(void,Window_RemMember);
+#ifdef F_NEW_GETELEMENTBYID
+F_METHOD_PROTO(void,Window_GetElementById);
+#endif
 
 #ifdef F_NEW_GLOBALCONNECT
 F_METHOD_PROTO(void,Window_GlobalConnect);
@@ -106,8 +114,8 @@ F_QUERY()
 		{
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(Class_New,      FM_New),
-				F_METHODS_ADD_STATIC(Class_Dispose,  FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(Class_New,      FM_New),
+				F_METHODS_OVERRIDE_STATIC(Class_Dispose,  FM_Dispose),
 
 				F_ARRAY_END
 			};
@@ -187,39 +195,42 @@ F_QUERY()
 
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(Window_New,               FM_New),
-				F_METHODS_ADD_STATIC(Window_Dispose,           FM_Dispose),
-				F_METHODS_ADD_STATIC(Window_Get,               FM_Get),
-				F_METHODS_ADD_STATIC(Window_Set,               FM_Set),
-				F_METHODS_ADD_STATIC(Window_AddMember,         FM_AddMember),
-				F_METHODS_ADD_STATIC(Window_RemMember,         FM_RemMember),
+				F_METHODS_OVERRIDE_STATIC(Window_New,               FM_New),
+				F_METHODS_OVERRIDE_STATIC(Window_Dispose,           FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(Window_Get,               FM_Get),
+				F_METHODS_OVERRIDE_STATIC(Window_Set,               FM_Set),
+				F_METHODS_OVERRIDE_STATIC(Window_AddMember,         FM_AddMember),
+				F_METHODS_OVERRIDE_STATIC(Window_RemMember,         FM_RemMember),
+				#ifdef F_NEW_GETELEMENTBYID
+				F_METHODS_OVERRIDE_STATIC(Window_GetElementById,    FM_GetElementById),
+				#endif
 
 				#ifdef F_NEW_GLOBALCONNECT
-				F_METHODS_ADD_STATIC(Window_GlobalConnect,		FM_Element_GlobalConnect),
-				F_METHODS_ADD_STATIC(Window_GlobalDisconnect,	FM_Element_GlobalDisconnect),
+				F_METHODS_OVERRIDE_STATIC(Window_GlobalConnect,		 FM_Element_GlobalConnect),
+				F_METHODS_OVERRIDE_STATIC(Window_GlobalDisconnect,	 FM_Element_GlobalDisconnect),
 				#endif
 				
-				F_METHODS_ADD_STATIC(Window_Setup,              FM_Element_Setup),
-				F_METHODS_ADD_STATIC(Window_Cleanup,            FM_Element_Cleanup),
-				F_METHODS_ADD_STATIC(Window_LoadPersistentAttributes, FM_Element_LoadPersistentAttributes),
-				F_METHODS_ADD_STATIC(Window_SavePersistentAttributes, FM_Element_SavePersistentAttributes),
+				F_METHODS_OVERRIDE_STATIC(Window_Setup,              FM_Element_Setup),
+				F_METHODS_OVERRIDE_STATIC(Window_Cleanup,            FM_Element_Cleanup),
+				F_METHODS_OVERRIDE_STATIC(Window_LoadPersistentAttributes, FM_Element_LoadPersistentAttributes),
+				F_METHODS_OVERRIDE_STATIC(Window_SavePersistentAttributes, FM_Element_SavePersistentAttributes),
 
-				F_METHODS_ADD_STATIC(Window_AskMinMax,          FM_Area_AskMinMax),
-				F_METHODS_ADD_STATIC(Window_Layout,             FM_Area_Layout),
-				F_METHODS_ADD_STATIC(Window_Show,               FM_Area_Show),
-				F_METHODS_ADD_STATIC(Window_Hide,               FM_Area_Hide),
-				F_METHODS_ADD_STATIC(Window_Draw,               FM_Area_Draw),
+				F_METHODS_OVERRIDE_STATIC(Window_AskMinMax,          FM_Area_AskMinMax),
+				F_METHODS_OVERRIDE_STATIC(Window_Layout,             FM_Area_Layout),
+				F_METHODS_OVERRIDE_STATIC(Window_Show,               FM_Area_Show),
+				F_METHODS_OVERRIDE_STATIC(Window_Hide,               FM_Area_Hide),
+				F_METHODS_OVERRIDE_STATIC(Window_Draw,               FM_Area_Draw),
 				
-				F_METHODS_ADD_BOTH(Window_Open,             	"Open",             	FM_Window_Open),
-				F_METHODS_ADD_BOTH(Window_Close,            	"Close",            	FM_Window_Close),
-				F_METHODS_ADD_BOTH(Window_CreateEventHandler,  	"CreateEventHandler",  	FM_Window_CreateEventHandler),
-				F_METHODS_ADD_BOTH(Window_DeleteEventHandler,	"DeleteEventHandler",  	FM_Window_DeleteEventHandler),
-				F_METHODS_ADD_BOTH(Window_AddChainable,     	"AddChainable",     	FM_Window_AddChainable),
-				F_METHODS_ADD_BOTH(Window_RemChainable,     	"RemChainable",     	FM_Window_RemChainable),
-				F_METHODS_ADD_BOTH(Window_DispatchEvent,    	"DispatchEvent",    	FM_Window_DispatchEvent),
-				F_METHODS_ADD_BOTH(Window_RequestRethink,   	"RequestRethink",   	FM_Window_RequestRethink),
-				F_METHODS_ADD_BOTH(Window_Zoom,             	"Zoom",             	FM_Window_Zoom),
-				F_METHODS_ADD_BOTH(Window_Depth,            	"Depth",            	FM_Window_Depth),
+				F_METHODS_ADD_STATIC(Window_Open,             	  "Open",             	  FM_Window_Open),
+				F_METHODS_ADD_STATIC(Window_Close,            	  "Close",            	  FM_Window_Close),
+				F_METHODS_ADD_STATIC(Window_CreateEventHandler,   "CreateEventHandler",   FM_Window_CreateEventHandler),
+				F_METHODS_ADD_STATIC(Window_DeleteEventHandler,	  "DeleteEventHandler",   FM_Window_DeleteEventHandler),
+				F_METHODS_ADD_STATIC(Window_AddChainable,     	  "AddChainable",     	  FM_Window_AddChainable),
+				F_METHODS_ADD_STATIC(Window_RemChainable,     	  "RemChainable",     	  FM_Window_RemChainable),
+				F_METHODS_ADD_STATIC(Window_DispatchEvent,    	  "DispatchEvent",    	  FM_Window_DispatchEvent),
+				F_METHODS_ADD_STATIC(Window_RequestRethink,   	  "RequestRethink",   	  FM_Window_RequestRethink),
+				F_METHODS_ADD_STATIC(Window_Zoom,             	  "Zoom",             	  FM_Window_Zoom),
+				F_METHODS_ADD_STATIC(Window_Depth,            	  "Depth",            	  FM_Window_Depth),
 				
 				F_ARRAY_END
 			};

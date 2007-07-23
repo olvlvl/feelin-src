@@ -9,32 +9,6 @@ $VER: 06.00 (2006/05/02)
 
 	Layout method rewrote.
 
-$VER: 05.02 (2005/12/11)
- 
-	Portability update.
-	
-	Added FM_GoEnabled and GM_GoDisabled support.
- 
-$VER: 05.00 (2005/04/29)
- 
-	FM_Prop_Decrease and FM_Prop_Decrease  no  longer  modify  FA_Prop_First
-	uselessly.
-	
-	The attribute FA_Prop_Useless is set to TRUE when there is no  entry  or
-	when  all  entries  are  visible; and is set to FALSE when there is some
-	entries, which are no all visible.
-	
-	The event class code FV_EVENT_BUTTON_WHEEL is now handled by the class.
- 
-$VER: 04.00 (2005/02/01)
-
-	Added color scheme support.
-	Added new events support.
- 
-$VER: 03.00 (2003/09/22)
-
-	Added preference editor support
-
 */
 
 #include "Project.h"
@@ -64,8 +38,9 @@ F_METHOD_PROTO(void,Prop_SetState);
 F_METHOD_PROTO(void,Prop_HandleEvent);
 F_METHOD_PROTO(void,Prop_Decrease);
 F_METHOD_PROTO(void,Prop_Increase);
-
+#if 0
 F_METHOD_PROTO(void,Prefs_New);
+#endif
 //+
 
 F_QUERY()
@@ -91,35 +66,27 @@ F_QUERY()
 				F_METHODS_ADD(Prop_Decrease,    "Decrease"),
 				F_METHODS_ADD(Prop_Increase,    "Increase"),
 
-				F_METHODS_ADD_STATIC(Prop_New,          FM_New),
-				F_METHODS_ADD_STATIC(Prop_Dispose,      FM_Dispose),
-				F_METHODS_ADD_STATIC(Prop_Get,          FM_Get),
-				F_METHODS_ADD_STATIC(Prop_Set,          FM_Set),
-
-				F_METHODS_ADD_STATIC(Prop_AddMember,    FM_AddMember),
-				F_METHODS_ADD_STATIC(Prop_RemMember,    FM_RemMember),
+				F_METHODS_OVERRIDE_STATIC(Prop_New,          FM_New),
+				F_METHODS_OVERRIDE_STATIC(Prop_Dispose,      FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(Prop_Get,          FM_Get),
+				F_METHODS_OVERRIDE_STATIC(Prop_Set,          FM_Set),
+				F_METHODS_OVERRIDE_STATIC(Prop_AddMember,    FM_AddMember),
+				F_METHODS_OVERRIDE_STATIC(Prop_RemMember,    FM_RemMember),
 
 				#ifdef F_NEW_GLOBALCONNECT
-				F_METHODS_ADD_STATIC(Prop_GlobalConnect,	FM_Element_GlobalConnect),
-				F_METHODS_ADD_STATIC(Prop_GlobalDisconnect,	FM_Element_GlobalDisconnect),
+				F_METHODS_OVERRIDE_STATIC(Prop_GlobalConnect,	 FM_Element_GlobalConnect),
+				F_METHODS_OVERRIDE_STATIC(Prop_GlobalDisconnect, FM_Element_GlobalDisconnect),
 				#endif
 
-				F_METHODS_ADD_STATIC(Prop_Setup,        FM_Element_Setup),
-				F_METHODS_ADD_STATIC(Prop_Cleanup,      FM_Element_Cleanup),
-
-				F_METHODS_ADD_STATIC(Prop_Show,         FM_Area_Show),
-				F_METHODS_ADD_STATIC(Prop_Hide,         FM_Area_Hide),
-				F_METHODS_ADD_STATIC(Prop_AskMinMax,    FM_Area_AskMinMax),
-				F_METHODS_ADD_STATIC(Prop_Layout,       FM_Area_Layout),
-				F_METHODS_ADD_STATIC(Prop_Draw,         FM_Area_Draw),
-				F_METHODS_ADD_STATIC(Prop_SetState,     FM_Area_SetState),
-/*
-				F_METHODS_ADD_STATIC(Prop_GoActive,     FM_GoActive),
-				F_METHODS_ADD_STATIC(Prop_GoInactive,   FM_GoInactive),
-				F_METHODS_ADD_STATIC(Prop_GoEnabled,    FM_GoEnabled),
-				F_METHODS_ADD_STATIC(Prop_GoDisabled,   FM_GoDisabled),
-*/
-				F_METHODS_ADD_STATIC(Prop_HandleEvent,  FM_Widget_HandleEvent),
+				F_METHODS_OVERRIDE_STATIC(Prop_Setup,        FM_Element_Setup),
+				F_METHODS_OVERRIDE_STATIC(Prop_Cleanup,      FM_Element_Cleanup),
+				F_METHODS_OVERRIDE_STATIC(Prop_Show,         FM_Area_Show),
+				F_METHODS_OVERRIDE_STATIC(Prop_Hide,         FM_Area_Hide),
+				F_METHODS_OVERRIDE_STATIC(Prop_AskMinMax,    FM_Area_AskMinMax),
+				F_METHODS_OVERRIDE_STATIC(Prop_Layout,       FM_Area_Layout),
+				F_METHODS_OVERRIDE_STATIC(Prop_Draw,         FM_Area_Draw),
+				F_METHODS_OVERRIDE_STATIC(Prop_SetState,     FM_Area_SetState),
+				F_METHODS_OVERRIDE_STATIC(Prop_HandleEvent,  FM_Widget_HandleEvent),
 
 				F_ARRAY_END
 			};
@@ -137,6 +104,7 @@ F_QUERY()
 			return F_TAGS_PTR;
 		}
 //+
+#if 0
 ///Prefs
 		case FV_Query_PrefsTags:
 		{
@@ -158,6 +126,7 @@ F_QUERY()
 			return F_TAGS_PTR;
 		}
 //+
+#endif
 	}
 	return NULL;
 }

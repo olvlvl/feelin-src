@@ -34,8 +34,9 @@ F_METHOD_PROTO(void,String_AskMinMax);
 F_METHOD_PROTO(void,String_Draw);
 F_METHOD_PROTO(void,String_SetState);
 F_METHOD_PROTO(void,String_HandleEvent);
-
+#if 0
 F_METHOD_PROTO(void,Prefs_New);
+#endif
 //+
 
 F_QUERY()
@@ -74,19 +75,16 @@ F_QUERY()
 
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(String_New,         	FM_New),
-				F_METHODS_ADD_STATIC(String_Dispose,     	FM_Dispose),
-				F_METHODS_ADD_STATIC(String_Get,         	FM_Get),
-				F_METHODS_ADD_STATIC(String_Set,         	FM_Set),
-
-				F_METHODS_ADD_STATIC(String_Setup,       	FM_Element_Setup),
-				F_METHODS_ADD_STATIC(String_Cleanup,     	FM_Element_Cleanup),
-
-				F_METHODS_ADD_STATIC(String_AskMinMax,   	FM_Area_AskMinMax),
-			    F_METHODS_ADD_STATIC(String_Draw,           FM_Area_Draw),
-			    F_METHODS_ADD_STATIC(String_SetState,  	    FM_Area_SetState),
-
-				F_METHODS_ADD_STATIC(String_HandleEvent, 	FM_Widget_HandleEvent),
+				F_METHODS_OVERRIDE_STATIC(String_New,         	 FM_New),
+				F_METHODS_OVERRIDE_STATIC(String_Dispose,     	 FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(String_Get,         	 FM_Get),
+				F_METHODS_OVERRIDE_STATIC(String_Set,         	 FM_Set),
+				F_METHODS_OVERRIDE_STATIC(String_Setup,       	 FM_Element_Setup),
+				F_METHODS_OVERRIDE_STATIC(String_Cleanup,     	 FM_Element_Cleanup),
+				F_METHODS_OVERRIDE_STATIC(String_AskMinMax,   	 FM_Area_AskMinMax),
+				F_METHODS_OVERRIDE_STATIC(String_Draw,           FM_Area_Draw),
+				F_METHODS_OVERRIDE_STATIC(String_SetState,       FM_Area_SetState),
+				F_METHODS_OVERRIDE_STATIC(String_HandleEvent, 	 FM_Widget_HandleEvent),
 
 				F_ARRAY_END
 			};
@@ -119,6 +117,7 @@ F_QUERY()
 			return F_TAGS_PTR;
 		}
 //+
+#if 0
 ///Prefs
 		case FV_Query_PrefsTags:
 		{
@@ -140,6 +139,7 @@ F_QUERY()
 			return F_TAGS_PTR;
 		}
 //+
+#endif
 	}
 	return NULL;
 }

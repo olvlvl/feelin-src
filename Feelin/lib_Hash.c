@@ -116,7 +116,7 @@ F_LIB_HASH_ADD_LINK
 {
     if (Table && Link && Link->Key && Link->KeyLength)
     {
-        uint32 hash=0;
+        volatile uint32 hash=0;
 
         IFEELIN F_HashFind(Table,Link->Key,Link->KeyLength,&hash);
 
@@ -131,13 +131,13 @@ F_LIB_HASH_ADD_LINK
 ///f_hash_rem_link
 F_LIB_HASH_REM_LINK
 {
-    uint32 h_val;
+    volatile uint32 hash;
 
-    if (IFEELIN F_HashFind(Table,Link->Key,Link->KeyLength,&h_val))
+    if (IFEELIN F_HashFind(Table,Link->Key,Link->KeyLength,&hash))
     {
         FHashLink *node,*prev = NULL;
 
-        for (node = Table->Entries[h_val] ; node ; node = node->Next)
+        for (node = Table->Entries[hash] ; node ; node = node->Next)
         {
             if (node == Link)
             {
@@ -147,7 +147,7 @@ F_LIB_HASH_REM_LINK
                 }
                 else
                 {
-                    Table->Entries[h_val] = node->Next;
+                    Table->Entries[hash] = node->Next;
                 }
 
                 node->Next = NULL;
@@ -159,7 +159,7 @@ F_LIB_HASH_REM_LINK
         }
     }
 
-    IFEELIN F_Log(FV_LOG_DEV,"F_HashRemLink() Unknown link 0x%08lx - Hash 0x%08lx - Key (%s)",Link,h_val,Link->Key);
+    IFEELIN F_Log(FV_LOG_DEV,"F_HashRemLink() Unknown link 0x%08lx - Hash 0x%08lx - Key (%s)",Link,hash,Link->Key);
 
     return FALSE;
 }
@@ -191,7 +191,7 @@ F_LIB_HASH_REM
 {
     if (Table && Key && KeyLength)
     {
-        uint32 hash;
+        volatile uint32 hash;
         FHashLink *link = IFEELIN F_HashFind(Table,Key,(KeyLength == ALL) ? IFEELIN F_StrLen(Key) : KeyLength,&hash);
 
         if (link)

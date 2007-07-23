@@ -160,54 +160,6 @@ STATIC FXMLMake xml_object_make[] =
 	F_ARRAY_END
 };
 
-/***********************************************************************************************/
-
-#if F_CODE_DEPRECATED
-
-///f_create_reference
-STATIC struct in_Reference * f_create_reference(FClass *Class,FObject Obj,STRPTR id,uint32 len,APTR Pool)
-{
-	struct LocalObjectData *LOD = F_LOD(Class,Obj);
-
-	struct in_Reference *node = IFEELIN F_NewP(Pool, sizeof (struct in_Reference));
-
-	if (node)
-	{
-		node->atom = IFEELIN F_AtomObtain(id, len);
-
-		if (node->atom)
-		{
-			#ifdef DB_CHECK_REFERENCE
-
-			struct in_Reference *check;
-
-			for (check = LOD->references ; check ; check = check->next)
-			{
-				if (check->atom == node->atom)
-				{
-					IFEELIN F_Log(0,"reference (%s) used twice !", id);
-				}
-			}
-
-			#endif
-
-			IFEELIN F_Log(0,"create reference (%s)", node->atom->Key);
-
-			node->next = LOD->references;
-			LOD->references = node;
-
-			return node;
-		}
-
-		IFEELIN F_Dispose(node);
-	}
-
-	return NULL;
-}
-//+
-
-#endif
-
 /************************************************************************************************
 *** Methods *************************************************************************************
 ************************************************************************************************/
@@ -230,22 +182,28 @@ F_METHODM(FObject,XMLObject_Create,FS_XMLObject_Create)
   
 	if (!Msg->Markup)
 	{
-		IFEELIN F_Log(FV_LOG_DEV,"Markup is NULL"); return NULL;
+		IFEELIN F_Log(FV_LOG_DEV,"Markup is NULL");
+		
+		return NULL;
 	}
 	
 /*** check from built in collection ************************************************************/
 
 	for (make = xml_object_make ; make->Name ; make++)
 	{
-		int32 cmp = IFEELIN F_StrCmp(make->Name,Msg->Markup->Atom->Key,ALL);
+		int32 cmp = IFEELIN F_StrCmp(make->Name, Msg->Markup->Atom->Key, ALL);
 
 		if (cmp == 0)
 		{
-			cl_name = make->ClassName; break;
+			cl_name = make->ClassName;
+		
+			break;
 		}
 		else if (cmp > 0)
 		{
-			make = NULL; break;
+			make = NULL;
+		
+			break;
 		}
 	}
 
@@ -262,11 +220,7 @@ F_METHODM(FObject,XMLObject_Create,FS_XMLObject_Create)
 		uint32 i= make ? 1 + make->Params : 1;
 		struct TagItem *tags; 
 
-		#if !F_CODE_DEPRECATED
-
 		struct in_Reference *reference_node = NULL;
-
-		#endif
 		
 		/* now that we have opened the class,  we  can  create  and  resolve
 		attributes   and   parameters.  Note  well  the  difference  between
@@ -321,60 +275,109 @@ F_METHODM(FObject,XMLObject_Create,FS_XMLObject_Create)
 			
 			for (attribute = (FXMLAttribute *)(Msg->Markup->AttributesList.Head) ; attribute ; attribute = attribute->Next)
 			{
-				FClass *ca_class;
+				volatile FClass *ca_class;
 				FClassAttribute *ca;
 
-				if (attribute->Atom == F_ATOM(ID))
+				ca = IFEELIN F_DynamicFindAttribute(attribute->Atom->Key, cl, &ca_class);
+
+				if (ca != NULL)
 				{
-					if (attribute->Value != NULL)
+					uint32 value = 0;
+					bool32 resolve_ok = FALSE;
+
+					#if 0
+
+					IFEELIN F_Log
+					(
+						0, "class attribute (%s) expecting type (0x%08lx) - value (%s) numeric (%ld)(0x%08lx)",
+
+						ca->Name,
+						ca->Type,
+						attribute->Value,
+						attribute->NumericValue,
+						attribute->NumericType
+					);
+
+					#endif
+
+					if (attribute->NumericType)
 					{
-						FAtom *atom;
+						// attribute value was successfuly been numerized
 
-/* FIXME-061020
-
-	If the 'id' attribute is defined the object is added to  the  references
-	list, which is a problem because some object e.g. the application, don't
-	have such an attribute any more, since it was moved to the Element class
-	which is not a superclass of the Application class.
-
-	Furthermore, the application  don't  require  an  ID  since  the  global
-	variable 'application' can be used instead.
-
-*/
-
-						#ifdef F_NEW_ELEMENT_ID
-
-						/* check if the class has a 'ID' attribute */
+						if (FF_TYPE_LITERAL & ca->Type)
 						{
-							ca = IFEELIN F_DynamicFindAttribute("ID", cl, &ca_class);
+							value = (uint32) attribute->Value;
+						}
+						else
+						{
+							value = attribute->NumericValue;
+						}
 
-							if (ca == NULL)
+						resolve_ok = TRUE;
+					}
+					else
+					{
+						// search for a matching special value
+
+						if (ca->Values)
+						{
+							FClassAttributeValue *av;
+
+							for (F_VALUES_EACH(ca->Values, av))
 							{
-								IFEELIN F_Do
-								(
-									Obj, F_RESOLVED_ID(LOG),
+								if (IFEELIN F_StrCmp(_value_name(av), attribute->Value, ALL) == 0)
+								{
+									break;
+								}
+							}
 
-									attribute->Line, NULL,
+							if (_value_name(av))
+							{
+								// special value found
 
-									"The 'ID' attribute doesn't exists in the '%s' class", cl->Name
-								);
-
-								goto __error;
+								value = av->Value;
+								resolve_ok = TRUE;
 							}
 						}
-						item->ti_Tag = FA_Element_ID;
-						#else
-						item->ti_Tag = FA_ID;
-						#endif
-						item->ti_Data = (uint32) attribute->Value;
-						item++;
 
-						/* We create  the  reference  node,  which  will  be
-						filled with the pointer to the object we are created
-						later. We also check if the  reference  id  has  not
-						been used twice */
+						if (resolve_ok == FALSE)
+						{
+							if (FF_TYPE_LITERAL & ca->Type)
+						{
+								value = (uint32) attribute->Value;
+								resolve_ok = TRUE;
+							}
+						}
+					}
 
-						atom = IFEELIN F_AtomObtain(attribute->Value, ALL);
+					if (resolve_ok == FALSE)
+					{
+						IFEELIN F_Do
+						(
+							Obj, F_RESOLVED_ID(LOG),
+
+							attribute->Line, NULL,
+
+							"(%s) is not a valid value for the FA_%s_%s attribute, of type (%s)",
+
+							attribute->Value, ca_class->Name, _attribute_name(ca), get_type(ca->Type)
+						);
+
+						goto __error;
+					}
+
+					item->ti_Tag = ca->ID;
+					item->ti_Data = value;
+
+					/* If the Id attribute is defined, we create a reference
+					node,  which  will later be filled with a pointer to the
+					object we are creating.
+
+					We also check if the Id has not yet been used */
+
+					if (ca->ID == FA_Element_Id)
+					{
+						FAtom *atom = IFEELIN F_AtomObtain(attribute->Value, ALL);
 
 						if (atom)
 						{
@@ -443,116 +446,12 @@ F_METHODM(FObject,XMLObject_Create,FS_XMLObject_Create)
 							goto __error;
 						}
 					}
-				}
-				#ifdef F_NEW_STYLES
-				else if (attribute->Atom == F_ATOM(STYLE))
-				{
-					item->ti_Tag = FA_Element_Style;
-					item->ti_Data = (uint32) attribute->Value;
-					item++;
-				}
-				else if (attribute->Atom == F_ATOM(CLASS))
-				{
-					item->ti_Tag = FA_Element_Class;
-					item->ti_Data = (uint32) attribute->Value;
-					item++;
-				}
-				#endif
-
-				else if ((ca = IFEELIN F_DynamicFindAttribute(attribute->Atom->Key, cl, &ca_class)) != NULL)
-				{
-					uint32 value = 0;
-					bool32 resolve_ok = FALSE;
-
-					#if 0
-
-					IFEELIN F_Log
-					(
-						0, "class attribute (%s) expecting type (0x%08lx) - value (%s) numeric (%ld)(0x%08lx)",
-
-						ca->Name,
-						ca->Type,
-						attribute->Value,
-						attribute->NumericValue,
-						attribute->NumericType
-					);
-
-					#endif
-
-					if (attribute->NumericType)
-					{
-						// attribute value was successfuly been numerized
-
-						if (FF_TYPE_LITERAL & ca->Type)
-						{
-							value = (uint32) attribute->Value;
-						}
-						else
-						{
-							value = attribute->NumericValue;
-						}
-
-						resolve_ok = TRUE;
-					}
-					else
-					{
-						// search for a matching special value
-
-						if (ca->Values)
-						{
-							FClassAttributeValue *av;
-
-							for (F_VALUES_EACH(ca->Values, av))
-							{
-								if (IFEELIN F_StrCmp(_value_name(av), attribute->Value, ALL) == 0)
-								{
-									break;
-								}
-							}
-
-							if (_value_name(av))
-							{
-								// special value found
-
-								value = av->Value;
-								resolve_ok = TRUE;
-							}
-						}
-
-						if (resolve_ok == FALSE)
-						{
-							if (FF_TYPE_LITERAL & ca->Type)
-							{
-								value = (uint32) attribute->Value;
-								resolve_ok = TRUE;
-							}
-						}
-					}
-
-					if (resolve_ok == FALSE)
-					{
-						IFEELIN F_Do
-						(
-							Obj, F_RESOLVED_ID(LOG),
-
-							attribute->Line, NULL,
-
-							"(%s) is not a valid value for the attribute FA_%s_%s of type (%s)",
-
-							attribute->Value, ca_class->Name, _attribute_name(ca), get_type(ca->Type)
-						);
-
-						goto __error;
-					}
-
-					item->ti_Tag = ca->ID;
-					item->ti_Data = value;
 
 					item++;
 				}
 				else
 				{
-					IFEELIN F_Do(Obj,F_RESOLVED_ID(LOG),attribute->Line,NULL,"Attribute (%s) not found in FC_%s",attribute->Atom->Key, cl->Name);
+					IFEELIN F_Do(Obj, F_RESOLVED_ID(LOG), attribute->Line, NULL, "Attribute '%s' not found in '%s' class", attribute->Atom->Key, cl->Name);
 
 					goto __error;
 				}

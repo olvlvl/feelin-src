@@ -6,8 +6,8 @@
 
 #define F_CLASS_NAME                            "Group"
 #define F_CLASS_VERSION                         12
-#define F_CLASS_REVISION                        0
-#define F_CLASS_VERSION_STRING                  "12.00 (2006/05/28)"
+#define F_CLASS_REVISION                        2
+#define F_CLASS_VERSION_STRING                  "12.02 (2007/07/25)"
 
 #include "Private.h"
 

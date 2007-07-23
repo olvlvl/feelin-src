@@ -6,8 +6,8 @@
 
 #define F_CLASS_NAME                            "WinServer"
 #define F_CLASS_VERSION                         1
-#define F_CLASS_REVISION                        0
-#define F_CLASS_VERSION_STRING                  "01.00 (2005/12/11)"
+#define F_CLASS_REVISION                        2
+#define F_CLASS_VERSION_STRING                  "01.02 (2007/07/05)"
 
 #include "Private.h"
 

@@ -6,8 +6,8 @@
 
 #define F_CLASS_NAME                            "Decorator-Flatty"
 #define F_CLASS_VERSION                         1
-#define F_CLASS_REVISION                        0
-#define F_CLASS_VERSION_STRING                  "01.00 (2005/12/08)"
+#define F_CLASS_REVISION                        80
+#define F_CLASS_VERSION_STRING                  "01.80 (2007/07/19)"
 
 #include "Private.h"
 

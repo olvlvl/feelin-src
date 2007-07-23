@@ -8,7 +8,6 @@ $VER: 01.00 (2005/12/30)
 */
 
 #include "Project.h"
-#include "_locale/table.h"
 
 struct ClassUserData *CUD;
 
@@ -28,8 +27,9 @@ F_METHOD_PROTO(void,Page_SetState);
 
 F_METHOD_PROTO(void,Page_HandleEvent);
 F_METHOD_PROTO(void,Page_TreeUp);
-
+#if 0
 F_METHOD_PROTO(void,Prefs_New);
+#endif
 //+
 
 ///Class_New
@@ -55,7 +55,7 @@ F_QUERY()
 		{
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(Class_New, FM_New),
+				F_METHODS_OVERRIDE_STATIC(Class_New, FM_New),
 
 				F_ARRAY_END
 			};
@@ -63,7 +63,7 @@ F_QUERY()
 			STATIC F_TAGS_ARRAY =
 			{
 				F_TAGS_ADD_SUPER(Class),
-				F_TAGS_ADD(LODSize, sizeof (struct ClassUserData)),
+				F_TAGS_ADD(LocalSize, sizeof (struct ClassUserData)),
 				F_TAGS_ADD_METHODS,
 
 				F_ARRAY_END
@@ -115,24 +115,21 @@ F_QUERY()
 
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(Page_New,  FM_New),
-				F_METHODS_ADD_STATIC(Page_Get,  FM_Get),
-				F_METHODS_ADD_STATIC(Page_Set,  FM_Set),
- 
-				F_METHODS_ADD_STATIC(Page_Setup,                FM_Element_Setup),
-				F_METHODS_ADD_STATIC(Page_Cleanup,              FM_Element_Cleanup),
-				F_METHODS_ADD_STATIC(Page_CreateDecodedStyle,   FM_Element_CreateDecodedStyle),
-
-				F_METHODS_ADD_STATIC(Page_Show,         FM_Area_Show),
-				F_METHODS_ADD_STATIC(Page_Hide,         FM_Area_Hide),
-				F_METHODS_ADD_STATIC(Page_Draw,         FM_Area_Draw),
-				F_METHODS_ADD_STATIC(Page_SetState,     FM_Area_SetState),
-				
-				F_METHODS_ADD_STATIC(Page_HandleEvent,  FM_Widget_HandleEvent),
-				F_METHODS_ADD_STATIC(Page_TreeUp,       FM_Widget_DnDQuery),
+				F_METHODS_OVERRIDE_STATIC(Page_New,  FM_New),
+				F_METHODS_OVERRIDE_STATIC(Page_Get,  FM_Get),
+				F_METHODS_OVERRIDE_STATIC(Page_Set,  FM_Set),
+				F_METHODS_OVERRIDE_STATIC(Page_Setup,                FM_Element_Setup),
+				F_METHODS_OVERRIDE_STATIC(Page_Cleanup,              FM_Element_Cleanup),
+				F_METHODS_OVERRIDE_STATIC(Page_CreateDecodedStyle,   FM_Element_CreateDecodedStyle),
+				F_METHODS_OVERRIDE_STATIC(Page_Show,         FM_Area_Show),
+				F_METHODS_OVERRIDE_STATIC(Page_Hide,         FM_Area_Hide),
+				F_METHODS_OVERRIDE_STATIC(Page_Draw,         FM_Area_Draw),
+				F_METHODS_OVERRIDE_STATIC(Page_SetState,     FM_Area_SetState),
+				F_METHODS_OVERRIDE_STATIC(Page_HandleEvent,  FM_Widget_HandleEvent),
+				F_METHODS_OVERRIDE_STATIC(Page_TreeUp,       FM_Widget_DnDQuery),
 /*
-				F_METHODS_ADD_STATIC(Page_TreeUp,       FM_BuildContextHelp),
-				F_METHODS_ADD_STATIC(Page_TreeUp,       FM_BuildContextMenu),
+				F_METHODS_OVERRIDE_STATIC(Page_TreeUp,       FM_BuildContextHelp),
+				F_METHODS_OVERRIDE_STATIC(Page_TreeUp,       FM_BuildContextMenu),
 */
 				F_ARRAY_END
 			};
@@ -152,6 +149,7 @@ F_QUERY()
 			return F_TAGS_PTR;
 		}
 //+
+#if 0
 ///Prefs
 		case FV_Query_PrefsTags:
 		{
@@ -173,6 +171,7 @@ F_QUERY()
 			return F_TAGS_PTR;
 		}
 //+
+#endif
    }
    return NULL;
 };

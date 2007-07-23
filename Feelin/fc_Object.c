@@ -5,6 +5,22 @@
 **
 *************************************************************************************************
 
+$VER: 05.00 (2007/07/22)
+
+	The FA_ID attribute is no longer defined by the  Object  class.  Because
+	only  Elements objects were using it, the attribute as been moved to the
+	Element class and renamed as FA_Element_Id.
+
+	Same goes for the FA_Parent attribute.
+
+	Ajout des méthodes  AddListener()  and  RemoveListener().  Une  nouvelle
+	façon de réagir à la modification des attributs.
+
+	The object's arbiter is now created in a safer way  then  before  during
+	the Lock method.
+
+	Add the virtual method GetObjectById.
+
 $VER: 04.01 (2005/09/29)
 
 	Added AmigaOS 4 support.
@@ -35,7 +51,7 @@ $VER: 04.01 (2005/09/29)
 ///Header
 struct FeelinNotifyHandler
 {
-	struct FeelinNotifyHandler     *next;
+	struct FeelinNotifyHandler *	next;
 	bits32                          flags;
 	uint32                          attribute;
 	uint32                          value;
@@ -48,15 +64,105 @@ struct FeelinNotifyHandler
 
 #define FF_NOTIFY_PERFORMING                    (1 << 0)
 
+#ifdef F_NEW_LISTENERS
+
+struct in_Object_Listener
+{
+	struct in_Object_Listener * 	next;
+	FClassAttribute	*				attribute;
+	struct Hook	*					callback;
+	bits32							flags;
+};
+
+#define FF_LISTENER_PERFORMING                  (1 << 31)
+
+#endif
+
 struct LocalObjectData
 {
-	STRPTR                          id;
 	APTR                            userdata;
-	struct FeelinNotifyHandler     *handlers;
-	struct SignalSemaphore         *atomic;
+	struct FeelinNotifyHandler *    handlers;
+	struct SignalSemaphore *       	arbiter;
+
+	#ifdef F_NEW_LISTENERS
+	struct in_Object_Listener *		listeners;
+	#endif
 };
 
 //+
+
+#ifdef F_NEW_LISTENERS
+
+///_listeners_walk
+static void _listeners_walk(FObject Obj, struct in_Object_Listener *Listeners, struct TagItem *Tags)
+{
+	struct TagItem item;
+
+	IFEELIN F_Do(Obj, FM_Lock, 0);
+
+	while (IFEELIN F_DynamicNTI(&Tags, &item, NULL))
+	{
+		struct in_Object_Listener *l;
+
+		for (l = Listeners ; l ; l = l->next)
+		{
+			struct FS_Listener_Trigger msg;
+
+			FClassAttribute *attribute = l->attribute;
+
+			if (FF_LISTENER_PERFORMING & l->flags)
+			{
+				IFEELIN F_Log(FV_LOG_DEV,"!!LISTENER LOOP!! Attribute (0x%08lx.%s)", attribute->ID, attribute->Name);
+
+				continue;
+			}
+
+			if (attribute->ID != item.ti_Tag)
+			{
+				continue;
+			}
+
+			//
+			//
+			//
+
+			msg.Id = attribute->ID;
+			msg.Value = item.ti_Data;
+			msg.Attribute = attribute;
+
+//			  IFEELIN F_Log(0, "call (0x%08lx) for attribute '%s'", l->callback, attribute->Name);
+
+			l->flags |= FF_LISTENER_PERFORMING;
+
+			IUTILITY CallHookPkt(l->callback, Obj, &msg);
+
+			l->flags &= ~FF_LISTENER_PERFORMING;
+		}
+	}
+
+	IFEELIN F_Do(Obj, FM_Unlock);
+}
+//+
+///_listeners_remove_all
+static void _listeners_remove_all(FClass *Class, FObject Obj)
+{
+	struct LocalObjectData *LOD = F_LOD(Class, Obj);
+
+	struct in_Object_Listener *l;
+	struct in_Object_Listener *next;
+
+	for (l = LOD->listeners ; l ; l = next)
+	{
+		next = l->next;
+
+		IFEELIN F_Dispose(l);
+	}
+
+	LOD->listeners = NULL;
+}
+//+
+
+#endif
 
 /************************************************************************************************
 *** Methods *************************************************************************************
@@ -65,24 +171,6 @@ struct LocalObjectData
 ///Object_New
 F_METHOD(FObject,Object_New)
 {
-	#ifndef F_NEW_ELEMENT_ID
-
-	struct LocalObjectData *LOD = F_LOD(Class,Obj);
-
-	struct TagItem *Tags = Msg,item;
-
-	while (IFEELIN F_DynamicNTI(&Tags,&item,Class))
-	switch (item.ti_Tag)
-	{
-		case FA_ID:
-		{
-			LOD->id = (STRPTR) item.ti_Data;
-		}
-		break;
-	}
-
-	#endif
-
 	IFEELIN F_DoA(Obj, FM_Set, Msg);
 
 	return Obj;
@@ -93,6 +181,7 @@ F_METHOD(uint32,Object_Dispose)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 
+	/*
 	#ifndef F_NEW_GLOBALCONNECT
 
 	FObject parent = (FObject) IFEELIN F_Get(Obj, FA_Parent);
@@ -103,17 +192,27 @@ F_METHOD(uint32,Object_Dispose)
 	}
 
 	#endif
+	*/
  
 	if (LOD->handlers)
 	{
 		IFEELIN F_Do(Obj, FM_UnNotify, ALL);
 	}
 
-	if (LOD->atomic)
-	{
-		IFEELIN F_Dispose(LOD->atomic);
+	#ifdef F_NEW_LISTENERS
 
-		LOD->atomic = NULL;
+	if (LOD->listeners)
+	{
+		_listeners_remove_all(Class, Obj);
+	}
+
+	#endif
+
+	if (LOD->arbiter)
+	{
+		IFEELIN F_Dispose(LOD->arbiter);
+
+		LOD->arbiter = NULL;
 	}
 
 	return 0;
@@ -134,14 +233,33 @@ F_METHOD(uint32,Object_Set)
 		case FA_NoNotify: notify = (item.ti_Data) ? FALSE : TRUE; break;
 	}
 
+	#ifdef F_NEW_LISTENERS
+
+	if (!notify)
+	{
+		return 0;
+	}
+
+	if (LOD->listeners)
+	{
+		_listeners_walk(Obj, LOD->listeners, Msg);
+	}
+
+	if (!LOD->handlers)
+	{
+		return 0;
+	}
+
+	#else
+
 	if (!notify || !LOD->handlers)
 	{
 		return 0;
 	}
 
-	#ifdef F_ENABLE_LOCK_NOTIFY
-	IFEELIN F_SPool(FeelinBase->NotifyPool);
 	#endif
+
+	IFEELIN F_Do(Obj, FM_Lock, FF_Lock_Shared);
 
 	Tags = Msg;
 
@@ -188,7 +306,7 @@ F_METHOD(uint32,Object_Set)
 				switch ((uint32)(target))
 				{
 					case FV_Notify_Self:        target = Obj; break;
-					case FV_Notify_Parent:      target = (FObject) IFEELIN F_Get(Obj, FA_Parent); break;
+					case FV_Notify_Parent:      target = (FObject) IFEELIN F_Get(Obj, FA_Element_Parent); break;
 
 					#ifdef F_NEW_GLOBALCONNECT
 					
@@ -258,25 +376,14 @@ F_METHOD(uint32,Object_Set)
 #endif
 //+
 					
-				#if F_CODE_DEPRECATED
-				if (nh->method == FM_Area_Draw)
-				{
-					IFEELIN F_Draw(target,*cpy);
-				}
-				else
-				#endif
-				{
-					IFEELIN F_DoA(target,nh->method,cpy);
-				}
+				IFEELIN F_DoA(target,nh->method,cpy);
 
 				nh->flags &= ~FF_NOTIFY_PERFORMING;
 			}
 		}
 	}
 
-	#ifdef F_ENABLE_LOCK_NOTIFY
-	IFEELIN F_RPool(FeelinBase->NotifyPool);
-	#endif
+	IFEELIN F_Do(Obj, FM_Unlock);
 
 	return 0;
 }
@@ -290,10 +397,11 @@ F_METHOD(uint32,Object_Get)
 	while (IFEELIN F_DynamicNTI(&Tags,&item,Class))
 	switch (item.ti_Tag)
 	{
-		#ifndef F_NEW_ELEMENT_ID
-		case FA_ID:             F_STORE(LOD->id); break;
-		#endif
-		case FA_UserData:       F_STORE(LOD->userdata); break;
+		case FA_UserData:
+		{
+			F_STORE(LOD->userdata);
+		}
+		break;
 	}
 
 	return 0;
@@ -313,9 +421,7 @@ F_METHODM(uint32,Object_Notify,FS_Notify)
 		return 0;
 	}
 
-	#ifdef F_ENABLE_LOCK_NOTIFY
-	IFEELIN F_OPool(FeelinBase->NotifyPool);
-	#endif
+	IFEELIN F_Do(Obj, FM_Lock, FF_Lock_Exclusive);
 
 	if ((nh = IFEELIN F_NewP(FeelinBase->NotifyPool,(Msg->Count) ? sizeof (struct FeelinNotifyHandler) + (Msg->Count + 1) * sizeof (uint32) * 2 : sizeof (struct FeelinNotifyHandler))) != NULL)
 	{
@@ -395,9 +501,7 @@ FM_NotifyAlways.
 		IFEELIN F_Log(FV_LOG_USER,"Unable to allocate handler for attribute 0x%08lx",_object_classname(Obj),Obj,Msg->Attribute);
 	}
 
-	#ifdef F_ENABLE_LOCK_NOTIFY
-	IFEELIN F_RPool(FeelinBase->NotifyPool);
-	#endif
+	IFEELIN F_Do(Obj, FM_Unlock);
 
 	return (uint32) nh;
 }
@@ -422,9 +526,7 @@ F_METHODM(uint32,Object_UnNotify,FS_UnNotify)
 		}
 		#endif
 
-		#ifdef F_ENABLE_LOCK_NOTIFY
-		IFEELIN F_OPool(FeelinBase->NotifyPool);
-		#endif
+		IFEELIN F_Do(Obj, FM_Lock, FF_Lock_Exclusive);
 
 		if ((uint32)(Msg->Handler) == ALL)
 		{
@@ -483,9 +585,7 @@ F_METHODM(uint32,Object_UnNotify,FS_UnNotify)
 			}
 		}
 
-		#ifdef F_ENABLE_LOCK_NOTIFY
-		IFEELIN F_RPool(FeelinBase->NotifyPool);
-		#endif
+		IFEELIN F_Do(Obj, FM_Unlock);
 	}
 	
 	return 0;
@@ -628,10 +728,41 @@ F_METHODM(uint32,Object_CallHookEntry,FS_CallHookEntry)
 //+
 
 ///Object_Lock
-F_METHODM(uint32,Object_Lock,FS_Lock)
+F_METHODM(bool32,Object_Lock,FS_Lock)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 
+	if (!LOD->arbiter)
+	{
+		F_OBJECTS_LOCK();
+
+		//
+		// the semaphore might have been created while we where
+		// locking the objects' arbiter !
+		//
+
+		if (!LOD->arbiter)
+		{
+			LOD->arbiter = IFEELIN F_New(sizeof (struct SignalSemaphore));
+
+			#ifdef DB_LOCK
+			IFEELIN F_Log(0,"NEW ATOMIC 0x%08lx",LOD->arbiter);
+			#endif
+
+			if (LOD->arbiter)
+			{
+				IEXEC InitSemaphore(LOD->arbiter);
+			}
+			else
+			{
+				IFEELIN F_Log(FV_LOG_USER, "Unable to create arbiter !");
+			}
+		}
+
+		F_OBJECTS_UNLOCK();
+	}
+
+	/*
 	IEXEC Forbid();
  
 	if (!LOD->atomic)
@@ -649,67 +780,244 @@ F_METHODM(uint32,Object_Lock,FS_Lock)
 	}
 
 	IEXEC Permit();
+	*/
 	
-	if (LOD->atomic)
+	if (!LOD->arbiter)
 	{
-		if (FF_Lock_Attempt & Msg->Flags)
-		{
-			if (FF_Lock_Shared & Msg->Flags)
-			{
-				#ifdef DB_LOCK
-				IFEELIN F_Log(0,"AttemptSemaphoreShared 0x%08lx",LOD->Atomic);
-				#endif
-				 
-				return IEXEC AttemptSemaphoreShared(LOD->atomic);
-			}
-			else
-			{
-				#ifdef DB_LOCK
-				IFEELIN F_Log(0,"AttemptSemaphore 0x%08lx",LOD->Atomic);
-				#endif
-				 
-				return IEXEC AttemptSemaphore(LOD->atomic);
-			}
-		}
-		else if (FF_Lock_Shared & Msg->Flags)
+		return FALSE;
+	}
+
+	//
+	// lock the arbiter
+	//
+	
+	if (FF_Lock_Attempt & Msg->Flags)
+	{
+		if (FF_Lock_Shared & Msg->Flags)
 		{
 			#ifdef DB_LOCK
-			IFEELIN F_Log(0,"ObtainSemaphoreShared 0x%08lx",LOD->Atomic);
+			IFEELIN F_Log(0,"AttemptSemaphoreShared 0x%08lx", LOD->arbiter);
 			#endif
-			 
-			IEXEC ObtainSemaphoreShared(LOD->atomic);
+				 
+			return IEXEC AttemptSemaphoreShared(LOD->arbiter);
 		}
 		else
 		{
 			#ifdef DB_LOCK
-			IFEELIN F_Log(0,"ObtainSemaphore 0x%08lx",LOD->Atomic);
+			IFEELIN F_Log(0,"AttemptSemaphore 0x%08lx", LOD->arbiter);
 			#endif
-			 
-			IEXEC ObtainSemaphore(LOD->atomic);
+				 
+			return IEXEC AttemptSemaphore(LOD->arbiter);
 		}
 	}
-	return 0;
-}
-//+
-///Object_Unlock
-F_METHOD(void,Object_Unlock)
-{
-	struct LocalObjectData *LOD = F_LOD(Class,Obj);
-
-	if (LOD->atomic)
+	else if (FF_Lock_Shared & Msg->Flags)
 	{
-		#ifdef DB_UNLOCK
-		IFEELIN F_Log(0,"Owner (%s)(0x%08lx)",LOD->Atomic->ss_Owner->tc_Node.ln_Name,LOD->Atomic->ss_Owner);
+		#ifdef DB_LOCK
+		IFEELIN F_Log(0,"ObtainSemaphoreShared 0x%08lx", LOD->arbiter);
 		#endif
-		
-		IEXEC ReleaseSemaphore(LOD->atomic);
+			 
+		IEXEC ObtainSemaphoreShared(LOD->arbiter);
 	}
 	else
 	{
-		IFEELIN F_Log(FV_LOG_DEV,"No Semaphore created yet !");
+		#ifdef DB_LOCK
+		IFEELIN F_Log(0,"ObtainSemaphore 0x%08lx", LOD->arbiter);
+		#endif
+			 
+		IEXEC ObtainSemaphore(LOD->arbiter);
 	}
+
+	return TRUE;
 }
 //+
+///Object_Unlock
+F_METHOD(bool32,Object_Unlock)
+{
+	struct LocalObjectData *LOD = F_LOD(Class,Obj);
+
+	if (!LOD->arbiter)
+	{
+		IFEELIN F_Log(FV_LOG_DEV,"No Semaphore created yet !");
+
+		return FALSE;
+	}
+
+	#ifdef DB_UNLOCK
+	IFEELIN F_Log(0,"Owner (%s)(0x%08lx)", LOD->arbiter->ss_Owner->tc_Node.ln_Name, LOD->arbiter->ss_Owner);
+	#endif
+		
+	IEXEC ReleaseSemaphore(LOD->arbiter);
+
+	return TRUE;
+}
+//+
+
+#ifdef F_NEW_LISTENERS
+
+///Object_AddListener
+F_METHODM(bool32, Object_AddListener, FS_AddListener)
+{
+	struct LocalObjectData *LOD = F_LOD(Class, Obj);
+
+	STRPTR attribute_name = Msg->Attribute;
+	struct Hook *callback = Msg->Callback;
+
+	struct in_Object_Listener *l;
+	
+	FClassAttribute *attribute;
+
+	if (!attribute_name)
+	{
+		IFEELIN F_Log(FV_LOG_DEV, "Attribute is NULL !");
+
+		return FALSE;
+	}
+
+	if (!callback)
+	{
+		IFEELIN F_Log(FV_LOG_DEV, "Callback is NULL !");
+
+		return FALSE;
+	}
+
+	//
+	// find the attribute
+	//
+	
+	attribute = IFEELIN F_DynamicFindAttribute(attribute_name, _object_class(Obj), NULL);
+
+	if (!attribute)
+	{
+		IFEELIN F_Log(FV_LOG_DEV, "Attribute '%s' was not found in class '%s'", attribute_name, _object_classname(Obj));
+
+		return FALSE;
+	}
+
+	//
+	// create listener
+	//
+
+	l = IFEELIN F_NewP(FeelinBase->NotifyPool, sizeof (struct in_Object_Listener));
+
+	if (!l)
+	{
+		return FALSE;
+	}
+
+	l->attribute = attribute;
+	l->callback = callback;
+
+	//
+	// link the listener
+	//
+
+	IFEELIN F_Do(Obj, FM_Lock, FF_Lock_Exclusive);
+
+	l->next = LOD->listeners;
+	LOD->listeners = l;
+
+	IFEELIN F_Do(Obj, FM_Unlock);
+
+	//IFEELIN F_Log(FV_LOG_DEV, "Listener added for attribute '%s'", attribute_name);
+
+	return TRUE;
+}
+//+
+///Object_RemoveListerner
+F_METHODM(uint32, Object_RemoveListener, FS_RemoveListener)
+{
+	struct LocalObjectData *LOD = F_LOD(Class, Obj);
+
+	STRPTR attribute_name = Msg->Attribute;
+	struct Hook *callback = Msg->Callback;
+
+	struct in_Object_Listener *node;
+	struct in_Object_Listener *prev = NULL;
+
+	FClassAttribute *attribute;
+
+	if (!attribute_name)
+	{
+		IFEELIN F_Log(FV_LOG_DEV, "Attribute is NULL !");
+
+		return 0;
+	}
+
+	if (!callback)
+	{
+		IFEELIN F_Log(FV_LOG_DEV, "Callback is NULL !");
+
+		return 0;
+	}
+
+	//
+	// does the object have any listener ?
+	//
+
+	if (!LOD->listeners)
+	{
+		IFEELIN F_Log(FV_LOG_DEV, "The object have no listeners");
+
+		return 0;
+	}
+
+	//
+	// find the attribute
+	//
+
+	attribute = IFEELIN F_DynamicFindAttribute(attribute_name, _object_class(Obj), NULL);
+
+	if (!attribute)
+	{
+		IFEELIN F_Log(FV_LOG_DEV, "Attribute '%s' was not found in class '%s'", attribute_name, _object_classname(Obj));
+
+		return 0;
+	}
+
+	//
+	// search and remove listener
+	//
+
+	IFEELIN F_Do(Obj, FM_Lock, FF_Lock_Exclusive);
+
+	for (node = LOD->listeners ; node ; node = node->next)
+	{
+		if ((node->attribute == attribute) && (node->callback == callback))
+		{
+			if (prev)
+			{
+				prev->next = node->next;
+			}
+			else
+			{
+				LOD->listeners = node->next;
+			}
+
+			if (FF_LISTENER_PERFORMING & node->flags)
+			{
+				IFEELIN F_Log(FV_LOG_DEV, "Removing a listener under process.");
+			}
+			
+			IFEELIN F_Dispose(node);
+
+			break;
+		}
+		
+		prev = node;
+	}
+
+	if (!node)
+	{
+		IFEELIN F_Log(FV_LOG_DEV, "Unknown listener for Attribute '%s' with Callback (0x%08lx)", attribute_name, callback);
+	}
+
+	IFEELIN F_Do(Obj, FM_Unlock);
+
+	return 0;
+}
+//+
+
+#endif
 
 /************************************************************************************************
 *** Constructor *********************************************************************************
@@ -717,14 +1025,9 @@ F_METHOD(void,Object_Unlock)
 
 STATIC F_ATTRIBUTES_ARRAY =
 {
-	#ifndef F_NEW_ELEMENT_ID
-	F_ATTRIBUTES_ADD_STATIC("ID",           FV_TYPE_STRING, 	FA_ID),
-	#endif
-
 	F_ATTRIBUTES_ADD_STATIC("UserData",     FV_TYPE_POINTER,    FA_UserData),
 	F_ATTRIBUTES_ADD_STATIC("NoNotify",     FV_TYPE_BOOLEAN,    FA_NoNotify),
 	F_ATTRIBUTES_ADD_STATIC("Child",        FV_TYPE_OBJECT,     FA_Child),
-	F_ATTRIBUTES_ADD_STATIC("Parent",       FV_TYPE_OBJECT,     FA_Parent),
 	
 	#ifndef F_NEW_GLOBALCONNECT
 	F_ATTRIBUTES_ADD_STATIC("Window",       FV_TYPE_OBJECT,     FA_Window),
@@ -736,23 +1039,29 @@ STATIC F_ATTRIBUTES_ARRAY =
 
 STATIC F_METHODS_ARRAY =
 {
-	F_METHODS_ADD_BOTH(Object_Set,            "Set",            FM_Set),
-	F_METHODS_ADD_BOTH(Object_Get,            "Get",            FM_Get),
-	F_METHODS_ADD_BOTH(Object_Lock,           "Lock",           FM_Lock),
-	F_METHODS_ADD_BOTH(Object_Unlock,         "Unlock",         FM_Unlock),
-	F_METHODS_ADD_BOTH(Object_New,            "New",            FM_New),
-	F_METHODS_ADD_BOTH(Object_Dispose,        "Dispose",        FM_Dispose),
-	F_METHODS_ADD_BOTH(Object_Notify,         "Notify",         FM_Notify),
-	F_METHODS_ADD_BOTH(Object_UnNotify,       "UnNotify",       FM_UnNotify),
-	F_METHODS_ADD_BOTH(Object_SetAs,          "SetAs",          FM_SetAs),
-	F_METHODS_ADD_BOTH(Object_CallHook,       "CallHook",       FM_CallHook),
-	F_METHODS_ADD_BOTH(Object_CallHookEntry,  "CallHookEntry",  FM_CallHookEntry),
-	F_METHODS_ADD_BOTH(Object_MultiSet,       "MultiSet",       FM_MultiSet),
-
-	F_METHODS_ADD_BOTH(Object_Null,           "Connect",        FM_Connect),
-	F_METHODS_ADD_BOTH(Object_Null,           "Disconnect",     FM_Disconnect),
-	F_METHODS_ADD_BOTH(Object_Null,           "AddMember",      FM_AddMember),
-	F_METHODS_ADD_BOTH(Object_Null,           "RemMember",      FM_RemMember),
+	F_METHODS_ADD_STATIC(Object_Set,            "Set",            FM_Set),
+	F_METHODS_ADD_STATIC(Object_Get,            "Get",            FM_Get),
+	F_METHODS_ADD_STATIC(Object_Lock,           "Lock",           FM_Lock),
+	F_METHODS_ADD_STATIC(Object_Unlock,         "Unlock",         FM_Unlock),
+	F_METHODS_ADD_STATIC(Object_New,            "New",            FM_New),
+	F_METHODS_ADD_STATIC(Object_Dispose,        "Dispose",        FM_Dispose),
+	F_METHODS_ADD_STATIC(Object_Notify,         "Notify",         FM_Notify),
+	F_METHODS_ADD_STATIC(Object_UnNotify,       "UnNotify",       FM_UnNotify),
+	F_METHODS_ADD_STATIC(Object_SetAs,          "SetAs",          FM_SetAs),
+	F_METHODS_ADD_STATIC(Object_CallHook,       "CallHook",       FM_CallHook),
+	F_METHODS_ADD_STATIC(Object_CallHookEntry,  "CallHookEntry",  FM_CallHookEntry),
+	F_METHODS_ADD_STATIC(Object_MultiSet,       "MultiSet",       FM_MultiSet),
+	#ifdef F_NEW_LISTENERS
+	F_METHODS_ADD_STATIC(Object_AddListener,    "AddListener",  	FM_AddListener),
+	F_METHODS_ADD_STATIC(Object_RemoveListener, "RemoveListener",	FM_RemoveListener),
+	#endif
+	F_METHODS_ADD_STATIC(Object_Null,           "Connect",        FM_Connect),
+	F_METHODS_ADD_STATIC(Object_Null,           "Disconnect",     FM_Disconnect),
+	F_METHODS_ADD_STATIC(Object_Null,           "AddMember",      FM_AddMember),
+	F_METHODS_ADD_STATIC(Object_Null,           "RemMember",      FM_RemMember),
+	#ifdef F_NEW_GETELEMENTBYID
+	F_METHODS_ADD_STATIC(Object_Null,           "GetElementById",	FM_GetElementById),
+	#endif
 	
 	F_ARRAY_END
 };
@@ -770,4 +1079,3 @@ FClass * fc_object_create(struct in_FeelinBase *FeelinBase)
 {
 	return IFEELIN F_CreateClassA(FC_Object, F_TAGS_PTR);
 }
-

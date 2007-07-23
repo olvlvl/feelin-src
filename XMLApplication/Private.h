@@ -26,7 +26,9 @@ enum    {
 
 		FV_RESOLVED_RESOLVE,
 		FV_RESOLVED_LOG,
+		#ifndef F_NEW_GETELEMENTBYID
 		FV_RESOLVED_GETOBJECTS
+		#endif
 
 		};
 

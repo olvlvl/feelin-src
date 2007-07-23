@@ -8,8 +8,6 @@
 #include <proto/graphics.h>
 #include <proto/feelin.h>
 
-#include "_locale/enums.h"
-
 extern struct ClassUserData        *CUD;
 
 /************************************************************************************************

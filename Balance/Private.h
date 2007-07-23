@@ -24,9 +24,7 @@ enum    {
 
 struct LocalObjectData
 {
-	#ifdef F_NEW_GLOBALCONNECT
 	F_MEMBER_ELEMENT_PUBLIC;
-	#endif
 	F_MEMBER_AREA_PUBLIC;
 	F_MEMBER_WIDGET_PUBLIC;
 

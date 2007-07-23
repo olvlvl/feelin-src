@@ -71,10 +71,23 @@ F_METHOD(uint32,Widget_New)
 	struct LocalObjectData *LOD  = F_LOD(Class,Obj);
 	struct TagItem *Tags = Msg,item;
 
+	#ifdef F_NEW_WIDGET_PUBLIC
+
+	IFEELIN F_Do(Obj, FM_Get,
+
+		FA_Element_PublicData, &(_widget_public ElementPublic),
+		FA_Area_PublicData, &(_widget_public AreaPublic),
+
+		TAG_DONE);
+
+	#else
+	
 	#ifdef F_NEW_GLOBALCONNECT
 	F_SAVE_ELEMENT_PUBLIC;
 	#endif
 	F_SAVE_AREA_PUBLIC;
+	
+	#endif
 
 	_widget_weight = 100;
 

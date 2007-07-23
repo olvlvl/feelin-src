@@ -445,3 +445,30 @@ F_METHODM(uint32,Family_Rem,FS_RemMember)
 }
 //+
 
+#ifdef F_NEW_GETELEMENTBYID
+///Family_GetElementById
+F_METHODM(FObject, Family_GetElementById, FS_GetElementById)
+{
+	struct LocalObjectData *LOD = F_LOD(Class, Obj);
+
+	FFamilyNode *node;
+
+	FObject rc = NULL;
+
+	IFEELIN F_Log(0, "search id '%s'", Msg->Id);
+
+	for (node = (FFamilyNode *) LOD->list.Head ; node ; node = node->Next)
+	{
+		rc = (FObject) IFEELIN F_OBJDO(node->Object);
+
+		if (rc)
+		{
+			break;
+		}
+	}
+
+	return rc;
+}
+//+
+#endif
+

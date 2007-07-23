@@ -5,6 +5,6 @@
 NAME = XMLApplication
 VER = 03
 REV = 00
-DATE = 2006/04/06
+DATE = 2006/10/20
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

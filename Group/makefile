@@ -4,7 +4,7 @@
 
 NAME = Group
 VER = 12
-REV = 00
-DATE = 2006/05/28
+REV = 02
+DATE = 2007/07/25
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

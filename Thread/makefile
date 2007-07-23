@@ -3,8 +3,8 @@
 #
 
 NAME = Thread
-VER = 02
+VER = 03
 REV = 00
-DATE = 2005/12/11
+DATE = 2007/07/05
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

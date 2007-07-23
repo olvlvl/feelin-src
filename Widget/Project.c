@@ -1,5 +1,15 @@
 /*
 
+$VER: 02.00 (2007/10/01)
+
+	F_NEW_WIDGET_PUBLIC : Pointers to the FElementPublic and FAreaPublic are
+	now  available  in  the  FWidgetPublic  structure.  By  using  them each
+	subclass won't have to waste some of their local object data space.
+
+	Use the F_WIDGET_BIND_MACROS  to  bind  FElementPublic  and  FAreaPublic
+	macros to FWidgetPublic.
+
+
 $VER: 01.00 (2006/05/27)
  
 	This class add input as well as DnD capabilities to the Border class.
@@ -45,6 +55,20 @@ F_QUERY()
 ///Class
 		case FV_Query_ClassTags:
 		{
+			#ifdef F_NEW_WIDGET_MODE
+
+			STATIC F_VALUES_ARRAY(Mode) =
+			{
+				F_VALUES_ADD("inert",   FV_Widget_Mode_Inert),
+				F_VALUES_ADD("touch",   FV_Widget_Mode_Touch),
+				F_VALUES_ADD("toggle",  FV_Widget_Mode_Toggle),
+				F_VALUES_ADD("button",  FV_Widget_Mode_Button),
+
+				F_ARRAY_END
+			};
+
+			#else
+
 			STATIC F_VALUES_ARRAY(Mode) =
 			{
 				F_VALUES_ADD("inert",       FV_Widget_Mode_Inert),
@@ -54,6 +78,8 @@ F_QUERY()
 
 				F_ARRAY_END
 			};
+
+			#endif
 
 			STATIC F_VALUES_ARRAY(Align) =
 			{
@@ -105,32 +131,30 @@ F_QUERY()
 
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(Widget_New,          FM_New),
-				F_METHODS_ADD_STATIC(Widget_Get,          FM_Get),
-				F_METHODS_ADD_STATIC(Widget_Set,          FM_Set),
+				F_METHODS_OVERRIDE_STATIC(Widget_New,          FM_New),
+				F_METHODS_OVERRIDE_STATIC(Widget_Get,          FM_Get),
+				F_METHODS_OVERRIDE_STATIC(Widget_Set,          FM_Set),
+				F_METHODS_OVERRIDE_STATIC(Widget_Setup,                    FM_Element_Setup),
+				F_METHODS_OVERRIDE_STATIC(Widget_Cleanup,                  FM_Element_Cleanup),
+				F_METHODS_OVERRIDE_STATIC(Widget_LoadPersistentAttributes, FM_Element_LoadPersistentAttributes),
+				F_METHODS_OVERRIDE_STATIC(Widget_SavePersistentAttributes, FM_Element_SavePersistentAttributes),
+				F_METHODS_OVERRIDE_STATIC(Widget_AskMinMax,  	 FM_Area_AskMinMax),
+				F_METHODS_OVERRIDE_STATIC(Widget_Show,         	 FM_Area_Show),
+				F_METHODS_OVERRIDE_STATIC(Widget_Hide,         	 FM_Area_Hide),
 
-				F_METHODS_ADD_STATIC(Widget_Setup,                    FM_Element_Setup),
-				F_METHODS_ADD_STATIC(Widget_Cleanup,                  FM_Element_Cleanup),
-				F_METHODS_ADD_STATIC(Widget_LoadPersistentAttributes, FM_Element_LoadPersistentAttributes),
-				F_METHODS_ADD_STATIC(Widget_SavePersistentAttributes, FM_Element_SavePersistentAttributes),
-
-				F_METHODS_ADD_STATIC(Widget_AskMinMax,  	FM_Area_AskMinMax),
-				F_METHODS_ADD_STATIC(Widget_Show,         	FM_Area_Show),
-				F_METHODS_ADD_STATIC(Widget_Hide,         	FM_Area_Hide),
-
-				F_METHODS_ADD_BOTH(Widget_HandleEvent,        "HandleEvent",      FM_Widget_HandleEvent),
-				F_METHODS_ADD_BOTH(Widget_ModifyEvents,       "ModifyEvents",     FM_Widget_ModifyEvents),
+				F_METHODS_ADD_STATIC(Widget_HandleEvent,        "HandleEvent",      FM_Widget_HandleEvent),
+				F_METHODS_ADD_STATIC(Widget_ModifyEvents,       "ModifyEvents",     FM_Widget_ModifyEvents),
 /*
-				F_METHODS_ADD_BOTH(Widget_BuildContextMenu,   "BuildContextMenu", FM_BuildContextMenu),
-				F_METHODS_ADD_BOTH(Widget_BuildContextHelp,   "BuildContextHelp", FM_BuildContextHelp),
+				F_METHODS_ADD_STATIC(Widget_BuildContextMenu,   "BuildContextMenu", FM_BuildContextMenu),
+				F_METHODS_ADD_STATIC(Widget_BuildContextHelp,   "BuildContextHelp", FM_BuildContextHelp),
 */
-				F_METHODS_ADD_BOTH(Widget_DnDDo,              "DnDDo",            FM_Widget_DnDDo),
-				F_METHODS_ADD_BOTH(Widget_DnDQuery,           "DnDQuery",         FM_Widget_DnDQuery),
-				F_METHODS_ADD_BOTH(Widget_DnDBegin,           "DnDBegin",         FM_Widget_DnDBegin),
-				F_METHODS_ADD_BOTH(Widget_DnDFinish,          "DnDFinish",        FM_Widget_DnDFinish),
-				F_METHODS_ADD_BOTH(Widget_DnDReport,          "DnDReport",        FM_Widget_DnDReport),
+				F_METHODS_ADD_STATIC(Widget_DnDDo,              "DnDDo",            FM_Widget_DnDDo),
+				F_METHODS_ADD_STATIC(Widget_DnDQuery,           "DnDQuery",         FM_Widget_DnDQuery),
+				F_METHODS_ADD_STATIC(Widget_DnDBegin,           "DnDBegin",         FM_Widget_DnDBegin),
+				F_METHODS_ADD_STATIC(Widget_DnDFinish,          "DnDFinish",        FM_Widget_DnDFinish),
+				F_METHODS_ADD_STATIC(Widget_DnDReport,          "DnDReport",        FM_Widget_DnDReport),
 				
-				F_METHODS_ADD_BOTH(Widget_DnDDrop,            "DnDDrop",          FM_Widget_DnDDrop),
+				F_METHODS_ADD_STATIC(Widget_DnDDrop,            "DnDDrop",          FM_Widget_DnDDrop),
 
 				F_ARRAY_END
 			};
@@ -149,6 +173,6 @@ F_QUERY()
 			return F_TAGS_PTR;
 		}
 //+
-   }
-   return NULL;
+	}
+	return NULL;
 }

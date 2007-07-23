@@ -271,12 +271,12 @@ F_METHODM(void,Border_Draw,FS_Area_Draw)
 					r.x1 = tr.x1 - 5; r.y1 = y - caption->border + 1;
 					r.x2 = tr.x2 + 5; r.y2 = y;
 
-					IGRAPHICS OrRectRegion(clear_region,(struct Rectangle *) &r);
+					IGRAPHICS OrRectRegion(clear_region, (struct Rectangle *) &r);
 
 					r.x1 = x1 + brd->l; r.y1 = _area_y + _area_h - 1 - brd->b;
 					r.x2 = x2 - brd->r; r.y2 = y - caption->border;
 
-					IGRAPHICS OrRectRegion(clear_region,(struct Rectangle *) &r);
+					IGRAPHICS OrRectRegion(clear_region, (struct Rectangle *) &r);
 				}
 			}
 			else
@@ -829,7 +829,6 @@ __23:
 		 case 31:
 			frame_draw_line(rp,fill,3,    x1+1,y2-2, x1+1,y1+1, x2-2,y1+1);
 			_Line(x1,y2-1, x1,y2); _Line(x2-1,y1, x2,y1);
-__31a:
 			_APen(dark);
 			_Line(x1+1,y2, x2,y2); _Draw(x2,y1+1);
 			_Bevel(x1,y1,x2-1,y2-1,shine,shadow,NOPEN);
@@ -839,7 +838,6 @@ __31a:
 ///32
 		 case 32:
 			_APen(fill);   _Line(x1+2,y2-1, x2-1,y2-1);  _Draw(x2-1,y1+2);
-__32a:
 			_APen(dark);   _Line(x1,y2-1, x1,y1);        _Draw(x2-1,y1);
 			_APen(shadow); _Line(x1+1,y2-1, x1+1,y1+1);  _Draw(x2-1,y1+1);
 			_APen(shine);  _Line(x1+2,y2, x2,y2);        _Draw(x2,y1+2);

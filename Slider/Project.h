@@ -5,9 +5,9 @@
 */
 
 #define F_CLASS_NAME                            "Slider"
-#define F_CLASS_VERSION                         4
-#define F_CLASS_REVISION                        2
-#define F_CLASS_VERSION_STRING                  "04.02 (2005/12/11)"
+#define F_CLASS_VERSION                         5
+#define F_CLASS_REVISION                        0
+#define F_CLASS_VERSION_STRING                  "05.00 (2006/05/02)"
 
 #include "Private.h"
 

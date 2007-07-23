@@ -116,8 +116,8 @@ STATIC int32 app_check_broker_port(FClass *Class,FObject Obj)
 *** Methods *************************************************************************************
 ************************************************************************************************/
 
-///App_Run
-F_METHOD(void,App_Run)
+///Application_Run
+F_METHOD(void,Application_Run)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 			
@@ -140,7 +140,7 @@ F_METHOD(void,App_Run)
 
 	if (_application_isnt_inherited_css)
 	{
-		IFEELIN F_Do(LOD->css, F_AUTO_ID(READ), FV_Preference_ENV);
+		IFEELIN F_Do(LOD->css, (uint32) "FM_Preference_Read", FV_Preference_ENV);
 	}
 
 /* FIXME: I should read some user settings to know if the application starts
@@ -368,8 +368,8 @@ in sleep mode. */
 	IFEELIN F_Do(Obj,FM_Unlock);
 }
 //+
-///App_Shutdown
-F_METHOD(void,App_Shutdown)
+///Application_Shutdown
+F_METHOD(void,Application_Shutdown)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 
@@ -378,8 +378,8 @@ F_METHOD(void,App_Shutdown)
 	IEXEC Signal(LOD->app_port->mp_SigTask,1 << LOD->app_port->mp_SigBit);
 }
 //+
-///App_Awake
-F_METHOD(void,App_Awake)
+///Application_Awake
+F_METHOD(void,Application_Awake)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 	struct Task *task = IEXEC FindTask(NULL);
@@ -404,11 +404,7 @@ F_METHOD(void,App_Awake)
 
 				if (!IFEELIN F_Do(node->Object,FM_Window_Open))
 				{
-					#ifdef F_NEW_ELEMENT_ID
-					STRPTR id = (STRPTR) IFEELIN F_Get(node->Object, FA_Element_ID);
-					#else
-					STRPTR id = (STRPTR) IFEELIN F_Get(node->Object, FA_ID);
-					#endif
+					STRPTR id = (STRPTR) IFEELIN F_Get(node->Object, FA_Element_Id);
 
 					if (id != NULL)
 					{
@@ -441,8 +437,8 @@ F_METHOD(void,App_Awake)
 	IFEELIN F_Do(Obj, FM_Unlock);
 }
 //+
-///App_Sleep
-F_METHOD(void,App_Sleep)
+///Application_Sleep
+F_METHOD(void,Application_Sleep)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 	struct Task *task = IEXEC FindTask(NULL);
@@ -462,7 +458,7 @@ F_METHOD(void,App_Sleep)
 		{
 			if (IFEELIN F_Get(node->Object, FA_Window_System))
 			{
-				IFEELIN F_Do(node->Object,FM_Window_Close);
+				IFEELIN F_Do(node->Object, FM_Window_Close);
 			}
 		}
 
@@ -472,8 +468,8 @@ F_METHOD(void,App_Sleep)
 	IFEELIN F_Do(Obj,FM_Unlock);
 }
 //+
-///App_PushMethod
-F_METHODM(bool32,App_PushMethod,FS_Application_PushMethod)
+///Application_PushMethod
+F_METHODM(bool32,Application_PushMethod,FS_Application_PushMethod)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 
@@ -517,8 +513,8 @@ F_METHODM(bool32,App_PushMethod,FS_Application_PushMethod)
 	return TRUE;
 }
 //+
-///App_AddSignalHandler
-F_METHOD(APTR,App_AddSignalHandler)
+///Application_CreateSignalHandle
+F_METHOD(APTR,Application_CreateSignalHandle)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 	struct TagItem *Tags = Msg, *item;
@@ -585,7 +581,8 @@ F_METHOD(APTR,App_AddSignalHandler)
 
 			IFEELIN F_Do(Obj, FM_Unlock);
 
-			return (APTR) (((uint32) handler) + sizeof (FNode));
+			//return (APTR) (((uint32) handler) + sizeof (FNode));
+			return F_PUBLICIZE_SIGNAL_HANDLER(handler);
 		}
 		else
 		{
@@ -610,7 +607,8 @@ F_METHOD(APTR,App_AddSignalHandler)
 
 			IFEELIN F_Do(Obj, FM_Unlock);
 
-			return (APTR) (((uint32) handler) + sizeof (FNode));
+			return F_PUBLICIZE_SIGNAL_HANDLER(handler);
+			//return (APTR) (((uint32) handler) + sizeof (FNode));
 		}
 	}
 	else
@@ -621,14 +619,14 @@ F_METHOD(APTR,App_AddSignalHandler)
 	return NULL;
 }
 //+
-///App_RemSignalHandler
-F_METHODM(bool32,App_RemSignalHandler,FS_Application_DeleteSignalHandler)
+///Application_DeleteSignalHandle
+F_METHODM(bool32,Application_DeleteSignalHandle,FS_Application_DeleteSignalHandler)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 
 	if (Msg->Handler)
 	{
-		APTR handler = (APTR) (((uint32) Msg->Handler) - sizeof (FNode));
+		APTR handler = F_PRIVATIZE_SIGNAL_HANDLER(Msg->Handler);
 		FNode *node;
 
 		IFEELIN F_Do(Obj, FM_Lock, FF_Lock_Exclusive);
@@ -642,12 +640,14 @@ F_METHODM(bool32,App_RemSignalHandler,FS_Application_DeleteSignalHandler)
 
 		if (node)
 		{
-			if (IEXEC CheckIO((struct IORequest *) &((struct in_TimerHandler *) node)->request) == NULL)
+			struct IORequest * req = (struct IORequest *) &(((struct in_TimerHandler *) node)->request);
+
+			if (IEXEC CheckIO(req) == NULL)
 			{
-			   IEXEC AbortIO((struct IORequest *) &((struct in_TimerHandler *) node)->request);
+			   IEXEC AbortIO(req);
 			}
 
-			IEXEC WaitIO((struct IORequest *) &((struct in_TimerHandler *) node)->request);
+			IEXEC WaitIO(req);
 
 			IFEELIN F_LinkRemove(&LOD->timer_handlers_list, node);
 
@@ -686,8 +686,8 @@ F_METHODM(bool32,App_RemSignalHandler,FS_Application_DeleteSignalHandler)
 	return FALSE;
 }
 //+
-///App_Update
-F_METHOD(void,App_Update)
+///Application_Update
+F_METHOD(void,Application_Update)
 {
 	#ifdef F_ENABLE_PREFERENCES
 	
@@ -706,8 +706,8 @@ F_METHOD(void,App_Update)
 	#endif
 }
 //+
-///App_Post
-F_METHODM(uint32,App_Post,FS_Application_Post)
+///Application_Post
+F_METHODM(uint32,Application_Post,FS_Application_Post)
 {
 	struct LocalObjectData *LOD = F_LOD(Class, Obj);
 
@@ -732,8 +732,8 @@ F_METHODM(uint32,App_Post,FS_Application_Post)
 	return FALSE;
 }
 //+
-///App_PostClean
-F_METHODM(void,App_PostClean,FS_Application_PostClean)
+///Application_PostClean
+F_METHODM(void,Application_PostClean,FS_Application_PostClean)
 {
 	struct LocalObjectData *LOD = F_LOD(Class, Obj);
 	

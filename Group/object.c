@@ -415,7 +415,10 @@ F_METHODM(bool32,Group_AddMember,FS_AddMember)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 
-	FWidgetNode *node = (FWidgetNode *) F_OBJDO(LOD->family);
+	FObject family = LOD->family;
+	FObject orphan = Msg->Orphan;
+	
+	FWidgetNode * node = (FWidgetNode *) F_OBJDO(family);
 
 /* FIXME-0601019
 
@@ -423,7 +426,7 @@ F_METHODM(bool32,Group_AddMember,FS_AddMember)
 
 */
 
-	if (node == NULL)
+	if (!node)
 	{
 		return FALSE;
 	}
@@ -434,42 +437,47 @@ F_METHODM(bool32,Group_AddMember,FS_AddMember)
 
 	if (_element_application)
 	{
-		IFEELIN F_Do(Msg->Orphan, FM_Element_GlobalConnect, _element_application, _element_window);
+		IFEELIN F_Do(orphan, FM_Element_GlobalConnect, _element_application, _element_window);
 	}
 
 	#endif
 
-	/* if we are already setup, we also setup our new member,  otherwise  we
-	return TRUE. */
+	//
+	// if the group has already received the Setup method,
+	// the child is setuped too.
+	//
 
-	if (_area_render == NULL)
+	if (!_area_render)
 	{
 		return TRUE;
 	}
 
-	if (IFEELIN F_Do(Msg->Orphan, FM_Element_Setup, _area_render) == FALSE)
+	if (IFEELIN F_Do(orphan, FM_Element_Setup, _area_render) == FALSE)
 	{
-		IFEELIN F_Log(FV_LOG_DEV, "setup of member %s{%lx} failed", _object_classname(Msg->Orphan), Msg->Orphan);
+		IFEELIN F_Log(FV_LOG_DEV, "setup of member %s{%lx} failed", _object_classname(orphan), orphan);
 
-		IFEELIN F_Do(Msg->Orphan, FM_Element_Cleanup);
+		IFEELIN F_Do(orphan, FM_Element_Cleanup);
 		
-		IFEELIN F_Do(LOD->family, FM_RemMember, Msg->Orphan);
+		IFEELIN F_Do(family, FM_RemMember, orphan);
 
 		return FALSE;
 	}
 
-	/* if we are showable and our new member too, we show it */
+	//
+	// if the group has already received the Show method
+	// and the child is showable, the child is shown too.
+	//
 
-	if (_widget_is_showable && _sub_is_showable)
+	if ((_area_is_drawable) && (_widget_is_showable && _sub_is_showable))
 	{
-		if (IFEELIN F_Do(Msg->Orphan, FM_Area_Show) == FALSE)
+		if (IFEELIN F_Do(orphan, FM_Area_Show) == FALSE)
 		{
-			IFEELIN F_Log(FV_LOG_DEV, "show of member %s{%lx} failed", _object_classname(Msg->Orphan), Msg->Orphan);
+			IFEELIN F_Log(FV_LOG_DEV, "show of member %s{%lx} failed", _object_classname(orphan), orphan);
 
-			IFEELIN F_Do(Msg->Orphan, FM_Element_Cleanup);
-			IFEELIN F_Do(Msg->Orphan, FM_Area_Hide);
+			IFEELIN F_Do(orphan, FM_Element_Cleanup);
+			IFEELIN F_Do(orphan, FM_Area_Hide);
 
-			IFEELIN F_Do(LOD->family, FM_RemMember, Msg->Orphan);
+			IFEELIN F_Do(family, FM_RemMember, orphan);
 
 			return FALSE;
 		}
@@ -529,27 +537,33 @@ F_METHODM(uint32,Group_RemMember,FS_RemMember)
 }
 //+
 
+#ifdef F_NEW_GETELEMENTBYID
+///Group_GetElementById
+F_METHODM(FObject, Group_GetElementById, FS_GetElementById)
+{
+	struct LocalObjectData *LOD = F_LOD(Class, Obj);
+
+	FObject rc = (FObject) F_SUPERDO();
+
+	if (!rc)
+	{
+		rc = (FObject) F_OBJDO(LOD->family);
+	}
+
+	return rc;
+}
+//+
+#endif
+
 #if 0
 ///Preferences
 STATIC F_PREFERENCES_ARRAY =
 {
-	#ifdef F_NEW_STYLES
-
 	F_PREFERENCES_ADD("box",    "back",                 FV_TYPE_STRING,  "Spec",     DEF_GROUP_BACK),
 	F_PREFERENCES_ADD("box",    "frame",                FV_TYPE_STRING,  "Spec",     DEF_GROUP_FRAME),
 	F_PREFERENCES_ADD("box",    "frame-position",       FV_TYPE_INTEGER, "Active",   (STRPTR) DEF_GROUP_POSITION),
 	F_PREFERENCES_ADD("box",    "frame-preparse",       FV_TYPE_STRING,  "Contents", DEF_GROUP_PREPARSE),
 	F_PREFERENCES_ADD("box",    "frame-font",           FV_TYPE_STRING,  "Contents", DEF_GROUP_FONT),
-
-	#else
-
-	F_PREFERENCES_ADD("group",  "back",                 FV_TYPE_STRING,  "Spec",     DEF_GROUP_BACK),
-	F_PREFERENCES_ADD("group",  "frame",                FV_TYPE_STRING,  "Spec",     DEF_GROUP_FRAME),
-	F_PREFERENCES_ADD("group",  "frame-position",       FV_TYPE_INTEGER, "Active",   (STRPTR) DEF_GROUP_POSITION),
-	F_PREFERENCES_ADD("group",  "frame-preparse",       FV_TYPE_STRING,  "Contents", DEF_GROUP_PREPARSE),
-	F_PREFERENCES_ADD("group",  "frame-font",           FV_TYPE_STRING,  "Contents", DEF_GROUP_FONT),
-
-	#endif
 
 	F_PREFERENCES_ADD("group",  "spacing-horizontal",   FV_TYPE_INTEGER, "Value",    (STRPTR) DEF_GROUP_VSPACING),
 	F_PREFERENCES_ADD("group",  "spacing-vertical",     FV_TYPE_INTEGER, "Value",    (STRPTR) DEF_GROUP_HSPACING),

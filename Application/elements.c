@@ -32,8 +32,8 @@ STATIC STRPTR app_create_name(struct LocalObjectData *LOD, STRPTR Name)
 
 #ifdef F_NEW_PERSISTENT
 
-///App_Load
-F_METHODM(bool32,App_Load,FS_Application_Load)
+///Application_Load
+F_METHODM(bool32,Application_Load,FS_Application_Load)
 {
 	struct LocalObjectData *LOD = F_LOD(Class, Obj);
 
@@ -70,8 +70,8 @@ F_METHODM(bool32,App_Load,FS_Application_Load)
 	return rc;
 }
 //+
-///App_Save
-F_METHODM(bool32, App_Save, FS_Application_Save)
+///Application_Save
+F_METHODM(bool32, Application_Save, FS_Application_Save)
 {
 	struct LocalObjectData *LOD = F_LOD(Class, Obj);
 

@@ -4,8 +4,8 @@
 *** Methods *************************************************************************************
 ************************************************************************************************/
 
-///App_Setup
-F_METHOD(bool32, App_Setup)
+///Application_Setup
+F_METHOD(bool32, Application_Setup)
 {
 	struct LocalObjectData *LOD = F_LOD(Class, Obj);
 
@@ -89,8 +89,8 @@ F_METHOD(bool32, App_Setup)
 	return TRUE;
 }
 //+
-///App_Cleanup
-F_METHOD(bool32,App_Cleanup)
+///Application_Cleanup
+F_METHOD(bool32,Application_Cleanup)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 
@@ -130,8 +130,8 @@ F_METHOD(bool32,App_Cleanup)
 	return TRUE;
 }
 //+
-///App_AddStyleSheet
-F_METHODM(bool32, App_AddStyleSheet, FS_Application_AddStyleSheet)
+///Application_AddStyleSheet
+F_METHODM(bool32, Application_AddStyleSheet, FS_Application_AddStyleSheet)
 {
 	struct LocalObjectData *LOD = F_LOD(Class, Obj);
 
@@ -172,8 +172,8 @@ F_METHODM(bool32, App_AddStyleSheet, FS_Application_AddStyleSheet)
 	return TRUE;
 }
 //+
-///App_RemStyleSheet
-F_METHODM(bool32, App_RemStyleSheet, FS_Application_RemStyleSheet)
+///Application_RemStyleSheet
+F_METHODM(bool32, Application_RemStyleSheet, FS_Application_RemStyleSheet)
 {
 	struct LocalObjectData *LOD = F_LOD(Class, Obj);
 

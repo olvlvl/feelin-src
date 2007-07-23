@@ -7,4 +7,4 @@ VER = 05
 REV = 00
 DATE = 2005/10/15
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

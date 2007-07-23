@@ -58,7 +58,7 @@ F_METHOD(uint32,Border_Dispose)
 }
 //+
 ///Border_Get
-F_METHOD(void,Border_Get)
+F_METHOD(uint32,Border_Get)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 	struct TagItem *Tags = Msg,item;
@@ -73,34 +73,6 @@ F_METHOD(void,Border_Get)
 		break;
 	}
 
-	F_SUPERDO();
-}
-//+
-///Border_Set
-F_METHOD(void,Border_Set)
-{
-	#ifndef F_NEW_STYLES
-
-	struct LocalObjectData *LOD = F_LOD(Class,Obj);
-	struct TagItem *Tags = Msg,item;
-
-	while (IFEELIN F_DynamicNTI(&Tags,&item,Class))
-	switch (item.ti_Tag)
-	{
-		case FA_Back:
-		{
-			if (LOD->Public.Back)
-			{
-				IFEELIN F_Set(LOD->Public.Back, FA_ImageDisplay_Spec, item.ti_Data);
-
-				IFEELIN F_Draw(Obj, FF_Draw_Object);
-			}
-		}
-		break;
-	}
-
-	#endif
-
-	F_SUPERDO();
+	return F_SUPERDO();
 }
 //+

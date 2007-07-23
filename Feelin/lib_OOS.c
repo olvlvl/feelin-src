@@ -484,7 +484,11 @@ F_LIB_MAKE_OBJ
 
 				FA_Element_Class,       "button",
 				FA_Widget_SetMax,         FV_Widget_SetHeight,
+				#ifdef F_NEW_WIDGET_MODE
+				FA_Widget_Mode,         FV_Widget_Mode_Button,
+				#else
 				FA_Widget_Mode,         FV_Widget_Mode_Release,
+				#endif
 				FA_Text_Contents,       Params[0],
 				FA_Text_HCenter,       	TRUE,
 
@@ -495,7 +499,7 @@ F_LIB_MAKE_OBJ
 		{
 			return BarObject,
 
-				FA_Widget_SetMax,         FV_Widget_SetHeight,
+				FA_Widget_SetMax,       FV_Widget_SetHeight,
 			   "FA_Bar_Title",          Params[0],
 
 			TAG_MORE, Params + 1);
@@ -541,7 +545,7 @@ F_LIB_MAKE_OBJ
 		{
 			return StringObject,
 
-				FA_Widget_SetMax,         FV_Widget_SetHeight,
+				FA_Widget_SetMax,       FV_Widget_SetHeight,
 			   "FA_String_Contents",    Params[0],
 			   "FA_String_MaxLen",      Params[1],
 			   
@@ -553,8 +557,8 @@ F_LIB_MAKE_OBJ
 			return ImageObject,
 			   
 				FA_Element_Class,       "checkbox",
-				FA_Widget_SetMin,         FV_Widget_SetBoth,
-				FA_Widget_SetMax,         FV_Widget_SetBoth,
+				FA_Widget_SetMin,       FV_Widget_SetBoth,
+				FA_Widget_SetMax,       FV_Widget_SetBoth,
 				FA_Widget_Mode,         FV_Widget_Mode_Toggle,
 				FA_Widget_Selected,     Params[0],
 			   

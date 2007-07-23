@@ -52,18 +52,16 @@ F_QUERY()
 
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(Text_New,        FM_New),
-				F_METHODS_ADD_STATIC(Text_Dispose,    FM_Dispose),
-				F_METHODS_ADD_STATIC(Text_Get,        FM_Get),
-				F_METHODS_ADD_STATIC(Text_Set,        FM_Set),
-
-				F_METHODS_ADD_STATIC(Text_Setup,      FM_Element_Setup),
-				F_METHODS_ADD_STATIC(Text_Cleanup,    FM_Element_Cleanup),
-				F_METHODS_ADD_STATIC(Text_CreateDecodedStyle, FM_Element_CreateDecodedStyle),
-
-				F_METHODS_ADD_STATIC(Text_AskMinMax,  FM_Area_AskMinMax),
-				F_METHODS_ADD_STATIC(Text_Draw,       FM_Area_Draw),
-				F_METHODS_ADD_STATIC(Text_SetState, 	FM_Area_SetState),
+				F_METHODS_OVERRIDE_STATIC(Text_New,        FM_New),
+				F_METHODS_OVERRIDE_STATIC(Text_Dispose,    FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(Text_Get,        FM_Get),
+				F_METHODS_OVERRIDE_STATIC(Text_Set,        FM_Set),
+				F_METHODS_OVERRIDE_STATIC(Text_Setup,      FM_Element_Setup),
+				F_METHODS_OVERRIDE_STATIC(Text_Cleanup,    FM_Element_Cleanup),
+				F_METHODS_OVERRIDE_STATIC(Text_CreateDecodedStyle, FM_Element_CreateDecodedStyle),
+				F_METHODS_OVERRIDE_STATIC(Text_AskMinMax,  FM_Area_AskMinMax),
+				F_METHODS_OVERRIDE_STATIC(Text_Draw,       FM_Area_Draw),
+				F_METHODS_OVERRIDE_STATIC(Text_SetState, 	 FM_Area_SetState),
 				
 				F_ARRAY_END
 			};

@@ -2,7 +2,7 @@
 #  Use this makefile to create feelin.library
 #
 
-include /Feelin/Sources/_template/makefile.header.os4
+include /Feelin/Sources/_make/makefile.header.os4
 
 LIBS = -ldebug -lSASC_func_OS4
 
@@ -23,5 +23,3 @@ all	: /feelin/include/lib/libSAS_func_OS4.a $(OBJECTS)
 clean :
 	list
 	delete #?.o
-
-

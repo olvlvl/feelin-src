@@ -2,11 +2,11 @@
 
 /*
 
-    Strangely, copying a file to a notified one triggers 2  notifies,  while
-    modifiying    a    file    triggers    4    notifies.    Enabling    the
-    F_ENABLE_CLONE_WORKAROUND symbol changes the way messages are  read  and
-    handled.  If  the  symbol  is enabled only the first message is proceed,
-    following message with the same notify requester are ignored.
+	Strangely, copying a file to a notified one triggers 2  notifies,  while
+	modifiying    a    file    triggers    4    notifies.    Enabling    the
+	F_ENABLE_CLONE_WORKAROUND symbol changes the way messages are  read  and
+	handled.  If  the  symbol  is enabled only the first message is proceed,
+	following message with the same notify requester are ignored.
 
 */
 
@@ -30,10 +30,11 @@ extern struct ClassUserData        *CUD;
 
 struct ClassUserData
 {
-    FObject                         Thread;
+	FObject                         thread;
+	struct Hook						thread_hook;
 
-    uint32                          id_Send;
-    uint32                          id_Update;
+	uint32                          id_Send;
+	uint32                          id_Update;
 };
 
 /************************************************************************************************
@@ -42,9 +43,9 @@ struct ClassUserData
 
 enum    {
 
-        FV_ATTRIBUTE_NAME
+		FV_ATTRIBUTE_NAME
 
-        }; 
+		}; 
 
 /************************************************************************************************
 *** Object **************************************************************************************
@@ -52,21 +53,21 @@ enum    {
 
 struct LocalObjectData
 {
-    struct NotifyRequest            Notify;
+	struct NotifyRequest            Notify;
 };
 
 /************************************************************************************************
 *** Thread **************************************************************************************
 ************************************************************************************************/
 
-F_THREAD_ENTRY_PROTO(Thread_Main);
+F_HOOKM(FThreadMsg *, Thread_Main, FS_Thread_Run);
 
 enum    {
 
-        FV_Thread_AddNotify = FV_Thread_Dummy,
-        FV_Thread_RemNotify
+		FV_Thread_AddNotify = FV_Thread_Dummy,
+		FV_Thread_RemNotify
 
-        };
+		};
 
 struct  FS_Thread_AddNotify                     { struct NotifyRequest *NReq; FObject Object; };
 struct  FS_Thread_RemNotify                     { struct NotifyRequest *NReq; };

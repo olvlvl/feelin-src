@@ -4,7 +4,7 @@
 
 NAME = Scale
 VER = 01
-REV = 02
-DATE = 2005/08/10
+REV = 04
+DATE = 2005/07/19
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

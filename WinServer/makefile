@@ -4,7 +4,7 @@
 
 NAME = WinServer
 VER = 01
-REV = 00
-DATE = 2005/12/11
+REV = 02
+DATE = 2007/07/05
 
-include Feelin:Sources/_template/makefile
+include Feelin:_make/makefile

@@ -9,9 +9,7 @@ F_METHOD(uint32,Balance_New)
 {
 	struct LocalObjectData *LOD = F_LOD(Class,Obj);
 
-	#ifdef F_NEW_GLOBALCONNECT
 	F_SAVE_ELEMENT_PUBLIC;
-	#endif
 	F_SAVE_AREA_PUBLIC;
 	F_SAVE_WIDGET_PUBLIC;
 

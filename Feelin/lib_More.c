@@ -641,6 +641,12 @@ F_LIB_DRAW
 		{
 			FRender *render = _area_render;
 
+			int16 area_x = _area_x;
+			int16 area_y = _area_y;
+			
+			uint16 area_w = _area_w;
+			uint16 area_h = _area_h;
+
 			if (!_area_is_drawable)
 			{
 				#ifdef F_CODE_DRAW_VERBOSE_DRAWABLE
@@ -694,7 +700,7 @@ F_LIB_DRAW
 
 			if (render->RPort == NULL)
 			{
-				IFEELIN F_Log(0,"F_Draw() RPort is NULL !!");
+				IFEELIN F_Log(0,"F_Draw() RPort of Render (0x%08lx) is NULL !", render);
 
 				return;
 			}
@@ -714,7 +720,7 @@ F_LIB_DRAW
 
 #ifdef F_CODE_DRAW_CHECK_COORDINATES
 
-			if ((_area_w == 0) || (_area_w >= FV_Area_Max) || (_area_h == 0) || (_area_h >= FV_Area_Max))
+			if ((area_w == 0) || (area_w >= FV_Area_Max) || (area_h == 0) || (area_h >= FV_Area_Max))
 			{
 				#ifdef F_CODE_DRAW_VERBOSE_COORDINATES
 				
@@ -723,7 +729,7 @@ F_LIB_DRAW
 					FV_LOG_DEV, "F_Draw() %s{%lx} coordinates error (%ld:%ld %ldx%ld) (please report)",
 
 					_object_classname(Obj), Obj,
-					_area_x, _area_y, _area_w, _area_h
+					area_x, area_y, area_w, area_h
 				);
 				
 				#endif
@@ -739,11 +745,11 @@ F_LIB_DRAW
 				if (rp)
 				{
 					#ifdef F_CODE_DRAW_BUFFERIZE_MOVE
-					uint16 w = _area_w;
-					uint16 h = _area_h;
+					uint16 w = area_w;
+					uint16 h = area_h;
 					#else
-					uint16 w = _area_x + _area_w/* - 1*/;
-					uint16 h = _area_y + _area_h/* - 1*/;
+					uint16 w = area_x + area_w/* - 1*/;
+					uint16 h = area_y + area_h/* - 1*/;
 					#endif
 					
 					struct BitMap *bmp;
@@ -756,8 +762,8 @@ F_LIB_DRAW
 						uint32 clip;
 						struct RastPort *old_rp = render->RPort;
 
-						r.x1 = _area_x; r.x2 = r.x1 + _area_w - 1;
-						r.y1 = _area_y; r.y2 = r.y1 + _area_h - 1;
+						r.x1 = area_x; r.x2 = r.x1 + area_w - 1;
+						r.y1 = area_y; r.y2 = r.y1 + area_h - 1;
 							  
 						rp->BitMap = bmp;
 						render->RPort = rp;
@@ -767,7 +773,7 @@ F_LIB_DRAW
 						if (clip)
 						{
 							#ifdef F_CODE_DRAW_BUFFERIZE_MOVE
-							IGRAPHICS ClipBlit(old_rp,r.x1, r.y1, rp, 0,0,_area_w,_area_h,0x0C0);
+							IGRAPHICS ClipBlit(old_rp,r.x1, r.y1, rp, 0,0,area_w,area_h,0x0C0);
 							#else
 							IGRAPHICS ClipBlit(old_rp,0,0, rp, 0,0,w,h,0x0C0);
 							#endif
@@ -782,7 +788,7 @@ F_LIB_DRAW
 							IFEELIN F_Layout(Obj,r.x1,r.y1,w,h,0);
 							#else
 							
-							IGRAPHICS ClipBlit(rp,r.x1,r.y1,old_rp,r.x1,r.y1,_area_w,_area_h,0x0C0);
+							IGRAPHICS ClipBlit(rp, r.x1, r.y1, old_rp, r.x1, r.y1, area_w, area_h, 0x0C0);
 							
 							#endif
 							

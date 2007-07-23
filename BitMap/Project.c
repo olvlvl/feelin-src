@@ -105,8 +105,8 @@ F_QUERY()
 		{
 			STATIC F_METHODS_ARRAY =
 			{
-				F_METHODS_ADD_STATIC(Class_New,      FM_New),
-				F_METHODS_ADD_STATIC(Class_Dispose,  FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(Class_New,      FM_New),
+				F_METHODS_OVERRIDE_STATIC(Class_Dispose,  FM_Dispose),
 
 				F_ARRAY_END
 			};
@@ -188,9 +188,9 @@ F_QUERY()
 				F_METHODS_ADD(BitMap_AddProcessing,     "AddProcessing"),
 				F_METHODS_ADD(BitMap_RemProcessing,     "RemProcessing"),
 				
-				F_METHODS_ADD_STATIC(BitMap_New,         FM_New),
-				F_METHODS_ADD_STATIC(BitMap_Dispose,     FM_Dispose),
-				F_METHODS_ADD_STATIC(BitMap_Get,         FM_Get),
+				F_METHODS_OVERRIDE_STATIC(BitMap_New,         FM_New),
+				F_METHODS_OVERRIDE_STATIC(BitMap_Dispose,     FM_Dispose),
+				F_METHODS_OVERRIDE_STATIC(BitMap_Get,         FM_Get),
 				
 				F_ARRAY_END
 			};

@@ -169,11 +169,11 @@ static void xmldocument_print_markups(FList *list, BPTR fh, uint32 level)
 			IDOS_ FPrintf(fh, "\t");
 		}
 
-		IDOS_ FPrintf(fh, "<%s",markup->Atom->Key);
+		IDOS_ FPrintf(fh, "<%s", (int32) markup->Atom->Key);
 
 		for (attribute = (FXMLAttribute *)(markup->AttributesList.Head) ; attribute ; attribute = attribute->Next)
 		{
-			IDOS_ FPrintf(fh, " %s=\"%s\"",attribute->Atom->Key,attribute->Value);
+			IDOS_ FPrintf(fh, " %s=\"%s\"", (int32) attribute->Atom->Key, (int32) attribute->Value);
 		}
 
 		if (markup->ChildrenList.Head)
@@ -187,11 +187,11 @@ static void xmldocument_print_markups(FList *list, BPTR fh, uint32 level)
 				IDOS_ FPrintf(fh, "\t");
 			}
 
-			IDOS_ FPrintf(fh, "</%s>\n",markup->Atom->Key);
+			IDOS_ FPrintf(fh, "</%s>\n", (int32) markup->Atom->Key);
 		}
 		else if (markup->Body)
 		{
-			IDOS_ FPrintf(fh, ">%s</%s>\n", markup->Body, markup->Atom->Key);
+			IDOS_ FPrintf(fh, ">%s</%s>\n", (int32) markup->Body, (int32) markup->Atom->Key);
 		}
 		else
 		{
@@ -1419,7 +1419,7 @@ F_METHODM(uint32,XMLDocument_AddEntity,FS_XMLDocument_AddEntity)
 
 	if (LOD->entities)
 	{
-		uint32 hash=0;
+		volatile uint32 hash=0;
 
 		FHashLink *entity = (FHashLink *) IFEELIN F_HashFind(LOD->entities, Msg->Name, IFEELIN F_StrLen(Msg->Name), &hash);
 

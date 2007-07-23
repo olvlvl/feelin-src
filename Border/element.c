@@ -448,7 +448,7 @@ STATIC bool32 frame_decode_border(STRPTR Spec, struct in_Border *Result)
 	Result->style = FV_BORDER_STYLE_NONE;
 	Result->width = 0;
 
-	rc = f_parse_values(Spec, frame_parse_border, Result);
+	rc = f_parse_values(Spec, (f_parse_values_func) frame_parse_border, Result);
 
 	#if 0
 
@@ -1139,7 +1139,7 @@ F_METHODM(bool32, Border_CreateDecodedStyle, FS_Element_CreateDecodedStyle)
 
 					else if (prop->Atom == F_PROPERTY_ATOM(CAPTION_POSITION))
 					{
-						f_parse_values(prop->Value, parse_caption_position, local);
+						f_parse_values(prop->Value, (f_parse_values_func) parse_caption_position, local);
 					}
 
 					// caption-preparse
